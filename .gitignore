@@ -1,0 +1,26 @@
+# Binaries
+/bin/
+/tmp/
+
+# Environment variables
+.env
+
+# IDE
+.idea/
+
+# Logs
+logs
+
+# Air live-reload temp
+/tmp/
+
+# Node modules
+node_modules/
+
+# Compiled Binaries
+web
+invoice-builder
+
+# Scratch files
+scratch.go
+

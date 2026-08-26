@@ -1,0 +1,54 @@
+{{define "subject"}}Welcome to Teks-Invoice - Confirm Your Account{{end}}
+
+{{define "body"}}
+Hi {{.Name}},
+
+Welcome to Teks-Invoice!
+
+To complete your registration and activate your account, please click the link below:
+
+http://localhost:4000/user/verify?token={{.ActivationToken}}
+
+If you didn't create an account with us, you can safely ignore this email.
+
+Best regards,
+The Teks-Invoice Team
+{{end}}
+
+{{define "htmlBody"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body style="background-color: #faf6f0; font-family: 'Nunito Sans', Arial, sans-serif; margin: 0; padding: 20px; color: #2e3230;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 560px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; border: 1px solid #e4e0d8; overflow: hidden;">
+        <tr>
+            <td style="padding: 32px 32px 16px 32px; text-align: center; border-bottom: 1px solid #f0ece4;">
+                <div style="display: inline-block; width: 48px; height: 48px; background-color: #4a7c59; border-radius: 12px; line-height: 48px; color: #ffffff; font-size: 24px; font-weight: bold; margin-bottom: 12px;">
+                    ✓
+                </div>
+                <h1 style="font-family: 'Literata', Georgia, serif; font-size: 24px; color: #2e3230; margin: 0;">Welcome to Teks-Invoice!</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 32px;">
+                <p style="font-size: 16px; line-height: 24px; color: #2e3230; margin-top: 0;">Hi <strong>{{.Name}}</strong>,</p>
+                <p style="font-size: 16px; line-height: 24px; color: #4a4e4a;">Thank you for registering. To complete your account activation and start building invoices, please confirm your email address by clicking the button below:</p>
+                
+                <div style="text-align: center; margin: 32px 0;">
+                    <a href="http://localhost:4000/user/verify?token={{.ActivationToken}}" style="background-color: #4a7c59; color: #ffffff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(74,124,89,0.2);">Activate Account &rarr;</a>
+                </div>
+
+                <p style="font-size: 14px; line-height: 20px; color: #74796e;">If the button above does not work, copy and paste the following link into your browser:</p>
+                <p style="font-size: 13px; word-break: break-all; color: #4a7c59;"><a href="http://localhost:4000/user/verify?token={{.ActivationToken}}" style="color: #4a7c59;">http://localhost:4000/user/verify?token={{.ActivationToken}}</a></p>
+
+                <hr style="border: none; border-top: 1px solid #f0ece4; margin: 24px 0;" />
+                <p style="font-size: 12px; color: #74796e; margin-bottom: 0;">If you did not sign up for Teks-Invoice, please ignore this email.</p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+{{end}}

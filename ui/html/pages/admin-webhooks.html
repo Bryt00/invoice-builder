@@ -1,0 +1,94 @@
+{{template "base" .}}
+
+{{define "title"}}Webhook Logs & Inspector - Admin Console{{end}}
+
+{{define "main"}}
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="font-headline text-2xl sm:text-3xl font-extrabold text-on-surface flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-amber-500 text-[28px]">webhook</span>
+                    Webhook Inspector & Replay Console
+                </h1>
+                <p class="font-body text-sm text-on-surface-variant mt-1">Monitor incoming Paystack webhook payloads, verify signature statuses, and trigger event re-executions.</p>
+            </div>
+
+            <!-- Status Filter Tabs -->
+            <div class="flex items-center gap-1 bg-surface-container-high/60 p-1 rounded-xl border border-outline-variant/40 text-xs font-label font-semibold">
+                <a href="/admin/webhooks" class="px-3 py-1.5 rounded-lg {{if eq .Data.StatusFilter ""}}bg-surface text-amber-600 font-bold shadow-xs{{else}}text-on-surface-variant hover:text-on-surface{{end}} transition-all">All Events</a>
+                <a href="/admin/webhooks?status=processed" class="px-3 py-1.5 rounded-lg {{if eq .Data.StatusFilter "processed"}}bg-surface text-emerald-600 font-bold shadow-xs{{else}}text-on-surface-variant hover:text-on-surface{{end}} transition-all">Processed</a>
+                <a href="/admin/webhooks?status=failed" class="px-3 py-1.5 rounded-lg {{if eq .Data.StatusFilter "failed"}}bg-surface text-rose-600 font-bold shadow-xs{{else}}text-on-surface-variant hover:text-on-surface{{end}} transition-all">Failed / Invalid</a>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {{if .Flash}}
+            <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-sm font-body font-medium flex items-center gap-2">
+                <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                <span>{{.Flash}}</span>
+            </div>
+        {{end}}
+
+        <!-- Webhook Table -->
+        <div class="glass-card rounded-2xl border border-outline-variant/60 overflow-hidden shadow-xs">
+            <div class="px-6 py-4 border-b border-outline-variant/40 flex justify-between items-center bg-surface-container-lowest/50">
+                <h3 class="font-headline text-base sm:text-lg font-bold text-on-surface">
+                    Webhook Records ({{.Data.TotalLogs}})
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-outline-variant/40 font-label text-xs uppercase text-on-surface-variant/80 bg-surface-container-low/40">
+                            <th class="px-6 py-3.5">Timestamp</th>
+                            <th class="px-6 py-3.5">Event Type</th>
+                            <th class="px-6 py-3.5">Status</th>
+                            <th class="px-6 py-3.5">Error Log</th>
+                            <th class="px-6 py-3.5 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant/30 font-body text-sm text-on-surface">
+                        {{if .Data.WebhookLogs}}
+                            {{range .Data.WebhookLogs}}
+                                <tr class="hover:bg-surface-container-low/40 transition-colors">
+                                    <td class="px-6 py-4 font-mono text-xs text-on-surface-variant whitespace-nowrap">
+                                        {{.CreatedAt.Format "Jan 02, 2006 15:04:05"}}
+                                    </td>
+                                    <td class="px-6 py-4 font-mono text-xs font-bold text-amber-600">
+                                        {{.Event}}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {{if eq .Status "processed"}}
+                                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">PROCESSED</span>
+                                        {{else}}
+                                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 border border-rose-500/20">FAILED</span>
+                                        {{end}}
+                                    </td>
+                                    <td class="px-6 py-4 font-mono text-xs text-on-surface-variant max-w-xs truncate" title="{{.ErrorMsg}}">
+                                        {{if .ErrorMsg}}{{.ErrorMsg}}{{else}}-{{end}}
+                                    </td>
+                                    <td class="px-6 py-4 text-right flex items-center justify-end gap-2">
+                                        <form action="/admin/webhooks/replay" method="POST" class="inline">
+                                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                                            <input type="hidden" name="webhook_id" value="{{.ID}}">
+                                            <button type="submit" class="px-3 py-1.5 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl font-label text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[16px]">replay</span>
+                                                Replay
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {{end}}
+                        {{else}}
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-on-surface-variant">No webhook entries match your filter.</td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+{{end}}

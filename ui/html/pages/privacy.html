@@ -1,0 +1,44 @@
+{{define "title"}}Privacy Policy{{end}}
+
+{{define "main"}}
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6">
+    <div class="mb-8 text-center">
+        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-primary-container/40 text-primary border border-primary/20">Data Protection</span>
+        <h1 class="font-headline text-3xl sm:text-4xl font-extrabold text-on-surface mt-3 mb-2">Privacy Policy</h1>
+        <p class="font-body text-sm text-on-surface-variant">Last updated: August 2026</p>
+    </div>
+
+    <div class="glass-card rounded-2xl p-6 sm:p-10 border border-outline-variant/60 shadow-lg space-y-6 font-body text-on-surface leading-relaxed text-sm sm:text-base">
+        {{if .Data.LegalPrivacy}}
+            <div class="prose max-w-none whitespace-pre-line text-on-surface">
+                {{.Data.LegalPrivacy}}
+            </div>
+        {{else}}
+            <section class="space-y-3">
+                <h2 class="font-headline text-xl font-bold text-on-surface">1. Information We Collect</h2>
+                <p class="text-on-surface-variant text-sm">We collect information you provide directly, including your name, email address, password hashes (encrypted), business profile info, tax registration numbers, and client invoice records.</p>
+            </section>
+
+            <section class="space-y-3 pt-4 border-t border-outline-variant/40">
+                <h2 class="font-headline text-xl font-bold text-on-surface">2. How We Use Your Data</h2>
+                <p class="text-on-surface-variant text-sm">Your data is used solely to provide and improve the invoicing service, generate PDFs, process credit transactions, and deliver notifications. We never sell your personal or business data to third parties.</p>
+            </section>
+
+            <section class="space-y-3 pt-4 border-t border-outline-variant/40">
+                <h2 class="font-headline text-xl font-bold text-on-surface">3. Payment & Security</h2>
+                <p class="text-on-surface-variant text-sm">All payment transactions are processed securely via Paystack. We do not store full credit card numbers or sensitive banking details on our servers.</p>
+            </section>
+
+            <section class="space-y-3 pt-4 border-t border-outline-variant/40">
+                <h2 class="font-headline text-xl font-bold text-on-surface">4. Your Data Rights</h2>
+                <p class="text-on-surface-variant text-sm">You have the right to inspect, edit, or request deletion of your account and associated billing records at any time through your business profile settings or by contacting support.</p>
+            </section>
+        {{end}}
+
+        <div class="pt-6 border-t border-outline-variant/40 flex justify-between items-center text-xs text-on-surface-variant">
+            <span>Privacy inquiries?</span>
+            <a href="/contact" class="text-primary font-semibold hover:underline">Contact Data Protection Officer &rarr;</a>
+        </div>
+    </div>
+</div>
+{{end}}

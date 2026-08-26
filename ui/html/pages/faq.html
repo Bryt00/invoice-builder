@@ -1,0 +1,115 @@
+{{define "title"}}Help Center & FAQ{{end}}
+
+{{define "main"}}
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6">
+    <div class="mb-8 text-center">
+        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-primary-container/40 text-primary border border-primary/20">Knowledge Base</span>
+        <h1 class="font-headline text-3xl sm:text-4xl font-extrabold text-on-surface mt-3 mb-2">Frequently Asked Questions</h1>
+        <p class="font-body text-sm text-on-surface-variant">Find answers to common questions about billing, credits, and invoice creation.</p>
+    </div>
+
+    <!-- Search Input -->
+    <div class="mb-8">
+        <div class="relative">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-[22px]">search</span>
+            <input type="text" id="faq-search" placeholder="Search questions (e.g. credits, pdf, tax, currency)..." 
+                   onkeyup="filterFAQ()"
+                   class="w-full pl-12 pr-4 py-3.5 bg-surface-container-lowest/90 border border-outline-variant/70 rounded-2xl font-body text-sm text-on-surface placeholder:text-on-surface-variant/60 input-focus-ring">
+        </div>
+    </div>
+
+    <!-- Accordion Groups -->
+    <div class="space-y-4 font-body" id="faq-list">
+        <!-- Q1 -->
+        <div class="faq-item glass-card rounded-2xl border border-outline-variant/60 overflow-hidden">
+            <button type="button" onclick="toggleFAQ(this)" class="w-full px-6 py-4 flex justify-between items-center text-left font-headline text-base font-bold text-on-surface hover:text-primary transition-colors cursor-pointer">
+                <span>How do invoice billing credits work?</span>
+                <span class="material-symbols-outlined transform transition-transform duration-200 text-primary text-[20px]">expand_more</span>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5 pt-1 text-sm text-on-surface-variant leading-relaxed border-t border-outline-variant/30">
+                Each invoice email dispatch or PDF export consumes 1 credit from your account balance. Creating draft invoices and storing client details does not consume any credits. Purchased credits do not expire.
+            </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="faq-item glass-card rounded-2xl border border-outline-variant/60 overflow-hidden">
+            <button type="button" onclick="toggleFAQ(this)" class="w-full px-6 py-4 flex justify-between items-center text-left font-headline text-base font-bold text-on-surface hover:text-primary transition-colors cursor-pointer">
+                <span>How do public client invoice links work?</span>
+                <span class="material-symbols-outlined transform transition-transform duration-200 text-primary text-[20px]">expand_more</span>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5 pt-1 text-sm text-on-surface-variant leading-relaxed border-t border-outline-variant/30">
+                When an invoice is issued, a unique 256-bit public token is assigned to it. Clients can view, download PDF, or print their invoice via the public link without needing an account login.
+            </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="faq-item glass-card rounded-2xl border border-outline-variant/60 overflow-hidden">
+            <button type="button" onclick="toggleFAQ(this)" class="w-full px-6 py-4 flex justify-between items-center text-left font-headline text-base font-bold text-on-surface hover:text-primary transition-colors cursor-pointer">
+                <span>How do I add my Tax Identification Number (TIN) and Logo?</span>
+                <span class="material-symbols-outlined transform transition-transform duration-200 text-primary text-[20px]">expand_more</span>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5 pt-1 text-sm text-on-surface-variant leading-relaxed border-t border-outline-variant/30">
+                Navigate to your <strong>Business Profile Setup</strong> page (`/user/profile/setup`). Here you can upload your business logo, select default invoice currency, enter your Tax ID / TIN, registration number, and business address.
+            </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="faq-item glass-card rounded-2xl border border-outline-variant/60 overflow-hidden">
+            <button type="button" onclick="toggleFAQ(this)" class="w-full px-6 py-4 flex justify-between items-center text-left font-headline text-base font-bold text-on-surface hover:text-primary transition-colors cursor-pointer">
+                <span>What payment methods are supported for top-ups?</span>
+                <span class="material-symbols-outlined transform transition-transform duration-200 text-primary text-[20px]">expand_more</span>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5 pt-1 text-sm text-on-surface-variant leading-relaxed border-t border-outline-variant/30">
+                We accept payments via Paystack, supporting major debit/credit cards (Visa, Mastercard), Mobile Money, and bank transfers depending on your region.
+            </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="faq-item glass-card rounded-2xl border border-outline-variant/60 overflow-hidden">
+            <button type="button" onclick="toggleFAQ(this)" class="w-full px-6 py-4 flex justify-between items-center text-left font-headline text-base font-bold text-on-surface hover:text-primary transition-colors cursor-pointer">
+                <span>Can I issue receipts for paid invoices?</span>
+                <span class="material-symbols-outlined transform transition-transform duration-200 text-primary text-[20px]">expand_more</span>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5 pt-1 text-sm text-on-surface-variant leading-relaxed border-t border-outline-variant/30">
+                Yes! Once an invoice is marked as paid, you can generate an official payment receipt with an automatic receipt number (e.g., RCT-2026-0001) that can be downloaded or emailed to your client.
+            </div>
+        </div>
+    </div>
+
+    <!-- Need More Help -->
+    <div class="mt-10 p-6 glass-card rounded-2xl border border-primary/30 text-center flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="text-left">
+            <h3 class="font-headline text-base font-bold text-on-surface">Still have questions?</h3>
+            <p class="font-body text-xs text-on-surface-variant">Our support team is here to assist you.</p>
+        </div>
+        <a href="/contact" class="btn-auth-submit font-label text-sm font-semibold text-on-primary px-5 py-2.5 rounded-xl shrink-0">
+            Contact Support Form
+        </a>
+    </div>
+</div>
+
+<script>
+function toggleFAQ(btn) {
+    const answer = btn.nextElementSibling;
+    const icon = btn.querySelector('.material-symbols-outlined');
+    const isHidden = answer.classList.contains('hidden');
+    
+    document.querySelectorAll('.faq-answer').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.faq-item button .material-symbols-outlined').forEach(i => i.classList.remove('rotate-180'));
+    
+    if (isHidden) {
+        answer.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+    }
+}
+
+function filterFAQ() {
+    const query = document.getElementById('faq-search').value.toLowerCase();
+    const items = document.querySelectorAll('.faq-item');
+    items.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        item.style.display = text.includes(query) ? 'block' : 'none';
+    });
+}
+</script>
+{{end}}

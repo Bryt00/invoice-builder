@@ -1,0 +1,26 @@
+[Unit]
+Description=Invoice Builder Web Application
+After=network.target
+
+[Service]
+Type=simple
+# Consider changing User and Group to match your production setup (e.g. www-data)
+User=root
+Group=root
+# The directory where you deploy the binary and .env file
+WorkingDirectory=/opt/invoice-builder
+# The path to the executable
+ExecStart=/opt/invoice-builder/invoice-builder
+# Restart policy
+Restart=always
+RestartSec=5
+# Load environment variables
+EnvironmentFile=/opt/invoice-builder/.env
+
+# Logging
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=invoice-builder
+
+[Install]
+WantedBy=multi-user.target

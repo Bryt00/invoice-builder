@@ -1,0 +1,169 @@
+{{define "base"}}
+    <!DOCTYPE html>
+    <html class="min-h-screen" lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{template "title" .}} - Invoice</title>
+        
+        <!-- Local Vendor Assets (Cached & Fast) -->
+        <link rel="stylesheet" href="/asset/vendor/css/material-symbols.css"/>
+        <script src="/asset/vendor/js/htmx.min.js"></script>
+        <script src="/asset/vendor/js/nprogress.js"></script>
+        <link rel="stylesheet" href="/asset/vendor/css/nprogress.css"/>
+        <script src="/asset/vendor/js/alpine.min.js" defer></script>
+        
+        <!-- Application Scripts & Styles -->
+        <link rel="stylesheet" href="/asset/css/styles.css">
+        <script src="/asset/js/main.js" defer></script>
+        
+        <!-- HTMX + NProgress Binding -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.addEventListener('htmx:beforeRequest', function(evt) {
+                    NProgress.start();
+                });
+                document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+                    NProgress.done();
+                });
+                document.body.addEventListener('htmx:responseError', function(evt) {
+                    NProgress.done();
+                });
+                document.body.addEventListener('htmx:sendError', function(evt) {
+                    NProgress.done();
+                });
+            });
+            // Configure NProgress
+            NProgress.configure({ showSpinner: false, minimum: 0.1, speed: 300 });
+        </script>
+        
+        <style>
+            /* Customize NProgress Color */
+            #nprogress .bar {
+                background: #006b5e !important; /* primary color */
+                height: 3px !important;
+            }
+            #nprogress .peg {
+                box-shadow: 0 0 10px #006b5e, 0 0 5px #006b5e !important;
+            }
+        </style>
+    </head>
+    <body hx-boost="true" class="relative min-h-screen flex flex-col overflow-x-hidden font-body text-base text-on-surface auth-bg">
+    <!-- Subtle Background Elements -->
+    {{if not .IsLanding}}
+        <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-primary-fixed rounded-full blur-[120px] opacity-40"></div>
+            <div class="absolute top-[60%] -right-[10%] w-[60%] h-[60%] bg-secondary-fixed rounded-full blur-[140px] opacity-30"></div>
+        </div>
+    {{end}}
+    {{if .IsLanding}}
+        {{template "main" .}}
+    {{else}}
+        {{if .IsAuthenticated}}
+            {{if .IsAdmin}}
+                {{template "admin_sidebar" .}}
+                <div class="md:ml-64 min-h-screen flex flex-col flex-1 relative z-10">
+                    <main class="flex-1 bg-transparent p-4 md:p-8 lg:p-12">
+                        {{template "main" .}}
+                    </main>
+                    {{template "footer" .}}
+                </div>
+            {{else}}
+                <div class="min-h-screen flex flex-col flex-1 relative z-10">
+                    {{template "user_nav" .}}
+                    <main class="flex-1 bg-transparent max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+                        {{template "main" .}}
+                    </main>
+                    {{template "footer" .}}
+                </div>
+            {{end}}
+        {{else}}
+            <div class="noise-overlay relative z-10 flex flex-col flex-1 min-h-screen">
+                {{template "public_nav" .}}
+                <!-- Floating Orbs -->
+                <div class="auth-orb auth-orb--primary"></div>
+                <div class="auth-orb auth-orb--secondary"></div>
+                <div class="auth-orb auth-orb--accent"></div>
+                <main class="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10 w-full max-w-7xl mx-auto">
+                    {{template "main" .}}
+                </main>
+                {{template "footer" .}}
+            </div>
+        {{end}}
+    {{end}}
+    <!-- Global Custom Confirmation Modal Component (Alpine.js) -->
+    <div x-data="{ open: false, title: '', message: '', form: null }" 
+         @open-confirm.window="open = true; title = $event.detail.title; message = $event.detail.message; form = $event.detail.form"
+         x-show="open" 
+         style="display: none;" 
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+         
+        <div x-show="open" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="glass-card bg-surface-container-lowest/95 rounded-2xl max-w-md w-full mx-4 p-6 shadow-2xl border border-outline-variant/60" 
+             @click.outside="open = false">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-error-container/40 text-error flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[24px]">warning</span>
+                </div>
+                <div>
+                    <h3 class="font-headline text-lg font-bold text-on-surface" x-text="title"></h3>
+                    <p class="font-body text-sm text-on-surface-variant mt-1" x-text="message"></p>
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-outline-variant/40">
+                <button type="button" @click="open = false" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-semibold text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button type="button" @click="if (form) { form.submit(); open = false; }" class="bg-error text-on-error hover:bg-error/90 transition-colors px-5 py-2 rounded-xl font-label text-sm font-semibold shadow-sm cursor-pointer">
+                    Confirm Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GDPR Cookie & Session Consent Banner -->
+    <div id="cookie-consent-banner" class="fixed bottom-4 right-4 z-50 max-w-sm w-full p-4 glass-card bg-surface-container-lowest/95 rounded-2xl border border-outline-variant/70 shadow-2xl transition-all duration-300 transform translate-y-full opacity-0 pointer-events-none">
+        <div class="flex items-start gap-3 mb-3">
+            <div class="w-9 h-9 rounded-xl bg-primary-container/40 text-primary flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[20px]">cookie</span>
+            </div>
+            <div>
+                <h4 class="font-headline text-sm font-bold text-on-surface">Cookie & Session Privacy</h4>
+                <p class="font-body text-xs text-on-surface-variant mt-0.5">We use essential session cookies to authenticate your account and ensure secure invoice dispatches. <a href="/privacy" class="text-primary underline">Learn more</a></p>
+            </div>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+            <button type="button" onclick="acceptCookies()" class="btn-auth-submit px-4 py-1.5 rounded-xl font-label text-xs font-semibold text-on-primary cursor-pointer">
+                Accept Essential Cookies
+            </button>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!localStorage.getItem('cookie_consent_accepted')) {
+            const banner = document.getElementById('cookie-consent-banner');
+            if (banner) {
+                banner.classList.remove('translate-y-full', 'opacity-0', 'pointer-events-none');
+            }
+        }
+    });
+    function acceptCookies() {
+        localStorage.setItem('cookie_consent_accepted', 'true');
+        const banner = document.getElementById('cookie-consent-banner');
+        if (banner) {
+            banner.classList.add('translate-y-full', 'opacity-0', 'pointer-events-none');
+        }
+    }
+    </script>
+    <!-- Global Dynamic Modal & Drawer Container for HTMX Swaps -->
+    <div id="modal-container"></div>
+    </body>
+    </html>
+{{end}}

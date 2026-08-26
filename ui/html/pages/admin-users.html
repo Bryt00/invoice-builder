@@ -1,0 +1,348 @@
+{{template "base" .}}
+
+{{define "title"}}User Directory - Admin Console{{end}}
+
+{{define "main"}}
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <!-- Flash Alerts -->
+        {{with .Flash}}
+            <div class="flash-alert flash-alert-success p-4 text-sm bg-primary-container/80 border border-primary/40 text-on-primary-container rounded-xl flex items-start gap-3" role="alert" data-type="success">
+                <span class="material-symbols-outlined text-primary text-xl flex-shrink-0 mt-0.5">check_circle</span>
+                <div class="flex-1 font-body text-sm font-medium">{{.}}</div>
+            </div>
+        {{end}}
+
+        {{with .FlashError}}
+            <div class="flash-alert flash-alert-error p-4 text-sm bg-error-container/80 border border-error/40 text-on-error-container rounded-xl flex items-start gap-3" role="alert" data-type="error">
+                <span class="material-symbols-outlined text-error text-xl flex-shrink-0 mt-0.5">error</span>
+                <div class="flex-1 font-body text-sm font-medium">{{.}}</div>
+            </div>
+        {{end}}
+
+        <!-- Page Header & Search Bar -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="font-headline text-2xl sm:text-3xl font-extrabold text-on-surface flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-amber-500 text-[28px]">group</span>
+                    User Directory
+                </h1>
+                <p class="font-body text-sm text-on-surface-variant mt-1">Manage user account statuses, roles, and credit balances.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <form action="/admin/users" method="GET" 
+                      hx-get="/admin/users" 
+                      hx-target="#admin-users-table-container" 
+                      hx-swap="outerHTML" 
+                      hx-push-url="true" 
+                      hx-trigger="keyup changed delay:300ms from:input[name='q'], submit" 
+                      class="flex items-center gap-2 w-full sm:w-auto">
+                    <div class="relative w-full sm:w-64">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+                        <input type="text" name="q" value="{{.Data.SearchQuery}}" placeholder="Search by name or email..." class="w-full pl-9 pr-4 py-2 bg-surface-container-low border border-outline-variant/60 rounded-xl font-body text-sm text-on-surface focus:outline-none focus:border-amber-500">
+                    </div>
+                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-on-primary px-4 py-2 rounded-xl font-label text-sm font-bold transition-colors cursor-pointer">Search</button>
+                </form>
+                <button type="button" onclick="document.getElementById('createUserModal').classList.remove('hidden')" class="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-400 text-on-primary rounded-xl font-label text-xs font-bold transition-colors cursor-pointer" title="Create New User Account">
+                    <span class="material-symbols-outlined text-[16px]">person_add</span>
+                    <span>Create User</span>
+                </button>
+                <a href="/admin/export/users" class="inline-flex items-center gap-1.5 px-3 py-2 bg-surface-container-high text-on-surface-variant hover:text-on-surface border border-outline-variant/60 rounded-xl font-label text-xs font-semibold transition-colors cursor-pointer" title="Export Users list to CSV">
+                    <span class="material-symbols-outlined text-[16px]">download</span>
+                    <span>Export CSV</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Users Directory Table Container -->
+        {{template "admin_users_table_partial" .}}
+
+    </main>
+
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-surface border border-outline-variant/60 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-fade-in">
+            <div class="flex justify-between items-center border-b border-outline-variant/40 pb-3">
+                <h3 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-500">person_add</span>
+                    Create New User Account
+                </h3>
+                <button onclick="document.getElementById('createUserModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form action="/admin/users/create" method="POST" hx-post="/admin/users/create" hx-target="#admin-users-table-container" hx-swap="outerHTML" onclick="document.getElementById('createUserModal').classList.add('hidden')" class="space-y-4 font-body">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+
+                <div>
+                    <label class="block font-label text-xs font-bold uppercase text-on-surface-variant mb-1">Full Name</label>
+                    <input type="text" name="name" required placeholder="e.g. John Doe" class="w-full px-3.5 py-2 rounded-xl bg-surface-container border border-outline-variant/60 text-on-surface text-sm focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-label text-xs font-bold uppercase text-on-surface-variant mb-1">Email Address</label>
+                    <input type="email" name="email" required placeholder="e.g. john@example.com" class="w-full px-3.5 py-2 rounded-xl bg-surface-container border border-outline-variant/60 text-on-surface text-sm focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-label text-xs font-bold uppercase text-on-surface-variant mb-1">Password</label>
+                    <input type="password" name="password" required placeholder="••••••••" class="w-full px-3.5 py-2 rounded-xl bg-surface-container border border-outline-variant/60 text-on-surface text-sm focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-label text-xs font-bold uppercase text-on-surface-variant mb-1">Role</label>
+                        <select name="role" class="w-full px-3 py-2 rounded-xl bg-surface-container border border-outline-variant/60 text-on-surface text-sm font-bold focus:border-amber-500 focus:outline-none cursor-pointer">
+                            {{if .Data.Roles}}
+                                {{range .Data.Roles}}
+                                    <option value="{{.Name}}">{{.Name}}</option>
+                                {{end}}
+                            {{else}}
+                                <option value="User" selected>User</option>
+                                <option value="Admin">Admin</option>
+                            {{end}}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label text-xs font-bold uppercase text-on-surface-variant mb-1">Status</label>
+                        <select name="is_activated" class="w-full px-3 py-2 rounded-xl bg-surface-container border border-outline-variant/60 text-on-surface text-sm font-bold focus:border-amber-500 focus:outline-none cursor-pointer">
+                            <option value="true" selected>Active</option>
+                            <option value="false">Suspended</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-outline-variant/40">
+                    <button type="button" onclick="document.getElementById('createUserModal').classList.add('hidden')" class="px-4 py-2 bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label text-xs font-semibold rounded-xl transition-colors cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-on-primary font-label text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer">
+                        Create Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/asset/js/admin-users.js" defer></script>
+{{end}}
+
+{{define "admin_users_table_partial"}}
+    <div id="admin-users-table-container" class="glass-card rounded-2xl border border-outline-variant/60 overflow-hidden shadow-xs">
+        <div class="px-6 py-4 border-b border-outline-variant/40 flex justify-between items-center bg-surface-container-lowest/50">
+            <h3 class="font-headline text-base sm:text-lg font-bold text-on-surface">
+                Registered Users ({{.Data.TotalUsers}})
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-outline-variant/40 font-label text-xs uppercase text-on-surface-variant/80 bg-surface-container-low/40">
+                        <th class="px-6 py-3.5">User</th>
+                        <th class="px-6 py-3.5">Email</th>
+                        <th class="px-6 py-3.5">Role</th>
+                        <th class="px-6 py-3.5">Status</th>
+                        <th class="px-6 py-3.5">Registered</th>
+                        <th class="px-6 py-3.5 text-right">Admin Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/30 font-body text-sm text-on-surface">
+                    {{if .Data.Users}}
+                        {{range .Data.Users}}
+                            <tr class="hover:bg-surface-container-low/40 transition-colors">
+                                <td class="px-6 py-4 font-semibold text-on-surface flex items-center gap-2.5">
+                                    <span class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-600 border border-amber-500/30 flex items-center justify-center font-bold text-xs shrink-0">
+                                        {{slice .Name 0 1}}
+                                    </span>
+                                    <a href="/admin/users/view?id={{.ID}}" class="hover:text-amber-500 transition-colors">{{.Name}}</a>
+                                </td>
+                                <td class="px-6 py-4 text-on-surface-variant">{{.Email}}</td>
+                                <td class="px-6 py-4">
+                                    <form hx-post="/admin/users/role" hx-target="#admin-users-table-container" hx-swap="outerHTML" class="inline-flex items-center">
+                                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                                        <input type="hidden" name="user_id" value="{{.ID}}">
+                                        <select name="role" onchange="this.form.requestSubmit()" class="bg-surface-container-high border border-outline-variant/40 rounded-lg px-2 py-1 font-label text-xs font-bold cursor-pointer">
+                                            <option value="user" {{if not .IsAdmin}}selected{{end}}>USER</option>
+                                            <option value="admin" {{if .IsAdmin}}selected{{end}}>ADMIN</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{if .IsActivated}}
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 inline-flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+                                        </span>
+                                    {{else}}
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 border border-amber-500/20 inline-flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Suspended
+                                        </span>
+                                    {{end}}
+                                </td>
+                                <td class="px-6 py-4 text-on-surface-variant">{{.CreatedAt.Format "Jan 02, 2006"}}</td>
+                                <td class="px-6 py-4 text-right flex items-center justify-end gap-1.5">
+                                    <!-- View Profile -->
+                                    <a href="/admin/users/view?id={{.ID}}" class="p-1.5 text-on-surface-variant hover:text-amber-500 hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer" title="View Profile">
+                                        <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                    </a>
+
+                                    <!-- Dynamic HTMX Edit User Modal Fetcher -->
+                                    <button type="button" 
+                                            hx-get="/admin/users/edit-modal?id={{.ID}}" 
+                                            hx-target="#modal-container" 
+                                            hx-swap="innerHTML" 
+                                            class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer" title="Edit User">
+                                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                                    </button>
+
+                                    <!-- Dynamic HTMX Grant Credits Modal Fetcher -->
+                                    <button type="button" 
+                                            hx-get="/admin/users/credit-modal?id={{.ID}}" 
+                                            hx-target="#modal-container" 
+                                            hx-swap="innerHTML" 
+                                            class="p-1.5 text-on-surface-variant hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors cursor-pointer" title="Grant/Deduct Credits">
+                                        <span class="material-symbols-outlined text-[18px]">bolt</span>
+                                    </button>
+
+                                    <!-- Activation Toggle Form via HTMX inline POST -->
+                                    <form hx-post="/admin/users/toggle" hx-target="#admin-users-table-container" hx-swap="outerHTML" class="inline">
+                                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                                        <input type="hidden" name="user_id" value="{{.ID}}">
+                                        {{if .IsActivated}}
+                                            <input type="hidden" name="action" value="deactivate">
+                                            <button type="submit" class="p-1.5 text-on-surface-variant hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors cursor-pointer" title="Suspend Account">
+                                                <span class="material-symbols-outlined text-[18px]">block</span>
+                                            </button>
+                                        {{else}}
+                                            <input type="hidden" name="action" value="activate">
+                                            <button type="submit" class="p-1.5 text-on-surface-variant hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-colors cursor-pointer" title="Activate Account">
+                                                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                            </button>
+                                        {{end}}
+                                    </form>
+
+                                    <!-- Delete User Form via HTMX inline POST -->
+                                    <form hx-post="/admin/users/delete" hx-target="#admin-users-table-container" hx-swap="outerHTML" class="inline" onsubmit="return showCustomConfirm(event, this, 'Are you sure you want to permanently delete this user account?', 'Delete User');">
+                                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                                        <input type="hidden" name="user_id" value="{{.ID}}">
+                                        <button type="submit" class="p-1.5 text-on-surface-variant hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer" title="Delete User">
+                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {{end}}
+                    {{else}}
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">No users match your criteria.</td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{{end}}
+
+{{define "edit_user_modal"}}
+    <!-- Dynamic Server-Rendered Edit User Modal -->
+    <div id="dynamicEditUserModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+        <div class="bg-surface border border-outline-variant/60 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-outline-variant/40 pb-3">
+                <h3 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-500">edit</span>
+                    Edit User Profile
+                </h3>
+                <button type="button" onclick="document.getElementById('modal-container').innerHTML=''" class="text-on-surface-variant hover:text-on-surface cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form hx-post="/admin/users/edit" hx-target="#admin-users-table-container" hx-swap="outerHTML" onclick="document.getElementById('modal-container').innerHTML=''" class="space-y-4 font-body">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <input type="hidden" name="user_id" value="{{.Data.TargetUser.ID}}">
+
+                <div>
+                    <label class="block font-label text-xs font-bold uppercase text-on-surface-variant mb-1">Full Name</label>
+                    <input type="text" name="name" value="{{.Data.TargetUser.Name}}" required class="w-full px-3.5 py-2 rounded-xl bg-surface-container border border-outline-variant/60 text-on-surface text-sm focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-label text-xs font-bold uppercase text-on-surface-variant mb-1">Email Address</label>
+                    <input type="email" name="email" value="{{.Data.TargetUser.Email}}" required class="w-full px-3.5 py-2 rounded-xl bg-surface-container border border-outline-variant/60 text-on-surface text-sm focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-label text-xs font-bold uppercase text-on-surface-variant mb-1">Role</label>
+                        <select name="role" class="w-full px-3 py-2 rounded-xl bg-surface-container border border-outline-variant/60 text-on-surface text-sm font-bold focus:border-amber-500 focus:outline-none cursor-pointer">
+                            {{if .Data.Roles}}
+                                {{$currentRole := .Data.TargetUser.Role.Name}}
+                                {{range .Data.Roles}}
+                                    <option value="{{.Name}}" {{if eq .Name $currentRole}}selected{{end}}>{{.Name}}</option>
+                                {{end}}
+                            {{else}}
+                                <option value="User" {{if not .Data.TargetUser.IsAdmin}}selected{{end}}>User</option>
+                                <option value="Admin" {{if .Data.TargetUser.IsAdmin}}selected{{end}}>Admin</option>
+                            {{end}}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label text-xs font-bold uppercase text-on-surface-variant mb-1">Status</label>
+                        <select name="is_activated" class="w-full px-3 py-2 rounded-xl bg-surface-container border border-outline-variant/60 text-on-surface text-sm font-bold focus:border-amber-500 focus:outline-none cursor-pointer">
+                            <option value="true" {{if .Data.TargetUser.IsActivated}}selected{{end}}>Active</option>
+                            <option value="false" {{if not .Data.TargetUser.IsActivated}}selected{{end}}>Suspended</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-outline-variant/40">
+                    <button type="button" onclick="document.getElementById('modal-container').innerHTML=''" class="px-4 py-2 bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label text-xs font-semibold rounded-xl transition-colors cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-on-primary font-label text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{{end}}
+
+{{define "credit_user_modal"}}
+    <!-- Dynamic Server-Rendered Manual Credit Granting Modal -->
+    <div id="dynamicCreditModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+        <div class="bg-surface rounded-2xl border border-outline-variant/60 p-6 max-w-md w-full mx-4 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-outline-variant/40 pb-3">
+                <h3 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-500">bolt</span>
+                    Grant / Deduct Credits
+                </h3>
+                <button type="button" onclick="document.getElementById('modal-container').innerHTML=''" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg">✕</button>
+            </div>
+            <form hx-post="/admin/users/credits" hx-target="#admin-users-table-container" hx-swap="outerHTML" onclick="document.getElementById('modal-container').innerHTML=''" class="space-y-4 font-body">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                <input type="hidden" name="user_id" value="{{.Data.TargetUser.ID}}">
+                
+                <div>
+                    <label class="block font-label text-xs font-bold text-on-surface-variant uppercase mb-1">Target User</label>
+                    <input type="text" value="{{.Data.TargetUser.Name}} ({{.Data.TargetUser.Email}})" readonly class="w-full px-3 py-2 bg-surface-container-low border border-outline-variant/40 rounded-xl text-sm font-semibold text-on-surface">
+                </div>
+
+                <div>
+                    <label class="block font-label text-xs font-bold text-on-surface-variant uppercase mb-1">Credit Amount (+ to Add, - to Deduct)</label>
+                    <input type="number" name="amount" value="10" placeholder="e.g. 50" required class="w-full px-3 py-2 bg-surface border border-outline-variant/60 rounded-xl text-sm font-bold text-on-surface focus:outline-none focus:border-amber-500">
+                </div>
+
+                <div>
+                    <label class="block font-label text-xs font-bold text-on-surface-variant uppercase mb-1">Reason / Note</label>
+                    <input type="text" name="reason" placeholder="e.g. Promotional Bonus / Customer Support" required class="w-full px-3 py-2 bg-surface border border-outline-variant/60 rounded-xl text-sm text-on-surface focus:outline-none focus:border-amber-500">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="document.getElementById('modal-container').innerHTML=''" class="px-4 py-2 rounded-xl border border-outline-variant/60 text-on-surface-variant font-label text-xs font-semibold hover:bg-surface-container">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-on-primary font-label text-xs font-bold transition-colors cursor-pointer">Submit Allocation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{{end}}

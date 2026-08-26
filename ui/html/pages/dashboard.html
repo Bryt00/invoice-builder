@@ -1,0 +1,166 @@
+{{define "title"}}Dashboard{{end}}
+
+{{define "main"}}
+    <!-- Header Section -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <a href="/user/profile/setup" class="group flex items-center gap-3">
+                    <h2 class="font-headline text-3xl font-bold text-on-surface group-hover:text-primary transition-colors">Welcome back, {{if .User}}{{.User.Name}}{{else}}User{{end}}</h2>
+                </a>
+            </div>
+            <p class="font-body text-base text-on-surface-variant">Here is a quick overview of your account, billing credits, and invoice dispatches.</p>
+        </div>
+        <a href="/user/invoices/new" class="btn-auth-submit text-on-primary rounded-xl px-5 py-2.5 font-label text-sm font-semibold flex items-center gap-2 shrink-0 self-start md:self-auto">
+            <span class="material-symbols-outlined text-[20px]">add</span>
+            Create New Invoice
+        </a>
+    </header>
+
+    <!-- Bento Grid Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Credits Card -->
+        <div class="md:col-span-2 glass-card rounded-2xl p-6 border border-outline-variant/60 relative overflow-hidden flex flex-col justify-between min-h-[190px]">
+            <div class="relative z-10 flex justify-between items-start">
+                <div>
+                    <p class="font-label text-sm font-medium text-on-surface-variant mb-1 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[20px]">token</span>
+                        Available Credits
+                    </p>
+                    <h3 class="font-headline text-5xl font-extrabold text-on-surface">{{if .Data.AvailableCredits}}{{.Data.AvailableCredits}}{{else}}0{{end}}</h3>
+                </div>
+            </div>
+            <div class="relative z-10 mt-6 pt-4 border-t border-outline-variant/40 flex items-center justify-between">
+                <p class="font-body text-sm text-on-surface-variant">1 credit is used per invoice email dispatch or PDF export.</p>
+                <a class="auth-link font-label text-sm font-semibold text-primary flex items-center gap-1" href="#topup">
+                    Top Up Credits <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Credit Usage Statistics Card -->
+        <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 flex flex-col justify-between min-h-[190px]">
+            <div>
+                <p class="font-label text-sm font-medium text-on-surface-variant mb-1 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">pie_chart</span>
+                    Credit Usage Rate
+                </p>
+                <h3 class="font-headline text-3xl font-bold text-on-surface mb-1">{{.Data.CreditUsagePercent}}% <span class="text-sm font-normal text-on-surface-variant">used</span></h3>
+                <p class="font-body text-xs text-on-surface-variant">{{.Data.TotalUsed}} of {{.Data.TotalPurchased}} total credits consumed</p>
+            </div>
+            <div class="pt-4 border-t border-outline-variant/40">
+                <div class="w-full bg-surface-container-high rounded-full h-2 overflow-hidden mb-2">
+                    <div class="bg-primary h-2 rounded-full transition-all duration-500" id="credit-bar" style="width: 0%;" data-usage="{{.Data.CreditUsagePercent}}"></div>
+                </div>
+                <p class="font-body text-xs text-on-surface-variant flex items-center justify-between">
+                    <span>Available: {{.Data.AvailableCredits}} credits</span>
+                    <a href="#topup" class="text-primary hover:underline font-medium">Buy More &rarr;</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid: Recent Invoices & Top Up Bundles -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recent Invoices List -->
+        <div class="lg:col-span-2 glass-card rounded-2xl border border-outline-variant/60 overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-outline-variant/40 flex justify-between items-center bg-surface-container-lowest/50">
+                <a href="/user/invoices" class="group flex items-center gap-2">
+                    <h3 class="font-headline text-lg font-bold text-on-surface group-hover:text-primary transition-colors flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[20px]">history</span>
+                        Recent Invoices
+                    </h3>
+                </a>
+                <a href="/user/invoices" class="font-body text-xs text-on-surface-variant hover:text-primary transition-colors">Showing latest 3 &rarr;</a>
+            </div>
+            <div class="divide-y divide-outline-variant/30 flex-grow">
+                {{if .Data.RecentInvoices}}
+                    {{range .Data.RecentInvoices}}
+                        <div class="px-6 py-4 hover:bg-surface-container-low/50 transition-colors flex items-center justify-between group">
+                            <a href="{{if eq .Status "draft"}}/user/invoices/edit?id={{.ID}}{{else}}/user/invoices/view?id={{.ID}}{{end}}" class="flex items-center gap-4 flex-1">
+                                <div class="w-10 h-10 rounded-xl {{if eq .Status "paid"}}bg-primary-container/30 text-primary{{else if eq .Status "sent"}}bg-tertiary-container/30 text-tertiary{{else}}bg-surface-container-high text-on-surface-variant{{end}} flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[20px]">{{if eq .Status "paid"}}check_circle{{else if eq .Status "sent"}}send{{else}}edit_note{{end}}</span>
+                                </div>
+                                <div>
+                                    <p class="font-label text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">{{if .Client}}{{.Client.Name}}{{else}}Direct Client{{end}}</p>
+                                    <p class="font-body text-xs text-on-surface-variant">{{.InvoiceNumber}} • {{.IssueDate.Format "Jan 02, 2006"}}</p>
+                                </div>
+                            </a>
+                            <div class="flex items-center gap-4">
+                                <span class="font-headline text-sm font-bold text-on-surface">{{currencySymbol .Currency}}{{printf "%.2f" .Total}}</span>
+                                {{if eq .Status "paid"}}
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary-container/40 text-primary border border-primary/20">Paid</span>
+                                {{else if eq .Status "sent"}}
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-tertiary-fixed-dim/40 text-on-tertiary-container border border-tertiary/20">Sent</span>
+                                {{else if eq .Status "overdue"}}
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-error-container/40 text-error border border-error/20">Overdue</span>
+                                {{else}}
+                                    <a href="/user/invoices/edit?id={{.ID}}" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-surface-container-high text-primary hover:bg-primary-container/30 border border-outline-variant/40 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">edit</span> Draft
+                                    </a>
+                                {{end}}
+                            </div>
+                        </div>
+                    {{end}}
+                {{else}}
+                    <div class="px-6 py-8 text-center text-on-surface-variant">
+                        <span class="material-symbols-outlined text-3xl text-outline mb-1">description</span>
+                        <p class="font-body text-xs">No recent invoices found.</p>
+                    </div>
+                {{end}}
+            </div>
+            <div class="px-6 py-3 border-t border-outline-variant/40 bg-surface-container-lowest/50 text-center">
+                <a href="/user/invoices" class="font-label text-sm font-semibold text-primary hover:underline">View All Invoices &rarr;</a>
+            </div>
+        </div>
+
+        <!-- Top Up Credit Section -->
+        <form action="/user/topup/initialize" method="POST" hx-boost="false" class="lg:col-span-1 glass-card rounded-2xl p-6 border border-outline-variant/60 flex flex-col justify-between" id="topup">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <div>
+                <h3 class="font-headline text-lg font-bold text-on-surface mb-1 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">add_card</span>
+                    Top Up Credits
+                </h3>
+                <p class="font-body text-xs text-on-surface-variant mb-5">Select a package to replenish your billing balance via Paystack.</p>
+
+                <div class="space-y-3">
+                    {{if .Data.CreditPackages}}
+                        {{range $i, $pkg := .Data.CreditPackages}}
+                            <label class="flex items-center justify-between p-3.5 {{if $pkg.BadgeTag}}border-2 border-primary bg-primary-container/10{{else}}border border-outline-variant/60 bg-surface-container-lowest/60 hover:border-primary{{end}} rounded-xl cursor-pointer transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" name="bundle" value="{{$pkg.ID}}" {{if eq $i 0}}checked{{end}} class="text-primary focus:ring-primary">
+                                    <div>
+                                        <p class="font-label text-sm font-semibold text-on-surface flex items-center gap-2">
+                                            {{$pkg.CreditsGranted}} Credits
+                                            {{if $pkg.BadgeTag}}
+                                                <span class="px-2 py-0.5 text-[10px] uppercase font-bold bg-primary text-on-primary rounded-full">{{$pkg.BadgeTag}}</span>
+                                            {{end}}
+                                        </p>
+                                        <p class="font-body text-xs text-on-surface-variant">
+                                            {{currencySymbol $pkg.Currency}}{{printf "%.2f" (div $pkg.Price 100)}}
+                                            {{if $pkg.Description}}
+                                                <span class="text-primary font-semibold">({{$pkg.Description}})</span>
+                                            {{end}}
+                                        </p>
+                                    </div>
+                                </div>
+                            </label>
+                        {{end}}
+                    {{else}}
+                        <div class="text-center py-6">
+                            <span class="material-symbols-outlined text-3xl text-outline mb-1">credit_card_off</span>
+                            <p class="font-body text-xs text-on-surface-variant">No credit packages available at the moment.</p>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+
+            {{if .Data.CreditPackages}}
+                <button type="submit" class="btn-auth-submit w-full mt-6 py-3 rounded-xl block text-center font-label text-sm font-semibold text-on-primary cursor-pointer">
+                    Purchase Selected Package
+                </button>
+            {{end}}
+        </form>
+    </div>
+{{end}}

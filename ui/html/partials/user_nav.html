@@ -1,0 +1,59 @@
+{{define "user_nav"}}
+    <!-- TopNavBar Component for Regular Users -->
+    <header class="bg-surface w-full sticky top-0 z-50 border-b border-outline-variant/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <a href="/user/dashboard" class="flex items-center gap-2 group">
+                    <img src="/asset/img/brand_logo.png" alt="Teks-Invoice Logo" class="w-8 h-8 rounded-lg object-contain shadow-sm group-hover:scale-105 transition-transform">
+                    <span class="font-headline text-xl font-bold text-primary">Teks-Invoice</span>
+                </a>
+                <nav class="hidden md:flex gap-6 font-label text-sm font-medium">
+                    <a class="text-on-surface-variant hover:text-primary transition-colors py-1 border-b-2 border-transparent hover:border-primary"
+                       href="/user/dashboard">Dashboard</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors py-1 border-b-2 border-transparent hover:border-primary"
+                       href="/user/invoices">Invoices</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors py-1 border-b-2 border-transparent hover:border-primary"
+                       href="/user/clients">Clients</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors py-1 border-b-2 border-transparent hover:border-primary"
+                       href="/user/finance">Finance Tracker</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors py-1 border-b-2 border-transparent hover:border-primary"
+                       href="/user/profile/setup">Business Profile</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-3 sm:gap-4">
+                <a href="/user/dashboard#topup" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full border border-amber-500/20 font-label text-xs font-bold hover:bg-amber-500/20 transition-colors" title="Available Credits">
+                    <span class="material-symbols-outlined text-[16px]">bolt</span>
+                    <span>{{.UserCredits}} Credits</span>
+                </a>
+                <a href="/user/invoices/new" class="bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary transition-colors px-3 sm:px-4 py-2 rounded-xl font-label text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-sm">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                    <span>Create Invoice</span>
+                </a>
+                <div class="flex items-center gap-2 pl-3 border-l border-outline-variant/50">
+                    <a href="/user/profile/setup" class="w-8 h-8 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center font-bold text-xs hover:scale-105 transition-transform" title="{{if .User}}{{.User.Name}}{{end}}">
+                        {{if .User}}{{slice .User.Name 0 1}}{{else}}U{{end}}
+                    </a>
+                    <form id="topLogoutForm" action="/user/logout" method="POST" class="inline">
+                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                        <button type="submit" class="text-on-surface-variant hover:text-error transition-colors p-1.5 rounded-lg hover:bg-error-container/30 cursor-pointer" title="Sign Out">
+                            <span class="material-symbols-outlined text-[18px]">logout</span>
+                        </button>
+                    </form>
+                </div>
+                <!-- Mobile Hamburger Button -->
+                <button type="button" onclick="toggleMobileNav()" class="md:hidden text-on-surface-variant hover:text-primary p-2 rounded-xl transition-colors cursor-pointer" title="Toggle Navigation Menu">
+                    <span class="material-symbols-outlined text-[24px]">menu</span>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Dropdown Navigation Drawer -->
+        <div id="mobile-nav-menu" class="hidden md:hidden border-t border-outline-variant/50 bg-surface/95 backdrop-blur-xl px-4 py-3 space-y-2 font-label text-sm font-medium animate-fade-in">
+            <a href="/user/dashboard" class="block px-3 py-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">Dashboard</a>
+            <a href="/user/invoices" class="block px-3 py-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">Invoices</a>
+            <a href="/user/clients" class="block px-3 py-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">Clients</a>
+            <a href="/user/finance" class="block px-3 py-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">Finance Tracker</a>
+            <a href="/user/profile/setup" class="block px-3 py-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">Business Profile</a>
+        </div>
+    </header>
+
+{{end}}

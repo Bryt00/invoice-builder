@@ -1,0 +1,332 @@
+{{define "title"}}Finance Tracker - Teks-Invoice{{end}}
+
+{{define "main"}}
+<div class="space-y-6">
+    <!-- Top Header -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h2 class="font-headline text-3xl font-bold text-on-surface flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-3xl">account_balance_wallet</span>
+                Finance Tracker
+            </h2>
+            <p class="font-body text-sm text-on-surface-variant mt-1">Track your income, business expenses, cash flow, and financial reports.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <a href="/user/finance/export/csv?type={{.Data.FilterType}}&category_id={{.Data.FilterCategoryID}}&start_date={{.Data.FilterStartDate}}&end_date={{.Data.FilterEndDate}}&search={{.Data.FilterSearch}}"
+               class="bg-surface-container-high hover:bg-surface-container-highest text-on-surface transition-colors px-4 py-2.5 rounded-xl font-label text-xs sm:text-sm font-semibold flex items-center gap-2 border border-outline-variant/50 shadow-sm">
+                <span class="material-symbols-outlined text-[18px]">download</span>
+                <span>Export CSV</span>
+            </a>
+            <button type="button" onclick="toggleModal('categoryModal')"
+                    class="bg-surface-container-high hover:bg-primary/10 text-primary transition-colors px-4 py-2.5 rounded-xl font-label text-xs sm:text-sm font-semibold flex items-center gap-2 border border-primary/30 shadow-sm cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">category</span>
+                <span>Add Category</span>
+            </button>
+            <button type="button" onclick="toggleModal('transactionModal')"
+                    class="btn-auth-submit text-on-primary rounded-xl px-5 py-2.5 font-label text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-sm cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                <span>Record Transaction</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Bento Grid Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <!-- Total Income Card -->
+        <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 flex items-center justify-between">
+            <div>
+                <p class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-emerald-500 text-[18px]">trending_up</span>
+                    Total Income
+                </p>
+                <h3 class="font-headline text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {{currencySymbol .Data.DefaultCurrency}}{{printf "%.2f" .Data.TotalIncome}}
+                </h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-2xl">arrow_upward</span>
+            </div>
+        </div>
+
+        <!-- Total Expenses Card -->
+        <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 flex items-center justify-between">
+            <div>
+                <p class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-rose-500 text-[18px]">trending_down</span>
+                    Total Expenses
+                </p>
+                <h3 class="font-headline text-3xl font-extrabold text-rose-600 dark:text-rose-400">
+                    {{currencySymbol .Data.DefaultCurrency}}{{printf "%.2f" .Data.TotalExpenses}}
+                </h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-2xl">arrow_downward</span>
+            </div>
+        </div>
+
+        <!-- Net Profit / Cash Flow Card -->
+        <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 flex items-center justify-between">
+            <div>
+                <p class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary text-[18px]">savings</span>
+                    Net Cash Flow
+                </p>
+                <h3 class="font-headline text-3xl font-extrabold {{if ge .Data.NetProfit 0.0}}text-primary{{else}}text-rose-600 dark:text-rose-400{{end}}">
+                    {{currencySymbol .Data.DefaultCurrency}}{{printf "%.2f" .Data.NetProfit}}
+                </h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-2xl">account_balance</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <form method="GET" action="/user/finance" class="glass-card rounded-2xl p-4 border border-outline-variant/60 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <!-- Type Filter -->
+            <select name="type" onchange="this.form.submit()" class="bg-surface-container-high text-on-surface border border-outline-variant/60 text-xs sm:text-sm font-label rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none">
+                <option value="all" {{if eq .Data.FilterType "all"}}selected{{end}}>All Types</option>
+                <option value="income" {{if eq .Data.FilterType "income"}}selected{{end}}>Income Only</option>
+                <option value="expense" {{if eq .Data.FilterType "expense"}}selected{{end}}>Expense Only</option>
+            </select>
+
+            <!-- Category Filter -->
+            <select name="category_id" onchange="this.form.submit()" class="bg-surface-container-high text-on-surface border border-outline-variant/60 text-xs sm:text-sm font-label rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none">
+                <option value="all">All Categories</option>
+                {{range .Data.Categories}}
+                    <option value="{{.ID}}" {{if eq $.Data.FilterCategoryID .ID.String}}selected{{end}}>{{.Name}} ({{.Type}})</option>
+                {{end}}
+            </select>
+
+            <!-- Start Date -->
+            <input type="date" name="start_date" value="{{.Data.FilterStartDate}}" onchange="this.form.submit()"
+                   class="bg-surface-container-high text-on-surface border border-outline-variant/60 text-xs sm:text-sm font-label rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none">
+
+            <!-- End Date -->
+            <input type="date" name="end_date" value="{{.Data.FilterEndDate}}" onchange="this.form.submit()"
+                   class="bg-surface-container-high text-on-surface border border-outline-variant/60 text-xs sm:text-sm font-label rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none">
+        </div>
+
+        <!-- Search Input -->
+        <div class="relative w-full md:w-64">
+            <span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-[18px]">search</span>
+            <input type="text" name="search" value="{{.Data.FilterSearch}}" placeholder="Search transactions..."
+                   class="w-full bg-surface-container-high text-on-surface pl-9 pr-3 py-2 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
+        </div>
+    </form>
+
+    <!-- Financial Transactions Table -->
+    <div class="glass-card rounded-2xl border border-outline-variant/60 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low border-b border-outline-variant/60 font-label text-xs uppercase tracking-wider text-on-surface-variant">
+                        <th class="py-3.5 px-4 sm:px-6">Date</th>
+                        <th class="py-3.5 px-4 sm:px-6">Title & Description</th>
+                        <th class="py-3.5 px-4 sm:px-6">Category</th>
+                        <th class="py-3.5 px-4 sm:px-6">Payee / Payer</th>
+                        <th class="py-3.5 px-4 sm:px-6 text-right">Amount</th>
+                        <th class="py-3.5 px-4 sm:px-6 text-center">Receipt</th>
+                        <th class="py-3.5 px-4 sm:px-6 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/40 font-body text-sm text-on-surface">
+                    {{if .Data.Transactions}}
+                        {{range .Data.Transactions}}
+                            <tr class="hover:bg-surface-container-low/60 transition-colors">
+                                <td class="py-4 px-4 sm:px-6 whitespace-nowrap text-on-surface-variant font-label text-xs">
+                                    {{.TransactionDate.Format "Jan 02, 2006"}}
+                                </td>
+                                <td class="py-4 px-4 sm:px-6">
+                                    <p class="font-semibold text-on-surface">{{.Title}}</p>
+                                    {{if .Description}}
+                                        <p class="text-xs text-on-surface-variant line-clamp-1">{{.Description}}</p>
+                                    {{end}}
+                                </td>
+                                <td class="py-4 px-4 sm:px-6 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border {{if eq .Type "income"}}bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20{{else}}bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20{{end}}">
+                                        <span class="material-symbols-outlined text-[14px]">{{if .Category}}{{.Category.Icon}}{{else}}payments{{end}}</span>
+                                        <span>{{if .Category}}{{.Category.Name}}{{else}}Uncategorized{{end}}</span>
+                                    </span>
+                                </td>
+                                <td class="py-4 px-4 sm:px-6 text-on-surface-variant">
+                                    {{if .PayeeOrPayer}}{{.PayeeOrPayer}}{{else}}&mdash;{{end}}
+                                </td>
+                                <td class="py-4 px-4 sm:px-6 text-right whitespace-nowrap font-headline font-bold {{if eq .Type "income"}}text-emerald-600 dark:text-emerald-400{{else}}text-rose-600 dark:text-rose-400{{end}}">
+                                    {{if eq .Type "income"}}+{{else}}-{{end}}{{currencySymbol .Currency}}{{printf "%.2f" .Amount}}
+                                </td>
+                                <td class="py-4 px-4 sm:px-6 text-center whitespace-nowrap">
+                                    {{if .ReceiptURL}}
+                                        <a href="{{.ReceiptURL}}" target="_blank" class="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline" title="View Receipt">
+                                            <span class="material-symbols-outlined text-[16px]">receipt</span>
+                                            <span>View</span>
+                                        </a>
+                                    {{else}}
+                                        <span class="text-xs text-on-surface-variant/50">&mdash;</span>
+                                    {{end}}
+                                </td>
+                                <td class="py-4 px-4 sm:px-6 text-center whitespace-nowrap">
+                                    <form action="/user/finance/transaction/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this transaction?');" class="inline">
+                                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                                        <input type="hidden" name="id" value="{{.ID}}">
+                                        <button type="submit" class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-lg hover:bg-error-container/30 cursor-pointer" title="Delete">
+                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {{end}}
+                    {{else}}
+                        <tr>
+                            <td colspan="7" class="py-12 text-center text-on-surface-variant">
+                                <span class="material-symbols-outlined text-4xl text-outline mb-2">account_balance_wallet</span>
+                                <p class="font-label text-base font-semibold">No financial transactions found.</p>
+                                <p class="font-body text-xs text-on-surface-variant/80 mt-1">Click "Record Transaction" above to add your first income or expense entry.</p>
+                            </td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Record Transaction -->
+<div id="transactionModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+    <div class="glass-card rounded-2xl border border-outline-variant/60 max-w-lg w-full p-6 shadow-2xl space-y-5 bg-surface">
+        <div class="flex justify-between items-center border-b border-outline-variant/40 pb-3">
+            <h3 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[22px]">add_circle</span>
+                Record Transaction
+            </h3>
+            <button type="button" onclick="toggleModal('transactionModal')" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+
+        <form action="/user/finance/transaction/create" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+            <div>
+                <label class="block font-label text-xs font-semibold text-on-surface mb-1">Transaction Type</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center justify-center p-2.5 border border-outline-variant/60 rounded-xl cursor-pointer hover:border-emerald-500 font-label text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        <input type="radio" name="type" value="income" checked class="mr-2 text-emerald-500 focus:ring-emerald-500">
+                        Income (+)
+                    </label>
+                    <label class="flex items-center justify-center p-2.5 border border-outline-variant/60 rounded-xl cursor-pointer hover:border-rose-500 font-label text-xs font-semibold text-rose-600 dark:text-rose-400">
+                        <input type="radio" name="type" value="expense" class="mr-2 text-rose-500 focus:ring-rose-500">
+                        Expense (-)
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-label text-xs font-semibold text-on-surface mb-1">Title / Purpose *</label>
+                <input type="text" name="title" required placeholder="e.g. Website Hosting, Client Payment..."
+                       class="w-full bg-surface-container-high text-on-surface px-3 py-2 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-label text-xs font-semibold text-on-surface mb-1">Amount *</label>
+                    <input type="number" step="0.01" min="0.01" name="amount" required placeholder="0.00"
+                           class="w-full bg-surface-container-high text-on-surface px-3 py-2 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
+                </div>
+                <div>
+                    <label class="block font-label text-xs font-semibold text-on-surface mb-1">Category *</label>
+                    <select name="category_id" required class="w-full bg-surface-container-high text-on-surface px-3 py-2 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
+                        {{range .Data.Categories}}
+                            <option value="{{.ID}}">{{.Name}} ({{.Type}})</option>
+                        {{end}}
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-label text-xs font-semibold text-on-surface mb-1">Payee / Payer</label>
+                    <input type="text" name="payee_or_payer" placeholder="Vendor or Client name"
+                           class="w-full bg-surface-container-high text-on-surface px-3 py-2 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
+                </div>
+                <div>
+                    <label class="block font-label text-xs font-semibold text-on-surface mb-1">Transaction Date</label>
+                    <input type="date" name="transaction_date"
+                           class="w-full bg-surface-container-high text-on-surface px-3 py-2 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-label text-xs font-semibold text-on-surface mb-1">Receipt Attachment (Optional Image/PDF)</label>
+                <input type="file" name="receipt" accept=".png,.jpg,.jpeg,.pdf"
+                       class="w-full text-xs text-on-surface-variant file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-surface-container-high file:text-primary hover:file:bg-primary/10">
+            </div>
+
+            <div>
+                <label class="block font-label text-xs font-semibold text-on-surface mb-1">Notes / Description</label>
+                <textarea name="description" rows="2" placeholder="Optional internal notes..."
+                          class="w-full bg-surface-container-high text-on-surface p-3 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-3 border-t border-outline-variant/40">
+                <button type="button" onclick="toggleModal('transactionModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container-high">Cancel</button>
+                <button type="submit" class="btn-auth-submit text-on-primary px-5 py-2 rounded-xl font-label text-xs sm:text-sm font-semibold">Save Transaction</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Add Category -->
+<div id="categoryModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+    <div class="glass-card rounded-2xl border border-outline-variant/60 max-w-md w-full p-6 shadow-2xl space-y-5 bg-surface">
+        <div class="flex justify-between items-center border-b border-outline-variant/40 pb-3">
+            <h3 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[22px]">category</span>
+                Add Category
+            </h3>
+            <button type="button" onclick="toggleModal('categoryModal')" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+
+        <form action="/user/finance/category/create" method="POST" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+            <div>
+                <label class="block font-label text-xs font-semibold text-on-surface mb-1">Category Name *</label>
+                <input type="text" name="name" required placeholder="e.g. Legal Fees, Hosting, Marketing..."
+                       class="w-full bg-surface-container-high text-on-surface px-3 py-2 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
+            </div>
+
+            <div>
+                <label class="block font-label text-xs font-semibold text-on-surface mb-1">Type *</label>
+                <select name="type" required class="w-full bg-surface-container-high text-on-surface px-3 py-2 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
+                    <option value="expense">Expense (-)</option>
+                    <option value="income">Income (+)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-label text-xs font-semibold text-on-surface mb-1">Icon Name (Material Symbol)</label>
+                <input type="text" name="icon" placeholder="e.g. payments, receipt, work, laptop_mac..."
+                       class="w-full bg-surface-container-high text-on-surface px-3 py-2 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
+            </div>
+
+            <div class="flex justify-end gap-3 pt-3 border-t border-outline-variant/40">
+                <button type="button" onclick="toggleModal('categoryModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container-high">Cancel</button>
+                <button type="submit" class="btn-auth-submit text-on-primary px-5 py-2 rounded-xl font-label text-xs sm:text-sm font-semibold">Create Category</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.toggle('hidden');
+        }
+    }
+</script>
+{{end}}

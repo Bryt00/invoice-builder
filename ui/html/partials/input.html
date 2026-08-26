@@ -1,0 +1,35 @@
+{{define "input"}}
+    <div class="group">
+        {{if .ForgotLink}}
+            <div class="flex items-center justify-between mb-1.5">
+                <label class="block font-label text-sm font-medium text-on-surface" for="{{.ID}}">{{.Label}}</label>
+                <a class="auth-link font-label text-xs font-medium text-primary hover:text-on-primary-fixed-variant transition-colors"
+                   href="{{.ForgotLink}}">Forgot Password?</a>
+            </div>
+        {{else}}
+            <label class="block font-label text-sm font-medium text-on-surface mb-1.5" for="{{.ID}}">{{.Label}}</label>
+        {{end}}
+
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200">
+                <span class="material-symbols-outlined text-outline group-focus-within:text-primary text-[20px] transition-colors duration-200">{{.Icon}}</span>
+            </div>
+            <input class="block w-full pl-[42px] {{if .IsPassword}}pr-[42px]{{else}}pr-3{{end}} py-2.5 bg-surface-container-lowest/80 border border-outline-variant/70 rounded-xl font-body text-base text-on-surface placeholder:text-outline/60 input-focus-ring transition-all duration-200"
+                   id="{{.ID}}" name="{{.Name}}" {{if .Value}}value="{{.Value}}"{{end}} placeholder="{{.Placeholder}}"
+                   type="{{.Type}}" {{if .Required}}required{{end}} {{if .Autocomplete}}autocomplete="{{.Autocomplete}}"{{end}}/>
+
+            {{if .IsPassword}}
+                <button class="password-toggle-btn absolute inset-y-0 right-0 pr-3 flex items-center text-outline hover:text-on-surface-variant transition-colors duration-200"
+                        type="button" data-target="{{.ID}}">
+                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                </button>
+            {{end}}
+        </div>
+        {{with .Error}}
+            <p class="mt-1.5 text-sm text-error flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">error</span>
+                {{.}}
+            </p>
+        {{end}}
+    </div>
+{{end}}

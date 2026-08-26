@@ -1,0 +1,235 @@
+{{template "base" .}}
+
+{{define "title"}}Platform Overview - Admin Console{{end}}
+
+{{define "main"}}
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <!-- Flash Banners -->
+        {{with .Flash}}
+            <div class="flash-alert flash-alert-success p-4 text-sm bg-primary-container/80 border border-primary/40 text-on-primary-container rounded-xl flex items-start gap-3" role="alert" data-type="success">
+                <span class="material-symbols-outlined text-primary text-xl flex-shrink-0 mt-0.5">check_circle</span>
+                <div class="flex-1 font-body text-sm font-medium">{{.}}</div>
+            </div>
+        {{end}}
+
+        {{with .FlashError}}
+            <div class="flash-alert flash-alert-error p-4 text-sm bg-error-container/80 border border-error/40 text-on-error-container rounded-xl flex items-start gap-3" role="alert" data-type="error">
+                <span class="material-symbols-outlined text-error text-xl flex-shrink-0 mt-0.5">error</span>
+                <div class="flex-1 font-body text-sm font-medium">{{.}}</div>
+            </div>
+        {{end}}
+
+        <!-- Dashboard Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="font-headline text-2xl sm:text-3xl font-extrabold text-on-surface flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-amber-500 text-[28px]">dashboard</span>
+                    Platform Overview
+                </h1>
+                <p class="font-body text-sm text-on-surface-variant mt-1">Real-time metrics, user growth, top-up revenue, and system activities across the platform.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="/admin/users" class="bg-amber-500 hover:bg-amber-600 text-on-primary transition-colors px-4 py-2 rounded-xl font-label text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">group</span>
+                    <span>User Directory</span>
+                </a>
+                <a href="/admin/packages" class="bg-surface-container-high text-on-surface hover:bg-surface-container transition-colors px-4 py-2 rounded-xl font-label text-xs sm:text-sm font-bold flex items-center gap-1.5 border border-outline-variant/60">
+                    <span class="material-symbols-outlined text-[18px]">inventory_2</span>
+                    <span>Packages</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Metric KPI Grid (Terra Design) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- KPI Card 1: Revenue -->
+            <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 shadow-xs hover:border-amber-500/40 transition-all flex flex-col justify-between">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">attach_money</span>
+                    </div>
+                    <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">trending_up</span> Revenue
+                    </span>
+                </div>
+                <div>
+                    <p class="text-xs text-on-surface-variant font-label uppercase tracking-wider font-bold mb-1">Total System Revenue</p>
+                    <h3 class="font-headline text-3xl font-black text-on-surface">GH₵{{printf "%.2f" .Data.TotalRevenue}}</h3>
+                    <p class="text-xs text-on-surface-variant mt-1"><span class="font-bold text-emerald-600">{{.Data.TotalPayments}}</span> completed payments</p>
+                </div>
+            </div>
+
+            <!-- KPI Card 2: Users -->
+            <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 shadow-xs hover:border-amber-500/40 transition-all flex flex-col justify-between">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">person_add</span>
+                    </div>
+                    <span class="bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">group</span> Users
+                    </span>
+                </div>
+                <div>
+                    <p class="text-xs text-on-surface-variant font-label uppercase tracking-wider font-bold mb-1">Registered Accounts</p>
+                    <h3 class="font-headline text-3xl font-black text-on-surface">{{.Data.TotalUsers}}</h3>
+                    <p class="text-xs text-on-surface-variant mt-1">
+                        <span class="font-bold text-emerald-600">{{.Data.ActiveUsers}} Active</span> · <span class="text-amber-600">{{.Data.UnverifiedUsers}} Pending</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- KPI Card 3: Credits Issued -->
+            <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 shadow-xs hover:border-amber-500/40 transition-all flex flex-col justify-between">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">bolt</span>
+                    </div>
+                    <span class="bg-amber-500/10 text-amber-600 border border-amber-500/20 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">bolt</span> Top-Ups
+                    </span>
+                </div>
+                <div>
+                    <p class="text-xs text-on-surface-variant font-label uppercase tracking-wider font-bold mb-1">Credits Issued</p>
+                    <h3 class="font-headline text-3xl font-black text-on-surface">{{.Data.TotalPurchasedCredits}}</h3>
+                    <p class="text-xs text-on-surface-variant mt-1">Total purchased / granted credits</p>
+                </div>
+            </div>
+
+            <!-- KPI Card 4: Credits Consumed -->
+            <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 shadow-xs hover:border-amber-500/40 transition-all flex flex-col justify-between">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 border border-rose-500/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">description</span>
+                    </div>
+                    <span class="bg-rose-500/10 text-rose-600 border border-rose-500/20 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">receipt_long</span> Usage
+                    </span>
+                </div>
+                <div>
+                    <p class="text-xs text-on-surface-variant font-label uppercase tracking-wider font-bold mb-1">Credits Consumed</p>
+                    <h3 class="font-headline text-3xl font-black text-on-surface">{{.Data.TotalUsedCredits}}</h3>
+                    <p class="text-xs text-on-surface-variant mt-1">Invoices generated & dispatched</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bento Grid Layout: Chart & Activity Feed -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Revenue & Platform Growth Chart Section -->
+            <div class="lg:col-span-2 glass-card rounded-2xl p-6 border border-outline-variant/60 shadow-xs flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+                            <span class="material-symbols-outlined text-amber-500 text-[20px]">show_chart</span>
+                            Platform Revenue Growth
+                        </h3>
+                        <p class="text-xs text-on-surface-variant">Monthly top-up transaction volume and revenue trend</p>
+                    </div>
+                    <span class="px-3 py-1 bg-surface-container-high rounded-xl text-xs font-label font-bold text-on-surface-variant border border-outline-variant/40">
+                        Top-Up Ledger
+                    </span>
+                </div>
+                <div class="w-full relative min-h-[300px] flex-1">
+                    <canvas id="revenueChart" data-revenue="{{.Data.TotalRevenue}}"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Activity Stream Section -->
+            <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 shadow-xs flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-outline-variant/40">
+                    <h3 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-500 text-[20px]">history</span>
+                        Recent Activity
+                    </h3>
+                    <a href="/admin/audit-logs" class="text-xs font-label font-bold text-amber-600 hover:underline">View All →</a>
+                </div>
+
+                <div class="space-y-3.5 overflow-y-auto max-h-[320px] pr-1">
+                    {{if .Data.RecentAuditLogs}}
+                        {{range .Data.RecentAuditLogs}}
+                            <div class="flex items-start gap-3 pb-3 border-b border-outline-variant/30 last:border-0">
+                                <div class="w-8 h-8 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-[16px]">bolt</span>
+                                </div>
+                                <div class="flex-1 min-w-0 font-body">
+                                    <p class="text-xs font-bold text-on-surface truncate">{{.Action}}</p>
+                                    <p class="text-[11px] text-on-surface-variant truncate">{{.EntityType}}{{if .EntityID}}: {{.EntityID}}{{end}}</p>
+                                    <p class="text-[10px] text-on-surface-variant/70 mt-0.5">{{.CreatedAt.Format "Jan 02 15:04"}}</p>
+                                </div>
+                            </div>
+                        {{end}}
+                    {{else}}
+                        <p class="text-xs text-on-surface-variant italic py-8 text-center">No recent activity logs.</p>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Signups Section -->
+        <div class="glass-card rounded-2xl border border-outline-variant/60 overflow-hidden shadow-xs">
+            <div class="px-6 py-4 border-b border-outline-variant/40 flex justify-between items-center bg-surface-container-lowest/50">
+                <h3 class="font-headline text-base sm:text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-500 text-[20px]">how_to_reg</span>
+                    Recent Registered Accounts
+                </h3>
+                <a href="/admin/users" class="font-label text-xs font-bold text-amber-600 hover:underline">View All Users →</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-outline-variant/40 font-label text-xs uppercase text-on-surface-variant/80 bg-surface-container-low/40">
+                            <th class="px-6 py-3.5">User</th>
+                            <th class="px-6 py-3.5">Email</th>
+                            <th class="px-6 py-3.5">Role</th>
+                            <th class="px-6 py-3.5">Status</th>
+                            <th class="px-6 py-3.5">Registered</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant/30 font-body text-sm text-on-surface">
+                        {{if .Data.RecentUsers}}
+                            {{range .Data.RecentUsers}}
+                                <tr class="hover:bg-surface-container-low/40 transition-colors">
+                                    <td class="px-6 py-4 font-semibold text-on-surface flex items-center gap-2.5">
+                                        <span class="w-7 h-7 rounded-full bg-amber-500/20 text-amber-600 border border-amber-500/30 flex items-center justify-center font-bold text-xs">
+                                            {{slice .Name 0 1}}
+                                        </span>
+                                        <a href="/admin/users/view?id={{.ID}}" class="hover:text-amber-500 transition-colors">{{.Name}}</a>
+                                    </td>
+                                    <td class="px-6 py-4 text-on-surface-variant">{{.Email}}</td>
+                                    <td class="px-6 py-4">
+                                        {{if .IsAdmin}}
+                                            <span class="px-2.5 py-0.5 rounded-md text-xs font-black uppercase bg-amber-500/20 text-amber-600 border border-amber-500/30">ADMIN</span>
+                                        {{else}}
+                                            <span class="px-2.5 py-0.5 rounded-md text-xs font-semibold uppercase bg-surface-container-high text-on-surface-variant border border-outline-variant/40">USER</span>
+                                        {{end}}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {{if .IsActivated}}
+                                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 inline-flex items-center gap-1">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+                                            </span>
+                                        {{else}}
+                                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 border border-amber-500/20 inline-flex items-center gap-1">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Unverified
+                                            </span>
+                                        {{end}}
+                                    </td>
+                                    <td class="px-6 py-4 text-on-surface-variant text-xs">{{.CreatedAt.Format "Jan 02, 2006"}}</td>
+                                </tr>
+                            {{end}}
+                        {{else}}
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-on-surface-variant">No user registrations found.</td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include Chart.js for Revenue Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/asset/js/admin-dashboard.js" defer></script>
+{{end}}

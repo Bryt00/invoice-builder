@@ -1,0 +1,12 @@
+{
+  "name": "invoice-builder",
+  "version": "1.0.0",
+  "description": "Invoice Builder Tailwind Build Pipeline",
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./ui/asset/css/input.css -o ./ui/asset/css/styles.css --minify",
+    "watch:css": "npx tailwindcss -i ./ui/asset/css/input.css -o ./ui/asset/css/styles.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}

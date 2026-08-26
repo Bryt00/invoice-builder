@@ -1,0 +1,148 @@
+{{define "title"}}All Invoices{{end}}
+
+{{define "main"}}
+    <!-- Header Section -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h2 class="font-headline text-3xl font-bold text-on-surface mb-1">Invoices Directory</h2>
+            <p class="font-body text-base text-on-surface-variant">View, track, and manage all your generated invoices.</p>
+        </div>
+        <a href="/user/invoices/new" class="btn-auth-submit text-on-primary rounded-xl px-5 py-2.5 font-label text-sm font-semibold flex items-center gap-2 shrink-0 self-start md:self-auto">
+            <span class="material-symbols-outlined text-[20px]">add</span>
+            Create Invoice
+        </a>
+    </header>
+
+    {{with .Flash}}
+        <div class="flash-alert flash-alert-success p-4 mb-6 text-sm bg-primary-container/50 border border-primary/20 text-on-surface rounded-xl flex items-start gap-3" role="alert" data-type="success">
+            <span class="material-symbols-outlined text-primary text-xl flex-shrink-0 mt-0.5">check_circle</span>
+            <div class="flex-1 font-body text-sm font-medium">
+                {{.}}
+            </div>
+        </div>
+    {{end}}
+
+    {{with .FlashError}}
+        <div class="flash-alert flash-alert-error p-4 mb-6 text-sm bg-error-container/80 border border-error/40 text-on-error-container rounded-xl flex items-start gap-3" role="alert" data-type="error">
+            <span class="material-symbols-outlined text-error text-xl flex-shrink-0 mt-0.5">error</span>
+            <div class="flex-1 font-body text-sm font-medium">
+                {{.}}
+            </div>
+        </div>
+    {{end}}
+
+    <!-- Search & Filter Controls -->
+    <div class="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div class="relative flex-1 max-w-md">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+            <input type="text" name="q" value="{{.Data.SearchQuery}}" 
+                   hx-get="/user/invoices" 
+                   hx-trigger="keyup changed delay:300ms, search" 
+                   hx-target="#invoices-table-container" 
+                   hx-swap="outerHTML" 
+                   hx-push-url="true" 
+                   hx-include="[name='status']"
+                   placeholder="Search invoices by number or client..." 
+                   class="w-full pl-9 pr-4 py-2 bg-surface-container-low border border-outline-variant/60 rounded-xl font-body text-sm text-on-surface focus:outline-none focus:border-primary">
+            <input type="hidden" name="status" value="{{if .Data.StatusFilter}}{{.Data.StatusFilter}}{{else}}all{{end}}">
+        </div>
+    </div>
+
+    <!-- Invoices Directory Table Container -->
+    {{template "invoices_table_partial" .}}
+
+{{end}}
+
+{{define "invoices_table_partial"}}
+    <div id="invoices-table-container" class="glass-card rounded-2xl border border-outline-variant/60 overflow-hidden">
+        <div class="px-6 py-4 border-b border-outline-variant/40 flex flex-wrap justify-between items-center bg-surface-container-lowest/50 gap-4">
+            <h3 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[20px]">receipt_long</span>
+                All Dispatches
+            </h3>
+            <!-- Interactive Status Filter Tabs via HTMX Partial Swaps -->
+            <div class="flex items-center gap-1 bg-surface-container-high/60 p-1 rounded-xl border border-outline-variant/40 text-xs font-label font-semibold">
+                <button type="button" hx-get="/user/invoices?status=all&q={{.Data.SearchQuery}}" hx-target="#invoices-table-container" hx-swap="outerHTML" hx-push-url="true" class="invoice-tab-btn px-3 py-1.5 rounded-lg {{if or (eq .Data.StatusFilter "") (eq .Data.StatusFilter "all")}}bg-surface text-primary shadow-xs{{else}}text-on-surface-variant hover:text-on-surface{{end}} transition-all cursor-pointer">All</button>
+                <button type="button" hx-get="/user/invoices?status=paid&q={{.Data.SearchQuery}}" hx-target="#invoices-table-container" hx-swap="outerHTML" hx-push-url="true" class="invoice-tab-btn px-3 py-1.5 rounded-lg {{if eq .Data.StatusFilter "paid"}}bg-surface text-primary shadow-xs{{else}}text-on-surface-variant hover:text-on-surface{{end}} transition-all cursor-pointer">Paid</button>
+                <button type="button" hx-get="/user/invoices?status=sent&q={{.Data.SearchQuery}}" hx-target="#invoices-table-container" hx-swap="outerHTML" hx-push-url="true" class="invoice-tab-btn px-3 py-1.5 rounded-lg {{if eq .Data.StatusFilter "sent"}}bg-surface text-primary shadow-xs{{else}}text-on-surface-variant hover:text-on-surface{{end}} transition-all cursor-pointer">Sent</button>
+                <button type="button" hx-get="/user/invoices?status=draft&q={{.Data.SearchQuery}}" hx-target="#invoices-table-container" hx-swap="outerHTML" hx-push-url="true" class="invoice-tab-btn px-3 py-1.5 rounded-lg {{if eq .Data.StatusFilter "draft"}}bg-surface text-primary shadow-xs{{else}}text-on-surface-variant hover:text-on-surface{{end}} transition-all cursor-pointer">Drafts</button>
+                <button type="button" hx-get="/user/invoices?status=overdue&q={{.Data.SearchQuery}}" hx-target="#invoices-table-container" hx-swap="outerHTML" hx-push-url="true" class="invoice-tab-btn px-3 py-1.5 rounded-lg {{if eq .Data.StatusFilter "overdue"}}bg-surface text-primary shadow-xs{{else}}text-on-surface-variant hover:text-on-surface{{end}} transition-all cursor-pointer">Overdue</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-outline-variant/40 font-label text-xs uppercase text-on-surface-variant/80 bg-surface-container-low/40">
+                        <th class="px-6 py-3.5">Invoice #</th>
+                        <th class="px-6 py-3.5">Client</th>
+                        <th class="px-6 py-3.5">Issue Date</th>
+                        <th class="px-6 py-3.5">Due Date</th>
+                        <th class="px-6 py-3.5">Total Amount</th>
+                        <th class="px-6 py-3.5">Status</th>
+                        <th class="px-6 py-3.5 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="invoices-tbody" class="divide-y divide-outline-variant/30 font-body text-sm text-on-surface">
+                    {{if .Data.Invoices}}
+                        {{range .Data.Invoices}}
+                            <tr class="hover:bg-surface-container-low/40 transition-colors" data-status="{{.Status}}">
+                                <td class="px-6 py-4 font-semibold text-primary">
+                                    <a href="/user/invoices/view?id={{.ID}}" class="hover:underline">{{.InvoiceNumber}}</a>
+                                </td>
+                                <td class="px-6 py-4 font-medium text-on-surface">
+                                    {{if .Client}}{{.Client.Name}}{{else}}Direct Client{{end}}
+                                </td>
+                                <td class="px-6 py-4 text-on-surface-variant">{{.IssueDate.Format "Jan 02, 2006"}}</td>
+                                <td class="px-6 py-4 text-on-surface-variant">{{.DueDate.Format "Jan 02, 2006"}}</td>
+                                <td class="px-6 py-4 font-bold text-on-surface">
+                                    {{currencySymbol .Currency}}{{printf "%.2f" .Total}}
+                                    <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-surface-container-high text-on-surface-variant border border-outline-variant/40">{{.Currency}}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{if eq .Status "paid"}}
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Paid
+                                        </span>
+                                    {{else if eq .Status "sent"}}
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 inline-flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Sent
+                                        </span>
+                                    {{else if eq .Status "overdue"}}
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 inline-flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Overdue
+                                        </span>
+                                    {{else}}
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 inline-flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Draft
+                                        </span>
+                                    {{end}}
+                                </td>
+                                <td class="px-6 py-4 text-right flex items-center justify-end gap-2">
+                                    {{if eq .Status "draft"}}
+                                        <a href="/user/invoices/edit?id={{.ID}}" class="p-1.5 text-primary hover:bg-primary-container/30 transition-colors rounded-lg" title="Edit Draft">
+                                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                                        </a>
+                                    {{end}}
+                                    <a href="/user/invoices/view?id={{.ID}}" class="p-1.5 text-outline hover:text-primary transition-colors rounded-lg hover:bg-surface-container-high" title="View Preview">
+                                        <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                    </a>
+                                    <a href="/invoice/public/{{.PublicToken}}" target="_blank" class="p-1.5 text-outline hover:text-primary transition-colors rounded-lg hover:bg-surface-container-high" title="Open Public Share Link">
+                                        <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        {{end}}
+                    {{else}}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-on-surface-variant">
+                                <span class="material-symbols-outlined text-4xl text-outline mb-2">description</span>
+                                <p class="font-body text-base">No invoices found matching criteria.</p>
+                                <p class="font-body text-xs text-outline">Try clearing search filters or click "Create Invoice" above.</p>
+                            </td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{{end}}

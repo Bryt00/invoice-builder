@@ -1,0 +1,156 @@
+{{define "admin_sidebar"}}
+    <!-- Admin Mobile TopBar (Mobile Only) -->
+    <header class="md:hidden sticky top-0 z-40 bg-surface/95 backdrop-blur-xl border-b border-amber-500/30 px-4 py-3 flex items-center justify-between shadow-sm">
+        <a href="/admin/dashboard" class="flex items-center gap-2">
+            <img src="/asset/img/brand_logo.png" alt="Teks-Invoice Logo" class="w-7 h-7 rounded-lg object-contain ring-2 ring-amber-500/40">
+            <span class="font-headline text-base font-bold text-on-surface">Teks-Invoice</span>
+            <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-amber-500/20 text-amber-600 border border-amber-500/30">ADMIN</span>
+        </a>
+        <button type="button" onclick="toggleAdminMobileNav()" class="text-on-surface-variant hover:text-amber-600 p-1.5 rounded-lg cursor-pointer">
+            <span class="material-symbols-outlined text-[22px]">menu</span>
+        </button>
+    </header>
+
+    <!-- Mobile Dropdown Navigation Drawer -->
+    <div id="admin-mobile-nav-menu" class="hidden md:hidden fixed inset-x-0 top-[57px] z-40 border-b border-outline-variant/50 bg-surface/95 backdrop-blur-xl px-4 py-3 space-y-1.5 font-label text-sm font-medium shadow-xl">
+        <a href="/admin/dashboard" class="admin-sidebar-item flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:text-amber-600 hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-[18px]">grid_view</span> Overview
+        </a>
+        <a href="/admin/users" class="admin-sidebar-item flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:text-amber-600 hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-[18px]">group</span> Users
+        </a>
+        <a href="/admin/invoices" class="admin-sidebar-item flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:text-amber-600 hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-[18px]">receipt_long</span> Invoices
+        </a>
+        <a href="/admin/packages" class="admin-sidebar-item flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:text-amber-600 hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-[18px]">package_2</span> Packages
+        </a>
+        <a href="/admin/payments" class="admin-sidebar-item flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:text-amber-600 hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-[18px]">payments</span> Payments
+        </a>
+        <a href="/admin/credits" class="admin-sidebar-item flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:text-amber-600 hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-[18px]">bolt</span> Credits
+        </a>
+        <a href="/admin/webhooks" class="admin-sidebar-item flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:text-amber-600 hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-[18px]">webhook</span> Webhooks
+        </a>
+        <a href="/admin/audit-logs" class="admin-sidebar-item flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:text-amber-600 hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-[18px]">history</span> Audit Logs
+        </a>
+        <a href="/admin/settings" class="admin-sidebar-item flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:text-amber-600 hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-[18px]">settings</span> Settings
+        </a>
+        <div class="pt-2 border-t border-outline-variant/40 flex flex-col gap-1">
+            <a href="/user/dashboard" class="flex items-center gap-3 px-3 py-2 rounded-xl text-primary font-semibold hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined text-[18px]">swap_horiz</span> User Workspace
+            </a>
+            <form action="/user/logout" method="POST">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-error hover:bg-error-container/30 transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">logout</span> Sign Out
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Desktop SideNavBar Component -->
+    <nav class="hidden md:flex h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest/90 backdrop-blur-xl flex-col py-6 justify-between border-r border-amber-500/20 z-30 shadow-sm">
+        <div>
+            <!-- Header Logo -->
+            <a href="/admin/dashboard" class="px-6 mb-8 flex items-center gap-3 group">
+                <img src="/asset/img/brand_logo.png" alt="Teks-Invoice Logo" class="w-10 h-10 rounded-xl object-contain shadow-md ring-2 ring-amber-500/40 group-hover:scale-105 transition-transform">
+                <div>
+                    <h1 class="brand-title font-headline text-lg font-bold">Teks-Invoice</h1>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">ADMIN CONSOLE</span>
+                </div>
+            </a>
+
+            <!-- Primary Navigation List -->
+            <ul class="flex flex-col gap-1 px-3 font-label text-sm font-medium">
+                <li>
+                    <a class="admin-sidebar-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all"
+                       href="/admin/dashboard">
+                        <span class="material-symbols-outlined text-[20px]">grid_view</span>
+                        Overview
+                    </a>
+                </li>
+                <li>
+                    <a class="admin-sidebar-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all"
+                       href="/admin/users">
+                        <span class="material-symbols-outlined text-[20px]">group</span>
+                        Users
+                    </a>
+                </li>
+                <li>
+                    <a class="admin-sidebar-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all"
+                       href="/admin/invoices">
+                        <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                        Invoices
+                    </a>
+                </li>
+                <li>
+                    <a class="admin-sidebar-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all"
+                       href="/admin/packages">
+                        <span class="material-symbols-outlined text-[20px]">package_2</span>
+                        Packages
+                    </a>
+                </li>
+                <li>
+                    <a class="admin-sidebar-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all"
+                       href="/admin/payments">
+                        <span class="material-symbols-outlined text-[20px]">payments</span>
+                        Payments
+                    </a>
+                </li>
+                <li>
+                    <a class="admin-sidebar-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all"
+                       href="/admin/credits">
+                        <span class="material-symbols-outlined text-[20px]">bolt</span>
+                        Credits
+                    </a>
+                </li>
+                <li>
+                    <a class="admin-sidebar-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all"
+                       href="/admin/webhooks">
+                        <span class="material-symbols-outlined text-[20px]">webhook</span>
+                        Webhooks
+                    </a>
+                </li>
+                <li>
+                    <a class="admin-sidebar-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all"
+                       href="/admin/audit-logs">
+                        <span class="material-symbols-outlined text-[20px]">history</span>
+                        Audit Logs
+                    </a>
+                </li>
+                <li>
+                    <a class="admin-sidebar-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all"
+                       href="/admin/settings">
+                        <span class="material-symbols-outlined text-[20px]">settings</span>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Footer Workspace Switcher & Sign Out -->
+        <div class="px-3 font-label text-sm font-medium space-y-2">
+            <div class="px-1">
+                <a href="/user/dashboard" class="w-full py-2.5 px-4 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/30 font-label text-xs font-semibold flex items-center justify-center gap-2 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">swap_horiz</span>
+                    User Workspace
+                </a>
+            </div>
+            <div class="pt-2 border-t border-outline-variant/40">
+                <form id="adminSidebarLogoutForm" action="/user/logout" method="POST" class="hidden">
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                </form>
+                <button type="button" class="w-full text-on-surface-variant hover:text-error hover:bg-error-container/30 px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all text-left cursor-pointer"
+                        onclick="document.getElementById('adminSidebarLogoutForm').submit();">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                    Sign Out
+                </button>
+            </div>
+        </div>
+    </nav>
+{{end}}
