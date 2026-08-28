@@ -72,6 +72,12 @@ mkdir -p $APP_DIR
 	echo "Building Go API application..."
 	go build -o invoice-builder ./cmd/api
 
+    # Stop the service to prevent 'Text file busy' errors when overwriting the binary
+    if systemctl is-active --quiet invoice-builder; then
+        echo "Stopping active invoice-builder service before copying..."
+        systemctl stop invoice-builder
+    fi
+
 	if [ -f "invoice-builder" ]; then
 	    cp invoice-builder $APP_DIR/
 	    chmod +x $APP_DIR/invoice-builder
