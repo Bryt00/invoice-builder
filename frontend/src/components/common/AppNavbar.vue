@@ -12,7 +12,7 @@
           </div>
           
           <!-- Center: Navigation -->
-          <nav class="hidden md:flex items-center justify-center gap-2 flex-1">
+          <nav class="hidden md:flex items-center justify-center gap-2 flex-1" v-if="authStore.isAuthenticated">
               <router-link class="px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all flex items-center gap-2"
                  :class="$route.name === 'dashboard' ? 'text-on-surface bg-surface-variant/30' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/20'"
                  to="/user/dashboard">
@@ -40,7 +40,7 @@
           </nav>
 
           <!-- Right: User Controls -->
-          <div class="flex items-center justify-end gap-3 w-1/4">
+          <div class="flex items-center justify-end gap-3 w-1/4" v-if="authStore.isAuthenticated">
               <!-- Credits Pill -->
               <router-link to="/user/credits/history" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-full font-label text-xs font-bold hover:bg-emerald-500/25 transition-colors" title="Available Credits">
                   <span class="material-symbols-outlined text-[16px]">hexagon</span>
@@ -70,6 +70,12 @@
               <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-on-surface-variant hover:text-primary p-2 rounded-xl transition-colors cursor-pointer" title="Toggle Navigation Menu">
                   <span class="material-symbols-outlined text-[24px]">menu</span>
               </button>
+          </div>
+
+          <!-- Unauthenticated Controls -->
+          <div class="flex items-center justify-end gap-3 w-1/4" v-else>
+              <router-link to="/user/login" class="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors hidden sm:block">Log in</router-link>
+              <router-link to="/user/register" class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-bold shadow hover:shadow-md hover:-translate-y-0.5 transition-all">Get Started</router-link>
           </div>
       </div>
       <!-- Mobile Dropdown Navigation Drawer -->
