@@ -192,6 +192,10 @@ func (h *ApiHandler) MarkInvoicePaid(w http.ResponseWriter, r *http.Request) {
 			h.NotFoundResponse(w, r)
 			return
 		}
+		if errors.Is(err, models.ErrDraftCannotBePaid) {
+			h.BadRequestResponse(w, r, err)
+			return
+		}
 		h.ServerErrorResponse(w, r, err)
 		return
 	}
@@ -238,6 +242,7 @@ func (h *ApiHandler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input struct {
+		ID             string            `json:"id"`
 		ClientID       string            `json:"client_id"`
 		ClientEmail    string            `json:"client_email"`
 		ClientAddress  string            `json:"client_address"`

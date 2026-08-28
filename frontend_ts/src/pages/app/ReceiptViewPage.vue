@@ -1,51 +1,30 @@
 <template>
   <div>
+    <!-- Print-only styling rules -->
     <component :is="'style'">
       @media print {
-        body * { display: none !important; }
-        body::before {
-            content: "Direct printing is disabled. Please use the 'Download PDF' feature on the dashboard.";
-            display: block !important;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            font-family: sans-serif;
-            margin-top: 50px;
-        }
+        body * { visibility: hidden; }
+        #printable-invoice, #printable-invoice * { visibility: visible; }
+        #printable-invoice { position: absolute; left: 0; top: 0; width: 100%; }
+        .no-print { display: none !important; }
       }
     </component>
 
-    <div v-if="loading" class="text-center py-12 text-outline">Loading invoice...</div>
-    <div v-else-if="!invoice" class="text-center py-12 text-outline">Invoice not found.</div>
+    <div v-if="loading" class="text-center py-12 text-outline">Loading receipt...</div>
+    <div v-else-if="!receipt" class="text-center py-12 text-outline">Receipt not found.</div>
     <div v-else>
         <header class="no-print flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-                <h2 class="font-headline text-3xl font-bold text-on-surface mb-1">Invoice {{ invoice.invoice_number }}</h2>
-                <p class="font-body text-base text-on-surface-variant">Created on {{ formatDate(invoice.issue_date || invoice.created_at) }}</p>
+                <h2 class="font-headline text-3xl font-bold text-on-surface mb-1">Receipt {{ receipt.receipt_number }}</h2>
+                <p class="font-body text-base text-on-surface-variant">Issued on {{ formatDate(receipt.issued_at || receipt.created_at) }}</p>
             </div>
             <div class="flex items-center gap-3 flex-wrap">
                 <router-link to="/user/invoices" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-medium text-on-surface-variant hover:bg-surface-container-low transition-colors">
                     Back to Invoices
                 </router-link>
-                <router-link v-if="invoice.status === 'draft'" :to="`/user/invoices/edit?id=${invoice.id}`" class="px-4 py-2 rounded-xl border border-primary/50 bg-primary-container/20 font-label text-sm font-semibold text-primary hover:bg-primary-container/40 flex items-center gap-2 transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">edit</span> Edit Draft
+                <router-link :to="`/user/invoices/view?id=${invoice.id}`" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-semibold text-on-surface hover:bg-surface-container-low flex items-center gap-2 transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">receipt</span> View Original Invoice
                 </router-link>
-                
-                <button v-if="!invoice.is_paid && invoice.status !== 'paid' && invoice.status !== 'draft'" @click="handleMarkPaid" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-label text-sm font-semibold hover:bg-on-primary-fixed-variant flex items-center gap-2 cursor-pointer shadow-sm transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">check_circle</span> Mark as Paid
-                </button>
-                <template v-else>
-                    <router-link v-if="receipt" :to="`/user/invoices/receipt/view?id=${receipt.id}`" class="px-4 py-2 rounded-xl bg-tertiary text-on-tertiary font-label text-sm font-semibold hover:bg-tertiary/90 flex items-center gap-2 cursor-pointer shadow-sm transition-colors">
-                        <span class="material-symbols-outlined text-[18px]">receipt</span> View Receipt
-                    </router-link>
-                    <button v-else @click="generateReceipt" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-label text-sm font-semibold hover:bg-on-primary-fixed-variant flex items-center gap-2 cursor-pointer shadow-sm transition-colors">
-                        <span class="material-symbols-outlined text-[18px]">receipt_long</span> Generate Receipt (1 Credit)
-                    </button>
-                </template>
-
-                <button @click="copyPublicLink" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-semibold text-on-surface hover:bg-surface-container-low flex items-center gap-2 transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">link</span> Copy Link
-                </button>
                 
                 <div class="flex items-center gap-1 bg-surface-container-lowest/80 p-1 border border-outline-variant/60 rounded-xl">
                     <select v-model="paperSize" class="pl-2 pr-6 py-1 bg-transparent border-0 font-label text-xs font-semibold text-on-surface appearance-none cursor-pointer focus:ring-0 outline-none">
@@ -57,12 +36,15 @@
                         <option value="legal">📄 US Legal</option>
                     </select>
                     <button @click="downloadPDF" class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label text-xs font-semibold hover:bg-on-primary-fixed-variant flex items-center gap-1.5 transition-colors cursor-pointer border-0">
-                        <span class="material-symbols-outlined text-[16px]">download</span> PDF (1 Credit)
+                        <span class="material-symbols-outlined text-[16px]">download</span> PDF
                     </button>
                 </div>
                 
+                <button @click="printInvoice" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-semibold text-on-surface hover:bg-surface-container-low flex items-center gap-2 transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">print</span> Print
+                </button>
                 <a v-if="invoice.public_token" :href="`/invoice/public/${invoice.public_token}`" target="_blank" class="bg-primary text-on-primary rounded-xl px-5 py-2 font-label text-sm font-semibold flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-colors shadow-sm">
-                    <span class="material-symbols-outlined text-[18px]">open_in_new</span> Public View
+                    <span class="material-symbols-outlined text-[18px]">open_in_new</span> Original Public Invoice
                 </a>
             </div>
         </header>
@@ -93,17 +75,15 @@
                 </div>
 
                 <div class="text-right space-y-1">
-                    <span class="font-headline text-3xl sm:text-4xl font-black text-primary block">{{ invoice.invoice_number }}</span>
+                    <span class="font-headline text-3xl sm:text-4xl font-black text-primary block">RECEIPT</span>
+                    <p class="font-body text-sm sm:text-base text-on-surface-variant block">{{ receipt.receipt_number }}</p>
                     <div class="inline-block pt-1">
-                        <span v-if="invoice.is_paid || invoice.status === 'paid'" class="px-3 py-1 rounded-full text-xs font-bold bg-primary-container/40 text-primary border border-primary/20 flex items-center gap-1">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-primary-container/40 text-primary border border-primary/20 flex items-center gap-1">
                             <span class="material-symbols-outlined text-[14px]">check_circle</span> PAID
                         </span>
-                        <span v-else-if="invoice.status === 'sent'" class="px-3 py-1 rounded-full text-xs font-bold bg-tertiary-fixed-dim/40 text-tertiary border border-tertiary/20">SENT</span>
-                        <span v-else-if="invoice.status === 'overdue'" class="px-3 py-1 rounded-full text-xs font-bold bg-error-container/40 text-error border border-error/20">OVERDUE</span>
-                        <span v-else class="px-3 py-1 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant border border-outline-variant/40">DRAFT</span>
                     </div>
-                    <p class="font-body text-xs sm:text-sm text-on-surface-variant pt-2">Issue Date: {{ formatDate(invoice.issue_date) }}</p>
-                    <p class="font-body text-xs sm:text-sm text-on-surface-variant">Due Date: {{ formatDate(invoice.due_date) }}</p>
+                    <p class="font-body text-xs sm:text-sm text-on-surface-variant pt-2">Date Paid: {{ formatDate(receipt.issued_at) }}</p>
+                    <p class="font-body text-xs sm:text-sm text-on-surface-variant">For Invoice: {{ invoice.invoice_number }}</p>
                 </div>
             </div>
 
@@ -158,8 +138,8 @@
                         <span class="font-semibold text-on-surface">-{{ invoice.currency }} {{ invoice.discount?.toFixed(2) }}</span>
                     </div>
                     <div class="flex justify-between items-center pt-3 border-t border-outline-variant/40 font-headline text-lg sm:text-xl font-bold text-on-surface">
-                        <span>Total Amount</span>
-                        <span class="text-primary text-xl sm:text-2xl font-black">{{ invoice.currency }} {{ invoice.total?.toFixed(2) }}</span>
+                        <span>Total Paid</span>
+                        <span class="text-primary text-xl sm:text-2xl font-black">{{ receipt.currency }} {{ receipt.amount?.toFixed(2) }}</span>
                     </div>
                 </div>
             </div>
@@ -168,14 +148,13 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import api from '../../utils/api'
-import { useFlash } from '../../composables/useFlash'
+import { useRoute } from 'vue-router'
+import api from '@/utils/api'
+import { useFlash } from '@/composables/useFlash'
 
 const route = useRoute()
-const router = useRouter()
 const { showFlash } = useFlash()
 const invoice = ref(null)
 const profile = ref(null)
@@ -188,44 +167,29 @@ onMounted(async () => {
     if (!id) return
 
     try {
-        const res = await api.get(`/invoices/view?id=${id}`)
-        if (res.data?.invoice) {
-            invoice.value = res.data.invoice
-            profile.value = res.data.profile // We will need to make sure backend returns profile too
+        const res = await api.get(`/invoices/receipts/view?id=${id}`)
+        if (res.data?.receipt) {
+            receipt.value = res.data.receipt
+            invoice.value = receipt.value.invoice
+            
+            // Fetch profile separately
+            const pRes = await api.get('/profile').catch(() => ({ data: {} }))
+            if (pRes.data?.profile) {
+                profile.value = pRes.data.profile
+            }
         }
     } catch(e) {
-        showFlash('Failed to load invoice', 'error')
+        showFlash('Failed to load receipt', 'error')
     } finally {
         loading.value = false
     }
 })
 
-function formatDate(dateStr) {
+function formatDate(dateStr: any) {
     if (!dateStr) return '-'
     const d = new Date(dateStr)
     if (isNaN(d.getTime())) return dateStr
     return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
-}
-
-async function handleMarkPaid() {
-    try {
-        await api.post('/invoices/mark-paid', { id: invoice.value.id })
-        invoice.value.status = 'paid'
-        invoice.value.is_paid = true
-        showFlash('Invoice marked as paid!', 'success')
-    } catch (err) {
-        showFlash('Failed to mark invoice as paid', 'error')
-    }
-}
-
-async function generateReceipt() {
-    try {
-        const res = await api.post('/invoices/receipts', { invoice_id: invoice.value.id })
-        showFlash('Receipt generated successfully!', 'success')
-        router.push(`/user/invoices/receipt/view?id=${res.data.receipt.id}`)
-    } catch (err) {
-        showFlash(err.response?.data?.error || 'Failed to generate receipt', 'error')
-    }
 }
 
 function printInvoice() {
@@ -234,39 +198,16 @@ function printInvoice() {
 
 async function downloadPDF() {
     try {
-        const res = await api.get(`/invoices/download?id=${invoice.value.id}&size=${paperSize.value}`, { responseType: 'blob' })
+        const res = await api.get(`/invoices/receipts/download?id=${receipt.value.id}&size=${paperSize.value}`, { responseType: 'blob' })
         const url = window.URL.createObjectURL(new Blob([res.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `${invoice.value.invoice_number}.pdf`)
+        link.setAttribute('download', `${receipt.value.receipt_number}.pdf`)
         document.body.appendChild(link)
         link.click()
         link.parentNode.removeChild(link)
-    } catch (err) {
-        let msg = 'Failed to download PDF'
-        if (err.response?.data instanceof Blob) {
-            try {
-                const text = await err.response.data.text()
-                const json = JSON.parse(text)
-                if (json.error) msg = json.error
-            } catch(e) {}
-        } else if (err.response?.data?.error) {
-            msg = err.response.data.error
-        }
-        showFlash(msg, 'error')
+    } catch (err: any) {
+        showFlash('Failed to download PDF', 'error')
     }
-}
-
-function copyPublicLink() {
-    if(!invoice.value?.public_token) {
-        showFlash('No public token found for this invoice', 'error')
-        return
-    }
-    const url = window.location.origin + '/invoice/public/' + invoice.value.public_token
-    navigator.clipboard.writeText(url).then(() => {
-        showFlash('Public link copied to clipboard!', 'success')
-    }).catch(() => {
-        showFlash('Failed to copy link', 'error')
-    })
 }
 </script>

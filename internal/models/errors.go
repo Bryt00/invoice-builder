@@ -22,5 +22,6 @@ var (
 	ErrInvoiceNotPaid = errors.New("models: invoice must be paid before generating a receipt")
 	ErrReceiptAlreadyExists = errors.New("models: receipt already exists for this invoice")
 	ErrInvoiceDraftOnly = errors.New("models: only draft invoices can be edited")
+	ErrDraftCannotBePaid = errors.New("models: draft invoices cannot be marked as paid until dispatched")
 	ErrTransactionAlreadyProcessed = errors.New("models: transaction has already been processed")
 )

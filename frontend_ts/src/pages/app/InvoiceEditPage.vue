@@ -248,27 +248,28 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from '../../stores/auth'
-import api from '../../utils/api'
-import { useFlash } from '../../composables/useFlash'
+import { useAuthStore } from '@/stores/auth'
+import api from '@/utils/api'
+import { useFlash } from '@/composables/useFlash'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const { showFlash } = useFlash()
 
-const clients = ref([])
-const currencies = ref([])
-const profile = ref(null)
+const clients = ref<any[]>([])
+const currencies = ref<any[]>([])
+const profile = ref<any>(null)
 const saving = ref(false)
 
 const today = new Date().toISOString().split('T')[0]
 const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
 const form = reactive({
+    id: '',
     client_id: '',
     client_email: '',
     client_address: '',
@@ -279,7 +280,7 @@ const form = reactive({
     tax_rate: 0,
     discount_amount: 0,
     notes: '',
-    items: []
+    items: [] as any[]
 })
 
 const currencySymbol = computed(() => {
@@ -336,7 +337,7 @@ onMounted(async () => {
                 form.notes = inv.notes || ''
                 form.items = inv.line_items || []
             }
-        } catch (err) {
+        } catch (err: any) {
             showFlash('Failed to load invoice', 'error')
         }
     } else {
@@ -360,13 +361,13 @@ function addItem() {
     form.items.push({ description: '', quantity: 1, unit_price: 0 })
 }
 
-function removeItem(idx) {
+function removeItem(idx: number) {
     if (form.items.length > 1) {
         form.items.splice(idx, 1)
     }
 }
 
-function formatDate(dateStr) {
+function formatDate(dateStr: any) {
     if (!dateStr) return '-'
     const d = new Date(dateStr)
     // ensure valid date before formatting
@@ -382,10 +383,10 @@ async function handleSubmit() {
     await submitForm(false)
 }
 
-async function submitForm(isDraft) {
+async function submitForm(isDraft: any) {
     saving.value = true
     try {
-        const payload = {
+        const payload: any = {
             ...form,
             save_as_draft: isDraft,
             action: isDraft ? 'draft' : 'dispatch'
@@ -398,7 +399,7 @@ async function submitForm(isDraft) {
         }
         showFlash(isDraft ? 'Invoice updated as draft!' : 'Invoice generated and dispatched!', 'success')
         router.push('/user/invoices')
-    } catch (err) {
+    } catch (err: any) {
         showFlash(err.response?.data?.error || 'Failed to process invoice', 'error')
     } finally {
         saving.value = false

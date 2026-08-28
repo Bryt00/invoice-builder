@@ -154,11 +154,11 @@ func getSecondaryColor() color.Color {
 }
 
 var (
-	fadedBrandLogoCache *bytes.Buffer
+	fadedBrandLogoBytes []byte
 	fadedBrandLogoOnce  sync.Once
 )
 
-func getFadedBrandLogoBuffer() *bytes.Buffer {
+func getFadedBrandLogoReader() *bytes.Reader {
 	fadedBrandLogoOnce.Do(func() {
 		f, err := ui.Files.Open("asset/img/brand_logo.png")
 		if err != nil {
@@ -179,29 +179,32 @@ func getFadedBrandLogoBuffer() *bytes.Buffer {
 		var buf bytes.Buffer
 		err = png.Encode(&buf, faded)
 		if err == nil {
-			fadedBrandLogoCache = &buf
+			fadedBrandLogoBytes = buf.Bytes()
 		}
 	})
-	return fadedBrandLogoCache
+	if len(fadedBrandLogoBytes) == 0 {
+		return nil
+	}
+	return bytes.NewReader(fadedBrandLogoBytes)
 }
 
 func buildHeader(m pdf.Maroto, cfg paperConfig, profile *models.BusinessProfile, logoPath, companyName, title string, wideLines []string, narrowLines []string) {
 	// Load and fade the brand logo for the backdrop
-	fadedLogoBuf := getFadedBrandLogoBuffer()
-	if fadedLogoBuf != nil {
+	fadedLogoReader := getFadedBrandLogoReader()
+	if fadedLogoReader != nil {
 		if pdfM, ok := m.(*pdf.PdfMaroto); ok {
 			opts := gofpdf.ImageOptions{
 				ImageType:             "PNG",
 				ReadDpi:               true,
 				AllowNegativePosition: true,
 			}
-			pdfM.Pdf.RegisterImageOptionsReader("watermark", opts, fadedLogoBuf)
+			pdfM.Pdf.RegisterImageOptionsReader("watermark", opts, fadedLogoReader)
 		}
 	}
 
 	m.RegisterHeader(func() {
 		// Draw watermark backdrop first so it stays behind everything
-		if fadedLogoBuf != nil {
+		if fadedLogoReader != nil {
 			if pdfM, ok := m.(*pdf.PdfMaroto); ok {
 				width, _ := m.GetPageSize()
 				imageWidth := 100.0

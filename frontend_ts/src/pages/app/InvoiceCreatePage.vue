@@ -248,21 +248,20 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from '../../stores/auth'
-import api from '../../utils/api'
-import { useFlash } from '../../composables/useFlash'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import api from '@/utils/api'
+import { useFlash } from '@/composables/useFlash'
 
 const router = useRouter()
-const route = useRoute()
 const authStore = useAuthStore()
 const { showFlash } = useFlash()
 
-const clients = ref([])
-const currencies = ref([])
-const profile = ref(null)
+const clients = ref<any[]>([])
+const currencies = ref<any[]>([])
+const profile = ref<any>(null)
 const saving = ref(false)
 
 const today = new Date().toISOString().split('T')[0]
@@ -279,7 +278,7 @@ const form = reactive({
     tax_rate: 0,
     discount_amount: 0,
     notes: '',
-    items: []
+    items: [{ description: 'UI/UX Design Retainer', quantity: 1, unit_price: 1200.00 }] as any[]
 })
 
 const currencySymbol = computed(() => {
@@ -317,32 +316,8 @@ onMounted(async () => {
     }
     if (pRes.data?.currencies) currencies.value = pRes.data.currencies
 
-    const id = route.query.id
-    if (id) {
-        try {
-            const res = await api.get(`/invoices/view?id=${id}`)
-            if (res.data?.invoice) {
-                const inv = res.data.invoice
-                form.id = inv.id
-                form.client_id = inv.client_id || ''
-                form.client_email = inv.client?.email || ''
-                form.client_address = inv.client?.address || ''
-                form.currency = inv.currency
-                form.invoice_number = inv.invoice_number
-                form.issue_date = inv.issue_date ? inv.issue_date.split('T')[0] : today
-                form.due_date = inv.due_date ? inv.due_date.split('T')[0] : nextWeek
-                form.tax_rate = inv.tax_rate || (inv.tax > 0 ? (inv.tax / inv.subtotal * 100) : 0) // Approximation if rate wasn't saved directly
-                form.discount_amount = inv.discount || 0
-                form.notes = inv.notes || ''
-                form.items = inv.line_items || []
-            }
-        } catch (err) {
-            showFlash('Failed to load invoice', 'error')
-        }
-    } else {
-        // Generate mockup ID for new (shouldn't happen on edit page but fallback)
-        form.invoice_number = 'INV-' + Date.now().toString().slice(-6)
-    }
+    // Generate mockup ID
+    form.invoice_number = 'INV-' + Date.now().toString().slice(-6)
 })
 
 function onClientChange() {
@@ -360,13 +335,13 @@ function addItem() {
     form.items.push({ description: '', quantity: 1, unit_price: 0 })
 }
 
-function removeItem(idx) {
+function removeItem(idx: number) {
     if (form.items.length > 1) {
         form.items.splice(idx, 1)
     }
 }
 
-function formatDate(dateStr) {
+function formatDate(dateStr: any) {
     if (!dateStr) return '-'
     const d = new Date(dateStr)
     // ensure valid date before formatting
@@ -382,23 +357,19 @@ async function handleSubmit() {
     await submitForm(false)
 }
 
-async function submitForm(isDraft) {
+async function submitForm(isDraft: any) {
     saving.value = true
     try {
-        const payload = {
+        const payload: any = {
             ...form,
             save_as_draft: isDraft,
             action: isDraft ? 'draft' : 'dispatch'
         }
-        if (payload.id) {
-            await api.put('/invoices', payload)
-        } else {
-            delete payload.id
-            await api.post('/invoices', payload)
-        }
-        showFlash(isDraft ? 'Invoice updated as draft!' : 'Invoice generated and dispatched!', 'success')
+        if (!payload.id) delete payload.id
+        await api.post('/invoices', payload)
+        showFlash(isDraft ? 'Invoice saved as draft!' : 'Invoice generated and dispatched!', 'success')
         router.push('/user/invoices')
-    } catch (err) {
+    } catch (err: any) {
         showFlash(err.response?.data?.error || 'Failed to process invoice', 'error')
     } finally {
         saving.value = false

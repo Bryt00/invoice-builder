@@ -365,6 +365,7 @@ async function submitForm(isDraft) {
             save_as_draft: isDraft,
             action: isDraft ? 'draft' : 'dispatch'
         }
+        if (!payload.id) delete payload.id
         await api.post('/invoices', payload)
         showFlash(isDraft ? 'Invoice saved as draft!' : 'Invoice generated and dispatched!', 'success')
         router.push('/user/invoices')

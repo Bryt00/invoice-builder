@@ -173,12 +173,25 @@ func (m *InvoiceModel) CountByUserID(ctx context.Context, userID uuid.UUID) (int
 }
 
 func (m *InvoiceModel) MarkAsPaid(ctx context.Context, id uuid.UUID, userID uuid.UUID) error {
+	var inv Invoice
+	err := m.DB.WithContext(ctx).Where("id = ? AND user_id = ?", id, userID).First(&inv).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrNoRecord
+		}
+		return err
+	}
+
+	if inv.Status == InvoiceStatusDraft {
+		return ErrDraftCannotBePaid
+	}
+
 	result := m.DB.WithContext(ctx).
 		Model(&Invoice{}).
 		Where("id = ? AND user_id = ?", id, userID).
 		Updates(map[string]interface{}{
 			"is_paid": true,
-			"status":  "paid",
+			"status":  InvoiceStatusPaid,
 		})
 	if result.Error != nil {
 		return result.Error

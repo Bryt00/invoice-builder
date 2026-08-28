@@ -168,11 +168,11 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import api from '../../utils/api'
-import { useFlash } from '../../composables/useFlash'
+import api from '@/utils/api'
+import { useFlash } from '@/composables/useFlash'
 
 const route = useRoute()
 const router = useRouter()
@@ -200,7 +200,7 @@ onMounted(async () => {
     }
 })
 
-function formatDate(dateStr) {
+function formatDate(dateStr: any) {
     if (!dateStr) return '-'
     const d = new Date(dateStr)
     if (isNaN(d.getTime())) return dateStr
@@ -213,7 +213,7 @@ async function handleMarkPaid() {
         invoice.value.status = 'paid'
         invoice.value.is_paid = true
         showFlash('Invoice marked as paid!', 'success')
-    } catch (err) {
+    } catch (err: any) {
         showFlash('Failed to mark invoice as paid', 'error')
     }
 }
@@ -223,7 +223,7 @@ async function generateReceipt() {
         const res = await api.post('/invoices/receipts', { invoice_id: invoice.value.id })
         showFlash('Receipt generated successfully!', 'success')
         router.push(`/user/invoices/receipt/view?id=${res.data.receipt.id}`)
-    } catch (err) {
+    } catch (err: any) {
         showFlash(err.response?.data?.error || 'Failed to generate receipt', 'error')
     }
 }
@@ -242,7 +242,7 @@ async function downloadPDF() {
         document.body.appendChild(link)
         link.click()
         link.parentNode.removeChild(link)
-    } catch (err) {
+    } catch (err: any) {
         let msg = 'Failed to download PDF'
         if (err.response?.data instanceof Blob) {
             try {
