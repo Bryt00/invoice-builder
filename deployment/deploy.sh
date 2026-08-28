@@ -163,7 +163,7 @@ echo " Deployment Script Finished! "
 echo "========================================"
 echo ""
 
-if [ ! -s "/etc/ssl/certs/cloudflare-origin.pem" ] || [ ! -s "/etc/ssl/private/cloudflare-origin.key" ]; then
+if [ ! -s "/etc/ssl/certs/teks-invoice-origin.pem" ] || [ ! -s "/etc/ssl/private/teks-invoice-origin.key" ]; then
     echo "!!! ACTION REQUIRED FOR CLOUDFLARE FULL STRICT SSL !!!"
     echo "1. Go to your Cloudflare Dashboard -> SSL/TLS -> Origin Server."
     echo "2. Click 'Create Certificate'."
@@ -172,14 +172,14 @@ if [ ! -s "/etc/ssl/certs/cloudflare-origin.pem" ] || [ ! -s "/etc/ssl/private/c
     echo "   -> Paste the certificate contents."
     echo "   -> Press Ctrl+X, then type Y, then press Enter to save."
     read -p "Press Enter to open the editor..."
-    nano /etc/ssl/certs/cloudflare-origin.pem
+    nano /etc/ssl/certs/teks-invoice-origin.pem
 
     echo ""
     echo "4. We will now open an editor for the PRIVATE KEY."
     echo "   -> Paste the private key contents."
     echo "   -> Press Ctrl+X, then type Y, then press Enter to save."
     read -p "Press Enter to open the editor..."
-    nano /etc/ssl/private/cloudflare-origin.key
+    nano /etc/ssl/private/teks-invoice-origin.key
 else
     echo "Cloudflare Origin Certificates already exist. Skipping manual entry."
 fi
