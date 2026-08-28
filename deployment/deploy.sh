@@ -13,6 +13,12 @@ echo "========================================"
 echo " Starting Server Deployment Script "
 echo "========================================"
 
+# Resolve the directory of the script and navigate to the project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_ROOT"
+echo "Working directory set to: $PROJECT_ROOT"
+
 # Variables
 DB_NAME="invoice_app"
 DB_USER="invoice_user"
