@@ -28,3 +28,6 @@ scratch.go
 # Test files
 test*.go
 test*.pdf
+
+# Design reference
+ui/html-reference/
