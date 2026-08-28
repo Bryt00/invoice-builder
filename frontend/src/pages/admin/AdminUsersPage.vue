@@ -394,8 +394,19 @@ async function submitCreditAllocation() {
   }
 }
 
+import { useConfirm } from '../../composables/useConfirm'
+
+const { askConfirm } = useConfirm()
+
 async function deleteUser(id) {
-  if (!confirm('Are you sure you want to permanently delete this user?')) return
+  const ok = await askConfirm({
+    title: 'Delete User Account',
+    message: 'Are you sure you want to permanently delete this user? This action cannot be undone.',
+    confirmText: 'Delete Account',
+    type: 'danger'
+  })
+  if (!ok) return
+
   try {
     await api.delete(`/admin/users/${id}`)
     showFlash('User deleted successfully', 'success')

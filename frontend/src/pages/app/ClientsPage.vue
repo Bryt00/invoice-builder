@@ -299,8 +299,19 @@ async function handleEditClient(id) {
     }
 }
 
+import { useConfirm } from '../../composables/useConfirm'
+
+const { askConfirm } = useConfirm()
+
 async function deleteClient(id) {
-    if(!confirm("Are you sure you want to delete this client?")) return;
+    const ok = await askConfirm({
+        title: 'Delete Client',
+        message: 'Are you sure you want to delete this client? This action cannot be undone.',
+        confirmText: 'Delete Client',
+        type: 'danger'
+    })
+    if (!ok) return
+
     try {
         await api.post('/clients/delete', { id })
         showFlash('Client deleted.', 'success')

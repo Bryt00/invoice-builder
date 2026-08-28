@@ -156,11 +156,13 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useToast } from '../../composables/useToast'
 import api from '../../utils/api'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { showToast } = useToast()
 
 const loading = ref(true)
 const stats = ref({ balance: 0, total_purchased: 0, total_used: 0 })
@@ -188,7 +190,7 @@ onMounted(async () => {
   if (reference) {
     try {
       await api.get(`/credits/topup/verify?reference=${reference}`)
-      alert('Payment verified! Your credits have been added.')
+      showToast('Payment verified! Your credits have been added.', 'success')
       
       // Clean up the URL
       const newQuery = { ...route.query }
@@ -197,6 +199,7 @@ onMounted(async () => {
       router.replace({ query: newQuery })
     } catch (err) {
       console.error('Verification failed', err)
+      showToast('Payment verification failed.', 'error')
     }
   }
 
@@ -230,7 +233,7 @@ async function handleTopup() {
             window.location.href = res.data.authorization_url
         }
     } catch (err) {
-        alert(err.response?.data?.error || 'Failed to initialize payment')
+        showToast(err.response?.data?.error || 'Failed to initialize payment', 'error')
     } finally {
         purchasing.value = false
     }

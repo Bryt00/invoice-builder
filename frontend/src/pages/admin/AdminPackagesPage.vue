@@ -321,8 +321,19 @@ async function togglePackageStatus(pkg) {
   }
 }
 
+import { useConfirm } from '../../composables/useConfirm'
+
+const { askConfirm } = useConfirm()
+
 async function deletePackage(id) {
-  if (!confirm('Are you sure you want to permanently delete this credit bundle?')) return
+  const ok = await askConfirm({
+    title: 'Delete Credit Package',
+    message: 'Are you sure you want to permanently delete this credit bundle?',
+    confirmText: 'Delete Package',
+    type: 'danger'
+  })
+  if (!ok) return
+
   try {
     await api.delete(`/admin/packages/${id}`)
     showFlash('Package deleted successfully', 'success')
