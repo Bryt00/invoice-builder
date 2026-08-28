@@ -49,17 +49,21 @@ echo "[4/6] Setting up application directory..."
 mkdir -p $APP_DIR
 # Assuming the script is run from the directory containing the binary and .env
 # If not, you will need to manually copy these.
-if [ -f "invoice-builder" ]; then
-    cp invoice-builder $APP_DIR/
-    chmod +x $APP_DIR/invoice-builder
-else
-    echo "Warning: 'invoice-builder' binary not found in current directory. Please copy it to $APP_DIR manually."
-fi
+	echo "Building Go API application..."
+	go build -o invoice-builder ./cmd/api
+
+	if [ -f "invoice-builder" ]; then
+	    cp invoice-builder $APP_DIR/
+	    chmod +x $APP_DIR/invoice-builder
+	else
+	    echo "Warning: 'invoice-builder' binary not found. Build may have failed."
+	fi
 
 echo "Building Vue frontend..."
 if [ -d "frontend" ]; then
-    cd frontend
-    npm install
+	    cd frontend
+	    npm cache clean --force
+	    npm install --no-audit --no-fund
     npm run build
     cd ..
     mkdir -p $APP_DIR/frontend/dist
@@ -99,9 +103,7 @@ EOL
 fi
 
 # 5. Systemd Service Setup
-echo "[5/6] Configuring Systemd Service..."
-echo "Building Go API application..."
-go build -o invoice-builder ./cmd/api
+	echo "[5/6] Configuring Systemd Service..."
 if [ -f "invoice-builder.service" ]; then
     cp invoice-builder.service /etc/systemd/system/
     systemctl daemon-reload
