@@ -62,9 +62,9 @@
               </td>
               <td class="px-6 py-4 text-on-surface-variant">{{ user.email }}</td>
               <td class="px-6 py-4">
-                <select v-model="user.role.name" @change="updateUserRole(user)" class="bg-surface-container-high border border-outline-variant/40 rounded-lg px-2 py-1 font-label text-xs font-bold cursor-pointer focus:outline-none">
-                  <option value="User">USER</option>
-                  <option value="Admin">ADMIN</option>
+                <select :value="user.role?.name?.toLowerCase()" @change="e => onRoleSelectChange(user, e.target.value)" class="bg-surface-container-high border border-outline-variant/40 rounded-lg px-2 py-1 font-label text-xs font-bold cursor-pointer focus:outline-none">
+                  <option value="user">USER</option>
+                  <option value="admin">ADMIN</option>
                 </select>
               </td>
               <td class="px-6 py-4">
@@ -343,6 +343,12 @@ async function updateUserRole(user) {
     showFlash('Failed to update role', 'error')
     fetchUsers(meta.value.page) // revert
   }
+}
+
+function onRoleSelectChange(user, newRole) {
+  if (!user.role) user.role = {}
+  user.role.name = newRole
+  updateUserRole(user)
 }
 
 async function toggleUserStatus(user) {
