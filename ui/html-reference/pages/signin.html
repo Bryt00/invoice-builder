@@ -18,6 +18,14 @@
                     </div>
                 </div>
             {{end}}
+            {{with .FlashError}}
+                <div class="flash-alert p-4 mb-6 text-sm bg-error-container/60 border border-error/20 rounded-xl flex items-start gap-3" role="alert">
+                    <span class="material-symbols-outlined text-error text-xl flex-shrink-0 mt-0.5">warning</span>
+                    <div class="flex-1 font-body text-sm font-medium text-on-surface">
+                        {{.}}
+                    </div>
+                </div>
+            {{end}}
             <form action="/user/login" class="form-stagger space-y-5" method="POST">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                 {{if .Data.Redirect}}<input type="hidden" name="redirect" value="{{.Data.Redirect}}">{{end}}
@@ -76,14 +84,7 @@
                     <a class="auth-link font-label text-xs font-medium text-primary hover:text-on-primary-fixed-variant transition-colors ml-1"
                        href="/user/resend-verification">Resend Link</a>
                 </p>
-                <p class="font-body text-xs text-on-surface-variant/70 pt-2 border-t border-outline-variant/30">
-                    Are you an administrator?
-                    <a class="auth-link font-label text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline ml-1 inline-flex items-center gap-0.5"
-                       href="/admin/login">
-                        <span class="material-symbols-outlined text-[14px]">shield</span>
-                        <span>Admin Console Sign In</span>
-                    </a>
-                </p>
+
             </div>
         </div>
     </main>

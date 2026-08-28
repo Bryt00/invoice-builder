@@ -19,8 +19,12 @@ node_modules/
 
 # Compiled Binaries
 web
+api
 invoice-builder
 
 # Scratch files
 scratch.go
 
+# Test files
+test*.go
+test*.pdf

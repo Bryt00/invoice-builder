@@ -50,6 +50,23 @@ else
     echo "Warning: 'invoice-builder' binary not found in current directory. Please copy it to $APP_DIR manually."
 fi
 
+echo "Building Vue frontend..."
+if [ -d "frontend" ]; then
+    cd frontend
+    npm install
+    npm run build
+    cd ..
+    mkdir -p $APP_DIR/frontend/dist
+    cp -r frontend/dist/* $APP_DIR/frontend/dist/
+else
+    echo "Error: 'frontend' directory not found."
+    exit 1
+fi
+
+echo "Setting up uploads directory..."
+mkdir -p $APP_DIR/ui/asset/img/uploads
+chmod 777 $APP_DIR/ui/asset/img/uploads
+
 if [ -f ".env" ]; then
     cp .env $APP_DIR/
 else
@@ -77,6 +94,8 @@ fi
 
 # 5. Systemd Service Setup
 echo "[5/6] Configuring Systemd Service..."
+echo "Building Go API application..."
+go build -o invoice-builder ./cmd/api
 if [ -f "invoice-builder.service" ]; then
     cp invoice-builder.service /etc/systemd/system/
     systemctl daemon-reload
@@ -110,9 +129,23 @@ echo ""
 echo "!!! ACTION REQUIRED FOR CLOUDFLARE FULL STRICT SSL !!!"
 echo "1. Go to your Cloudflare Dashboard -> SSL/TLS -> Origin Server."
 echo "2. Click 'Create Certificate'."
-echo "3. Save the 'Origin Certificate' to: /etc/ssl/certs/cloudflare-origin.pem"
-echo "4. Save the 'Private Key' to: /etc/ssl/private/cloudflare-origin.key"
-echo "5. Run: systemctl restart nginx"
+echo ""
+echo "3. We will now open an editor for the ORIGIN CERTIFICATE."
+echo "   -> Paste the certificate contents."
+echo "   -> Press Ctrl+X, then type Y, then press Enter to save."
+read -p "Press Enter to open the editor..."
+nano /etc/ssl/certs/cloudflare-origin.pem
+
+echo ""
+echo "4. We will now open an editor for the PRIVATE KEY."
+echo "   -> Paste the private key contents."
+echo "   -> Press Ctrl+X, then type Y, then press Enter to save."
+read -p "Press Enter to open the editor..."
+nano /etc/ssl/private/cloudflare-origin.key
+
+echo ""
+echo "5. Restarting Nginx to apply certificates..."
+systemctl restart nginx
 echo ""
 echo "Your generated Database Password is: $DB_PASSWORD"
 echo "(It has been automatically saved in $APP_DIR/.env if the script generated the file)"

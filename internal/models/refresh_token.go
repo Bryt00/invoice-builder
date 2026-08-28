@@ -84,11 +84,11 @@ func (m *RefreshTokenModel) Validate(ctx context.Context, plainToken string) (*R
 	}
 
 	if rt.RevokedAt != nil {
-		return nil, errors.New("refresh token has been revoked")
+		return nil, ErrTokenRevoked
 	}
 
 	if time.Now().After(rt.ExpiresAt) {
-		return nil, errors.New("refresh token has expired")
+		return nil, ErrTokenExpired
 	}
 
 	return &rt, nil

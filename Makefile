@@ -2,44 +2,52 @@
 # VARIABLES
 # ==================================================================================== #
 
-# You can override this when running make, e.g., make migrate-up DB_DSN="postgres://user:pass@localhost:5432/dbname?sslmode=disable"
+# Database connection DSN (override via make migrate-up DB_DSN="...")
 DB_DSN ?= "postgres://postgres:raven_db@localhost/invoice-app?sslmode=disable"
 
 # ==================================================================================== #
-# DEVELOPMENT
+# DEVELOPMENT & BUILD
 # ==================================================================================== #
 
-## run: run the cmd/web application
+## run: run the Go API backend (cmd/api)
 .PHONY: run
-run:
-	go run ./cmd/web
+run: run-api
 
-## air: run the application using air for live-reloading
+## run-api: run the Go API backend (cmd/api)
+.PHONY: run-api
+run-api:
+	go run ./cmd/api
+
+## run-frontend: run the Vue 3 Vite development server
+.PHONY: run-frontend
+run-frontend:
+	cd frontend && npm run dev
+
+## air: run the API application using air for live-reloading
 .PHONY: air
 air:
 	air
 
-## build: build the cmd/web application
-.PHONY: build
-build: build-css
-	go build -o=/tmp/bin/web ./cmd/web
+## build-api: build the Go API binary
+.PHONY: build-api
+build-api:
+	go build -o=/tmp/bin/api ./cmd/api
 
-## build-prod: build the cmd/web application for production (linux/amd64 statically linked)
+## build-prod: build the Go API application for production (linux/amd64 statically linked)
 .PHONY: build-prod
-build-prod: build-css
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o=./bin/invoice-builder ./cmd/web
+build-prod:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o=./bin/invoice-builder ./cmd/api
 
-## build-css: build tailwind css
-.PHONY: build-css
-build-css:
-	npm run build:css
+## build-frontend: build the Vue 3 SPA production bundle
+.PHONY: build-frontend
+build-frontend:
+	cd frontend && npm run build
 
-## watch-css: watch tailwind css for changes
-.PHONY: watch-css
-watch-css:
-	npm run watch:css
+## build-all: build both Go API backend and Vue 3 frontend
+.PHONY: build-all
+build-all: build-api build-frontend
 
-## test: run all tests
+## test: run all Go unit tests
 .PHONY: test
 test:
 	go test -v -race ./...

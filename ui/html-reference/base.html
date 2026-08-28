@@ -62,14 +62,14 @@
         {{if .IsAuthenticated}}
             {{if .IsAdmin}}
                 {{template "admin_sidebar" .}}
-                <div class="md:ml-64 min-h-screen flex flex-col flex-1 relative z-10">
-                    <main class="flex-1 bg-transparent p-4 md:p-8 lg:p-12">
+                <div class="md:ml-64 flex flex-col flex-1 relative z-10 w-full">
+                    <main class="flex-1 bg-transparent p-4 md:p-8 lg:p-12 w-full">
                         {{template "main" .}}
                     </main>
                     {{template "footer" .}}
                 </div>
             {{else}}
-                <div class="min-h-screen flex flex-col flex-1 relative z-10">
+                <div class="flex flex-col flex-1 relative z-10 w-full">
                     {{template "user_nav" .}}
                     <main class="flex-1 bg-transparent max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 md:py-8">
                         {{template "main" .}}
@@ -78,7 +78,7 @@
                 </div>
             {{end}}
         {{else}}
-            <div class="noise-overlay relative z-10 flex flex-col flex-1 min-h-screen">
+            <div class="noise-overlay relative z-10 flex flex-col flex-1 w-full">
                 {{template "public_nav" .}}
                 <!-- Floating Orbs -->
                 <div class="auth-orb auth-orb--primary"></div>

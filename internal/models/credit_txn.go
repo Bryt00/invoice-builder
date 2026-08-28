@@ -33,6 +33,7 @@ type CreditTxnInterface interface {
 	GetSystemCreditStats(ctx context.Context) (totalPurchased, totalUsed int, err error)
 	GetAllSystemTxns(ctx context.Context, txnType string, page, limit int) ([]*CreditTxn, int64, error)
 	AdminGrantCredits(ctx context.Context, userID uuid.UUID, amount int, reason string) error
+	CheckReferenceExists(ctx context.Context, reference string) (bool, error)
 }
 
 type CreditTxnModel struct {
@@ -135,4 +136,13 @@ func (m *CreditTxnModel) AdminGrantCredits(ctx context.Context, userID uuid.UUID
 		CreatedAt:   time.Now(),
 	}
 	return m.Insert(ctx, txn)
+}
+
+func (m *CreditTxnModel) CheckReferenceExists(ctx context.Context, reference string) (bool, error) {
+	var count int64
+	err := m.DB.WithContext(ctx).Model(&CreditTxn{}).Where("description = ?", "Topup Ref: "+reference).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }

@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -27,6 +26,8 @@ type AdminService interface {
 	ToggleCreditPackage(ctx context.Context, pkgID uuid.UUID, isActive bool) error
 	DeleteCreditPackage(ctx context.Context, pkgID uuid.UUID) error
 	GetAllSystemPayments(ctx context.Context, status string, page, limit int) ([]*models.Payment, int64, error)
+	GetAllSystemInvoices(ctx context.Context, search, status string, page, limit int) ([]*models.Invoice, int64, error)
+	GetAllSystemCreditTxns(ctx context.Context, txnType string, page, limit int) ([]*models.CreditTxn, int64, error)
 	GetAllWebhookLogs(ctx context.Context, status string, page, limit int) ([]*models.WebhookLog, int64, error)
 	ReplayWebhook(ctx context.Context, webhookID uuid.UUID) error
 }
@@ -215,6 +216,14 @@ func (s *adminService) GetAllSystemPayments(ctx context.Context, status string, 
 	return s.models.Payment.GetAllSystemPayments(ctx, status, page, limit)
 }
 
+func (s *adminService) GetAllSystemInvoices(ctx context.Context, search, status string, page, limit int) ([]*models.Invoice, int64, error) {
+	return s.models.Invoice.GetAllSystemInvoices(ctx, search, status, page, limit)
+}
+
+func (s *adminService) GetAllSystemCreditTxns(ctx context.Context, txnType string, page, limit int) ([]*models.CreditTxn, int64, error) {
+	return s.models.CreditTxn.GetAllSystemTxns(ctx, txnType, page, limit)
+}
+
 func (s *adminService) GetAllWebhookLogs(ctx context.Context, status string, page, limit int) ([]*models.WebhookLog, int64, error) {
 	return s.models.WebhookLogs.GetAll(ctx, status, page, limit)
 }
@@ -225,7 +234,7 @@ func (s *adminService) ReplayWebhook(ctx context.Context, webhookID uuid.UUID) e
 		return err
 	}
 	if webhook == nil {
-		return errors.New("webhook not found")
+		return models.ErrWebhookNotFound
 	}
 	return s.models.WebhookLogs.UpdateStatus(ctx, webhook.ID, "processed", "")
 }

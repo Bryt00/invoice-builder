@@ -172,70 +172,34 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                <!-- Starter Pack -->
-                <div class="glass-card rounded-2xl p-8 flex flex-col justify-between border border-outline-variant/60">
-                    <div>
-                        <h3 class="font-headline text-xl font-bold text-on-surface mb-1">Starter Pack</h3>
-                        <p class="font-body text-xs text-on-surface-variant mb-4">For freelancers starting out</p>
-                        <div class="mb-6">
-                            <span class="font-headline text-4xl font-extrabold text-on-surface">$10</span>
-                            <span class="font-body text-xs text-on-surface-variant"> / 100 Credits</span>
+                {{if .Data.CreditPackages}}
+                    {{range $pkg := .Data.CreditPackages}}
+                        <div class="glass-card rounded-2xl p-8 flex flex-col justify-between border {{if $pkg.BadgeTag}}border-2 border-primary relative shadow-lg{{else}}border-outline-variant/60{{end}}">
+                            {{if $pkg.BadgeTag}}
+                            <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-primary text-on-primary text-xs font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
+                                {{$pkg.BadgeTag}}
+                            </span>
+                            {{end}}
+                            <div>
+                                <h3 class="font-headline text-xl font-bold text-on-surface mb-1">{{$pkg.Name}}</h3>
+                                <div class="mb-6 mt-4">
+                                    <span class="font-headline text-4xl font-extrabold {{if $pkg.BadgeTag}}text-primary{{else}}text-on-surface{{end}}">{{currencySymbol $pkg.Currency}}{{printf "%.0f" (div $pkg.Price 100)}}</span>
+                                    <span class="font-body text-xs text-on-surface-variant"> / {{$pkg.CreditsGranted}} Credits</span>
+                                </div>
+                                <ul class="space-y-3 font-body text-sm text-on-surface-variant mb-6">
+                                    {{range $feature := split $pkg.Description "\n"}}
+                                        {{if $feature}}
+                                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> {{$feature}}</li>
+                                        {{end}}
+                                    {{end}}
+                                </ul>
+                            </div>
+                            <a href="/user/register" class="w-full py-2.5 text-center font-label text-sm font-semibold rounded-xl {{if $pkg.BadgeTag}}btn-auth-submit text-on-primary{{else}}border border-primary text-primary hover:bg-primary hover:text-on-primary transition-all{{end}}">
+                                {{if $pkg.BadgeTag}}Buy {{$pkg.Name}}{{else}}Get Started{{end}}
+                            </a>
                         </div>
-                        <ul class="space-y-3 font-body text-sm text-on-surface-variant mb-6">
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> 100 PDF Invoice Dispatches</li>
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> Full WYSIWYG Editor</li>
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> Credits Never Expire</li>
-                        </ul>
-                    </div>
-                    <a href="/user/register" class="w-full py-2.5 text-center font-label text-sm font-semibold rounded-xl border border-primary text-primary hover:bg-primary hover:text-on-primary transition-all">
-                        Get Started
-                    </a>
-                </div>
-
-                <!-- Growth Pack (Popular) -->
-                <div class="glass-card rounded-2xl p-8 flex flex-col justify-between border-2 border-primary relative shadow-lg">
-                    <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-primary text-on-primary text-xs font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
-                        Most Popular
-                    </span>
-                    <div>
-                        <h3 class="font-headline text-xl font-bold text-on-surface mb-1">Growth Bundle</h3>
-                        <p class="font-body text-xs text-on-surface-variant mb-4">For active professionals & agencies</p>
-                        <div class="mb-6">
-                            <span class="font-headline text-4xl font-extrabold text-primary">$45</span>
-                            <span class="font-body text-xs text-on-surface-variant"> / 500 Credits</span>
-                        </div>
-                        <ul class="space-y-3 font-body text-sm text-on-surface-variant mb-6">
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> 500 PDF Invoice Dispatches</li>
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> Save 10% per credit</li>
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> Priority Email Verification</li>
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> Credits Never Expire</li>
-                        </ul>
-                    </div>
-                    <a href="/user/register" class="btn-auth-submit w-full py-2.5 text-center font-label text-sm font-semibold rounded-xl text-on-primary">
-                        Buy Growth Pack
-                    </a>
-                </div>
-
-                <!-- Scale Pack -->
-                <div class="glass-card rounded-2xl p-8 flex flex-col justify-between border border-outline-variant/60">
-                    <div>
-                        <h3 class="font-headline text-xl font-bold text-on-surface mb-1">Scale Pack</h3>
-                        <p class="font-body text-xs text-on-surface-variant mb-4">For growing businesses & teams</p>
-                        <div class="mb-6">
-                            <span class="font-headline text-4xl font-extrabold text-on-surface">$160</span>
-                            <span class="font-body text-xs text-on-surface-variant"> / 2,000 Credits</span>
-                        </div>
-                        <ul class="space-y-3 font-body text-sm text-on-surface-variant mb-6">
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> 2,000 Invoice Dispatches</li>
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> Save 20% per credit</li>
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> Dedicated Support</li>
-                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">check</span> Credits Never Expire</li>
-                        </ul>
-                    </div>
-                    <a href="/user/register" class="w-full py-2.5 text-center font-label text-sm font-semibold rounded-xl border border-primary text-primary hover:bg-primary hover:text-on-primary transition-all">
-                        Get Started
-                    </a>
-                </div>
+                    {{end}}
+                {{end}}
             </div>
         </section>
     </main>

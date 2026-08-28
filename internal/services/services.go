@@ -14,12 +14,13 @@ type Services struct {
 	Client  ClientService
 	Admin   AdminService
 	Credit  CreditService
+	Paystack *paystack.Client
 }
 
-func NewServices(models models.Models, mailer mailer.Mailer, paystack *paystack.Client, jwtManager *tokens.JWTManager) Services {
+func NewServices(models models.Models, mailer mailer.Mailer, paystack *paystack.Client, jwtManager *tokens.JWTManager, frontendURL string) Services {
 	financeService := NewFinanceService(models)
-	invoiceService := NewInvoiceService(models, financeService)
-	authService := NewAuthService(models, mailer, jwtManager)
+	invoiceService := NewInvoiceService(models, financeService, mailer, frontendURL)
+	authService := NewAuthService(models, mailer, jwtManager, frontendURL)
 	clientService := NewClientService(models)
 	adminService := NewAdminService(models)
 	creditService := NewCreditService(models)
@@ -31,5 +32,6 @@ func NewServices(models models.Models, mailer mailer.Mailer, paystack *paystack.
 		Client:  clientService,
 		Admin:   adminService,
 		Credit:  creditService,
+		Paystack: paystack,
 	}
 }

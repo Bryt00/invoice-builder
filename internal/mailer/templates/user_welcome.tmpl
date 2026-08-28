@@ -5,9 +5,9 @@ Hi {{.Name}},
 
 Welcome to Teks-Invoice!
 
-To complete your registration and activate your account, please click the link below:
+To complete your registration and activate your account, please click the link below (this link expires in 1 hour):
 
-http://localhost:4000/user/verify?token={{.ActivationToken}}
+{{.FrontendURL}}/user/verify?token={{.ActivationToken}}
 
 If you didn't create an account with us, you can safely ignore this email.
 
@@ -38,11 +38,13 @@ The Teks-Invoice Team
                 <p style="font-size: 16px; line-height: 24px; color: #4a4e4a;">Thank you for registering. To complete your account activation and start building invoices, please confirm your email address by clicking the button below:</p>
                 
                 <div style="text-align: center; margin: 32px 0;">
-                    <a href="http://localhost:4000/user/verify?token={{.ActivationToken}}" style="background-color: #4a7c59; color: #ffffff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(74,124,89,0.2);">Activate Account &rarr;</a>
+                    <a href="{{.FrontendURL}}/user/verify?token={{.ActivationToken}}" style="background-color: #4a7c59; color: #ffffff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(74,124,89,0.2);">Activate Account &rarr;</a>
                 </div>
 
+                <p style="font-size: 14px; line-height: 20px; color: #74796e; text-align: center; margin-top: -16px; margin-bottom: 32px;"><em>Please note: This activation link will expire in 1 hour.</em></p>
+
                 <p style="font-size: 14px; line-height: 20px; color: #74796e;">If the button above does not work, copy and paste the following link into your browser:</p>
-                <p style="font-size: 13px; word-break: break-all; color: #4a7c59;"><a href="http://localhost:4000/user/verify?token={{.ActivationToken}}" style="color: #4a7c59;">http://localhost:4000/user/verify?token={{.ActivationToken}}</a></p>
+                <p style="font-size: 13px; word-break: break-all; color: #4a7c59;"><a href="{{.FrontendURL}}/user/verify?token={{.ActivationToken}}" style="color: #4a7c59;">{{.FrontendURL}}/user/verify?token={{.ActivationToken}}</a></p>
 
                 <hr style="border: none; border-top: 1px solid #f0ece4; margin: 24px 0;" />
                 <p style="font-size: 12px; color: #74796e; margin-bottom: 0;">If you did not sign up for Teks-Invoice, please ignore this email.</p>
