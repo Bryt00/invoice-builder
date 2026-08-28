@@ -1,7 +1,5 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in">
-    <FlashAlert />
-
     <!-- Page Header & Filters -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
@@ -53,22 +51,24 @@
           </thead>
           <tbody class="divide-y divide-outline-variant/30 font-body text-sm text-on-surface">
             <tr v-for="pay in payments" :key="pay.id" class="hover:bg-surface-container-low/40 transition-colors">
-              <td class="px-6 py-4 font-mono font-semibold text-on-surface text-xs truncate max-w-[150px]" :title="pay.reference">{{ pay.reference || pay.stripe_payment_intent_id }}</td>
+              <td class="px-6 py-4 font-mono font-semibold text-on-surface text-xs truncate max-w-[150px]" :title="pay.transaction_ref || pay.reference || pay.id">
+                {{ pay.transaction_ref || pay.reference || (pay.id ? pay.id.substring(0, 8) : 'N/A') }}
+              </td>
               <td class="px-6 py-4 text-on-surface-variant">
-                <router-link :to="`/user/admin/users/${pay.user_id}`" class="hover:text-amber-500 transition-colors">
-                  {{ pay.user_id }}
+                <router-link :to="`/user/admin/users/${pay.user_id}`" class="hover:text-amber-500 transition-colors font-mono text-xs">
+                  {{ pay.user_id ? pay.user_id.substring(0, 8) + '...' : 'N/A' }}
                 </router-link>
               </td>
-              <td class="px-6 py-4 font-bold text-on-surface">{{ currencySymbol(pay.currency) }}{{ (pay.amount / 100).toFixed(2) }}</td>
+              <td class="px-6 py-4 font-bold text-on-surface">{{ currencySymbol(pay.currency) }}{{ Number(pay.amount || 0).toFixed(2) }}</td>
               <td class="px-6 py-4">
-                <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-surface-container-high rounded-md text-xs font-semibold text-on-surface">
+                <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-surface-container-high rounded-md text-xs font-semibold text-on-surface uppercase">
                   <span class="material-symbols-outlined text-[14px] text-amber-500">{{ pay.payment_method === 'stripe' ? 'credit_card' : 'account_balance' }}</span>
-                  {{ pay.payment_method }}
+                  {{ pay.payment_method || 'Paystack' }}
                 </span>
               </td>
               <td class="px-6 py-4">
                 <span :class="getStatusBadge(pay.status)">
-                  {{ pay.status.charAt(0).toUpperCase() + pay.status.slice(1) }}
+                  {{ pay.status ? (pay.status.charAt(0).toUpperCase() + pay.status.slice(1)) : 'Pending' }}
                 </span>
               </td>
               <td class="px-6 py-4 text-on-surface-variant">{{ formatDate(pay.created_at) }}</td>
@@ -97,11 +97,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../../utils/api'
-import { useFlash } from '../../composables/useFlash'
-import FlashAlert from '../../components/common/FlashAlert.vue'
+import { useToast } from '../../composables/useToast'
 import dayjs from 'dayjs'
 
-const { showFlash } = useFlash()
+const { showToast } = useToast()
 
 const payments = ref([])
 const meta = ref({ page: 1, limit: 10, total_count: 0 })
@@ -124,23 +123,26 @@ async function fetchPayments(page = 1) {
   try {
     const res = await api.get(`/admin/payments?page=${page}&limit=${meta.value.limit}&status=${encodeURIComponent(statusFilter.value)}`)
     payments.value = res.data.payments || []
-    meta.value = res.data.meta
+    meta.value = res.data.meta || { page: 1, limit: 10, total_count: payments.value.length }
   } catch (err) {
-    showFlash('Failed to load payments', 'error')
+    showToast('Failed to load payments', 'error')
   } finally {
     loading.value = false
   }
 }
 
 function formatDate(date) {
+  if (!date) return '-'
   return dayjs(date).format('MMM DD, YYYY HH:mm')
 }
 
 function getStatusBadge(status) {
   const base = 'px-2.5 py-1 rounded-full text-xs font-semibold border '
-  switch(status.toLowerCase()) {
+  if (!status) return base + 'bg-surface-container-high text-on-surface-variant border-outline-variant/40'
+  switch(String(status).toLowerCase()) {
     case 'successful':
     case 'succeeded':
+    case 'completed':
     case 'paid':
       return base + 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
     case 'pending':
