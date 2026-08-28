@@ -143,8 +143,8 @@ fi
 
 # 6. Nginx Setup
 echo "[6/6] Configuring Nginx Reverse Proxy..."
-if [ -f "nginx.conf" ]; then
-    cp nginx.conf /etc/nginx/sites-available/teks-invoice
+if [ -f "deployment/nginx.conf" ]; then
+    cp deployment/nginx.conf /etc/nginx/sites-available/teks-invoice
     # Create symlink if it doesn't exist
     if [ ! -L /etc/nginx/sites-enabled/teks-invoice ]; then
         ln -s /etc/nginx/sites-available/teks-invoice /etc/nginx/sites-enabled/
@@ -155,7 +155,7 @@ if [ -f "nginx.conf" ]; then
     # We won't restart Nginx just yet because the Cloudflare certs are missing.
     echo "Nginx configuration copied."
 else
-    echo "Warning: 'nginx.conf' not found."
+    echo "Warning: 'deployment/nginx.conf' not found."
 fi
 
 echo "========================================"
