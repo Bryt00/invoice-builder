@@ -24,7 +24,7 @@ type Invoice struct {
 	UserID        uuid.UUID     `gorm:"type:uuid;not null;index" json:"user_id"`
 	User          *User         `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	ClientID      *uuid.UUID    `gorm:"type:uuid;index" json:"client_id"`
-	Client        *Client       `gorm:"foreignKey:ClientID" json:"client,omitempty"`
+	Client        *Client       `gorm:"foreignKey:ClientID;constraint:OnDelete:SET NULL;" json:"client,omitempty"`
 	InvoiceNumber string        `gorm:"size:100;not null;index" json:"invoice_number"`
 	PublicToken   string        `gorm:"size:255;not null;unique" json:"public_token"`
 	Status        InvoiceStatus `gorm:"size:20;not null;default:'draft'" json:"status"`

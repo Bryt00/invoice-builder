@@ -40,9 +40,6 @@
                     </button>
                 </div>
                 
-                <button @click="printInvoice" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-semibold text-on-surface hover:bg-surface-container-low flex items-center gap-2 transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">print</span> Print
-                </button>
                 <a v-if="invoice.public_token" :href="`/invoice/public/${invoice.public_token}`" target="_blank" class="bg-primary text-on-primary rounded-xl px-5 py-2 font-label text-sm font-semibold flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-colors shadow-sm">
                     <span class="material-symbols-outlined text-[18px]">open_in_new</span> Original Public Invoice
                 </a>

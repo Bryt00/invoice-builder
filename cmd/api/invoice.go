@@ -406,11 +406,7 @@ func (h *ApiHandler) UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 		Notes         string            `json:"notes"`
 		SaveAsDraft   bool              `json:"save_as_draft"`
 		Action        string            `json:"action"`
-		Items         []struct {
-			Description string  `json:"description"`
-			Quantity    float64 `json:"quantity"`
-			UnitPrice   float64 `json:"unit_price"`
-		} `json:"items"`
+		Items         []models.LineItem `json:"items"`
 	}
 
 	err := h.ReadJSON(w, r, &input)

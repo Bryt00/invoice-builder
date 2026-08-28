@@ -31,39 +31,41 @@
                     <span class="material-symbols-outlined text-[18px]">edit</span> Edit Draft
                 </router-link>
                 
-                <button v-if="!invoice.is_paid && invoice.status !== 'paid' && invoice.status !== 'draft'" @click="handleMarkPaid" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-label text-sm font-semibold hover:bg-on-primary-fixed-variant flex items-center gap-2 cursor-pointer shadow-sm transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">check_circle</span> Mark as Paid
-                </button>
-                <template v-else>
-                    <router-link v-if="receipt" :to="`/user/invoices/receipt/view?id=${receipt.id}`" class="px-4 py-2 rounded-xl bg-tertiary text-on-tertiary font-label text-sm font-semibold hover:bg-tertiary/90 flex items-center gap-2 cursor-pointer shadow-sm transition-colors">
-                        <span class="material-symbols-outlined text-[18px]">receipt</span> View Receipt
-                    </router-link>
-                    <button v-else @click="generateReceipt" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-label text-sm font-semibold hover:bg-on-primary-fixed-variant flex items-center gap-2 cursor-pointer shadow-sm transition-colors">
-                        <span class="material-symbols-outlined text-[18px]">receipt_long</span> Generate Receipt (1 Credit)
+                <template v-if="invoice.status !== 'draft'">
+                    <button v-if="!invoice.is_paid && invoice.status !== 'paid'" @click="handleMarkPaid" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-label text-sm font-semibold hover:bg-on-primary-fixed-variant flex items-center gap-2 cursor-pointer shadow-sm transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span> Mark as Paid
                     </button>
-                </template>
+                    <template v-else-if="invoice.is_paid || invoice.status === 'paid'">
+                        <router-link v-if="receipt" :to="`/user/invoices/receipt/view?id=${receipt.id}`" class="px-4 py-2 rounded-xl bg-tertiary text-on-tertiary font-label text-sm font-semibold hover:bg-tertiary/90 flex items-center gap-2 cursor-pointer shadow-sm transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">receipt</span> View Receipt
+                        </router-link>
+                        <button v-else @click="generateReceipt" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-label text-sm font-semibold hover:bg-on-primary-fixed-variant flex items-center gap-2 cursor-pointer shadow-sm transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">receipt_long</span> Generate Receipt (1 Credit)
+                        </button>
+                    </template>
 
-                <button @click="copyPublicLink" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-semibold text-on-surface hover:bg-surface-container-low flex items-center gap-2 transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">link</span> Copy Link
-                </button>
-                
-                <div class="flex items-center gap-1 bg-surface-container-lowest/80 p-1 border border-outline-variant/60 rounded-xl">
-                    <select v-model="paperSize" class="pl-2 pr-6 py-1 bg-transparent border-0 font-label text-xs font-semibold text-on-surface appearance-none cursor-pointer focus:ring-0 outline-none">
-                        <option value="a4">📄 A4 Standard</option>
-                        <option value="pos_80">🧾 80mm POS Thermal Bill</option>
-                        <option value="pos_58">🧾 58mm POS Mini Slip</option>
-                        <option value="a5">📄 A5 Compact</option>
-                        <option value="letter">📄 US Letter</option>
-                        <option value="legal">📄 US Legal</option>
-                    </select>
-                    <button @click="downloadPDF" class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label text-xs font-semibold hover:bg-on-primary-fixed-variant flex items-center gap-1.5 transition-colors cursor-pointer border-0">
-                        <span class="material-symbols-outlined text-[16px]">download</span> PDF (1 Credit)
+                    <button @click="copyPublicLink" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-semibold text-on-surface hover:bg-surface-container-low flex items-center gap-2 transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">link</span> Copy Link
                     </button>
-                </div>
-                
-                <a v-if="invoice.public_token" :href="`/invoice/public/${invoice.public_token}`" target="_blank" class="bg-primary text-on-primary rounded-xl px-5 py-2 font-label text-sm font-semibold flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-colors shadow-sm">
-                    <span class="material-symbols-outlined text-[18px]">open_in_new</span> Public View
-                </a>
+                    
+                    <div class="flex items-center gap-1 bg-surface-container-lowest/80 p-1 border border-outline-variant/60 rounded-xl">
+                        <select v-model="paperSize" class="pl-2 pr-6 py-1 bg-transparent border-0 font-label text-xs font-semibold text-on-surface appearance-none cursor-pointer focus:ring-0 outline-none">
+                            <option value="a4">📄 A4 Standard</option>
+                            <option value="pos_80">🧾 80mm POS Thermal Bill</option>
+                            <option value="pos_58">🧾 58mm POS Mini Slip</option>
+                            <option value="a5">📄 A5 Compact</option>
+                            <option value="letter">📄 US Letter</option>
+                            <option value="legal">📄 US Legal</option>
+                        </select>
+                        <button @click="downloadPDF" class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label text-xs font-semibold hover:bg-on-primary-fixed-variant flex items-center gap-1.5 transition-colors cursor-pointer border-0">
+                            <span class="material-symbols-outlined text-[16px]">download</span> PDF (1 Credit)
+                        </button>
+                    </div>
+                    
+                    <a v-if="invoice.public_token" :href="`/invoice/public/${invoice.public_token}`" target="_blank" class="bg-primary text-on-primary rounded-xl px-5 py-2 font-label text-sm font-semibold flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-colors shadow-sm">
+                        <span class="material-symbols-outlined text-[18px]">open_in_new</span> Public View
+                    </a>
+                </template>
             </div>
         </header>
 

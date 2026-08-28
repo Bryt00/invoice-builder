@@ -95,12 +95,18 @@ func (m *ClientModel) Update(ctx context.Context, client *Client) error {
 }
 
 func (m *ClientModel) Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error {
-	result := m.DB.WithContext(ctx).Where("id = ? AND user_id = ?", id, userID).Delete(&Client{})
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected == 0 {
-		return ErrNoRecord
-	}
-	return nil
+	return m.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&Invoice{}).Where("client_id = ? AND user_id = ?", id, userID).Update("client_id", nil).Error; err != nil {
+			return err
+		}
+
+		result := tx.Where("id = ? AND user_id = ?", id, userID).Delete(&Client{})
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return ErrNoRecord
+		}
+		return nil
+	})
 }

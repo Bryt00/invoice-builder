@@ -39,7 +39,7 @@ func (h *ApiHandler) GenerateReceipt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !invoice.IsPaid {
+	if !invoice.IsPaid || invoice.Status == models.InvoiceStatusDraft {
 		h.BadRequestResponse(w, r, models.ErrInvoiceNotPaid)
 		return
 	}
