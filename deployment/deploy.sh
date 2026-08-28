@@ -112,6 +112,7 @@ else
     cat > $APP_DIR/.env <<EOL
 APP_PORT=4000
 APP_ENV=production
+FRONTEND_URL=https://teks-invoice.com
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=$DB_USER
