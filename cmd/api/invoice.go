@@ -273,19 +273,9 @@ func (h *ApiHandler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
 		}
 		clientIDPtr = &cID
 	} else if input.ClientEmail != "" {
-		name := "Direct Client"
-		if parts := strings.Split(input.ClientEmail, "@"); len(parts) > 0 {
-			name = parts[0]
-		}
-		newClient := &models.Client{
-			UserID:  user.ID,
-			Name:    name,
-			Email:   input.ClientEmail,
-			Address: input.ClientAddress,
-		}
-		err = h.Models.Clients.Insert(r.Context(), newClient)
-		if err == nil {
-			clientIDPtr = &newClient.ID
+		existingClient, err := h.Models.Clients.GetByEmail(r.Context(), input.ClientEmail, user.ID)
+		if err == nil && existingClient != nil {
+			clientIDPtr = &existingClient.ID
 		}
 	}
 
@@ -363,9 +353,15 @@ func (h *ApiHandler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
 				h.ServerErrorResponse(w, r, err)
 				return
 			}
+		} else if input.ClientEmail != "" {
+			client = &models.Client{
+				Name:    input.ClientEmail,
+				Email:   input.ClientEmail,
+				Address: input.ClientAddress,
+			}
 		}
 
-		if client != nil {
+		if client != nil && client.Email != "" {
 			err = h.Services.Credit.DeductCredits(r.Context(), user.ID, 1, fmt.Sprintf("Email Dispatch for Invoice %s", invoice.InvoiceNumber))
 			if err == nil {
 				err = h.Services.Invoice.DispatchInvoiceEmail(r.Context(), invoice, profile, client)
@@ -450,19 +446,24 @@ func (h *ApiHandler) UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 		}
 		clientIDPtr = &cID
 	} else if input.ClientEmail != "" {
-		name := "Direct Client"
-		if parts := strings.Split(input.ClientEmail, "@"); len(parts) > 0 {
-			name = parts[0]
-		}
-		newClient := &models.Client{
-			UserID:  user.ID,
-			Name:    name,
-			Email:   input.ClientEmail,
-			Address: input.ClientAddress,
-		}
-		err = h.Models.Clients.Insert(r.Context(), newClient)
-		if err == nil {
-			clientIDPtr = &newClient.ID
+		existingClient, err := h.Models.Clients.GetByEmail(r.Context(), input.ClientEmail, user.ID)
+		if err == nil && existingClient != nil {
+			clientIDPtr = &existingClient.ID
+		} else {
+			name := "Direct Client"
+			if parts := strings.Split(input.ClientEmail, "@"); len(parts) > 0 {
+				name = parts[0]
+			}
+			newClient := &models.Client{
+				UserID:  user.ID,
+				Name:    name,
+				Email:   input.ClientEmail,
+				Address: input.ClientAddress,
+			}
+			err = h.Models.Clients.Insert(r.Context(), newClient)
+			if err == nil {
+				clientIDPtr = &newClient.ID
+			}
 		}
 	}
 
@@ -530,9 +531,15 @@ func (h *ApiHandler) UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 	if input.Action == "dispatch" {
 		var client *models.Client
 		if clientIDPtr != nil {
-			client, err = h.Services.Client.GetByID(r.Context(), *clientIDPtr, user.ID)
+			client, _ = h.Services.Client.GetByID(r.Context(), *clientIDPtr, user.ID)
+		} else if input.ClientEmail != "" {
+			client = &models.Client{
+				Name:    input.ClientEmail,
+				Email:   input.ClientEmail,
+				Address: input.ClientAddress,
+			}
 		}
-		if err == nil && client != nil {
+		if client != nil && client.Email != "" {
 			profile, err := h.Services.Auth.GetBusinessProfile(r.Context(), user.ID)
 			if err == nil && profile != nil {
 				err = h.Services.Credit.DeductCredits(r.Context(), user.ID, 1, fmt.Sprintf("Email Dispatch for Invoice %s", invoice.InvoiceNumber))

@@ -24,6 +24,7 @@ type Client struct {
 type ClientInterface interface {
 	Insert(ctx context.Context, client *Client) error
 	GetByID(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*Client, error)
+	GetByEmail(ctx context.Context, email string, userID uuid.UUID) (*Client, error)
 	GetAllByUserID(ctx context.Context, userID uuid.UUID, page, limit int) ([]*Client, int64, error)
 	Update(ctx context.Context, client *Client) error
 	Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error
@@ -43,6 +44,18 @@ func (m *ClientModel) Insert(ctx context.Context, client *Client) error {
 func (m *ClientModel) GetByID(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*Client, error) {
 	var client Client
 	err := m.DB.WithContext(ctx).Where("id = ? AND user_id = ?", id, userID).First(&client).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, ErrNoRecord
+		}
+		return nil, err
+	}
+	return &client, nil
+}
+
+func (m *ClientModel) GetByEmail(ctx context.Context, email string, userID uuid.UUID) (*Client, error) {
+	var client Client
+	err := m.DB.WithContext(ctx).Where("LOWER(email) = LOWER(?) AND user_id = ?", email, userID).First(&client).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, ErrNoRecord
