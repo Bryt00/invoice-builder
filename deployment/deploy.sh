@@ -27,9 +27,21 @@ DB_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
 APP_DIR="/opt/invoice-builder"
 
 # 1. System Update & Dependencies
-echo "[1/6] Updating system and installing dependencies (nginx, postgresql, ufw)..."
+echo "[1/6] Updating system and installing dependencies (nginx, postgresql, ufw, go)..."
 apt-get update
-apt-get install -y nginx postgresql postgresql-contrib ufw
+apt-get install -y nginx postgresql postgresql-contrib ufw snapd curl
+
+# Ensure common paths are available to sudo
+export PATH=$PATH:/usr/local/go/bin:/snap/bin
+
+if ! command -v go &> /dev/null; then
+    echo "Go not found. Downloading and installing Go manually from go.dev..."
+    GO_VERSION="1.25.0"
+    curl -OL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
+    rm -rf /usr/local/go
+    tar -C /usr/local -xzf "go${GO_VERSION}.linux-amd64.tar.gz"
+    rm "go${GO_VERSION}.linux-amd64.tar.gz"
+fi
 
 # 2. Firewall Setup (UFW)
 echo "[2/6] Configuring Firewall (UFW)..."
