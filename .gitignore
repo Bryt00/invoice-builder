@@ -19,7 +19,7 @@ node_modules/
 
 # Compiled Binaries
 web
-api
+/api
 invoice-builder
 
 # Scratch files
