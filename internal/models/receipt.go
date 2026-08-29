@@ -11,11 +11,11 @@ import (
 
 type Receipt struct {
 	ID            uuid.UUID  `gorm:"type:uuid;primaryKey;default:uuidv7()" json:"id"`
-	UserID        uuid.UUID  `gorm:"type:uuid;not null;index" json:"user_id"`
+	UserID        uuid.UUID  `gorm:"type:uuid;not null;index;uniqueIndex:idx_user_receipt_number" json:"user_id"`
 	InvoiceID     uuid.UUID  `gorm:"type:uuid;not null;index" json:"invoice_id"`
 	Invoice       *Invoice   `gorm:"foreignKey:InvoiceID" json:"invoice,omitempty"`
 	PaymentID     *uuid.UUID `gorm:"type:uuid;unique" json:"payment_id,omitempty"`
-	ReceiptNumber string     `gorm:"size:100;not null;index;unique" json:"receipt_number"`
+	ReceiptNumber string     `gorm:"size:100;not null;uniqueIndex:idx_user_receipt_number" json:"receipt_number"`
 	Amount        float64    `gorm:"type:decimal(12,2);not null" json:"amount"`
 	Currency      string     `gorm:"size:10;default:'USD'" json:"currency"`
 	IssuedAt      time.Time  `json:"issued_at"`

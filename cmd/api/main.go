@@ -216,6 +216,15 @@ func main() {
 	}
 	infoLog.Println("Database schema migrated successfully")
 
+	// Ensure per-user unique composite indexes and drop legacy single-column global unique constraints
+	_ = db.Exec(`ALTER TABLE receipts DROP CONSTRAINT IF EXISTS receipts_receipt_number_key;`).Error
+	_ = db.Exec(`DROP INDEX IF EXISTS receipts_receipt_number_key;`).Error
+	_ = db.Exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_user_receipt_number ON receipts(user_id, receipt_number);`).Error
+
+	_ = db.Exec(`ALTER TABLE invoices DROP CONSTRAINT IF EXISTS invoices_invoice_number_key;`).Error
+	_ = db.Exec(`DROP INDEX IF EXISTS invoices_invoice_number_key;`).Error
+	_ = db.Exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_user_invoice_number ON invoices(user_id, invoice_number);`).Error
+
 	// Application setup
 	addr := ":" + strconv.Itoa(cfg.port)
 	appModels := models.NewModel(db)

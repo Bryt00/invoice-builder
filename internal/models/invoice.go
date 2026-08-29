@@ -21,11 +21,11 @@ const (
 
 type Invoice struct {
 	ID            uuid.UUID     `gorm:"type:uuid;primaryKey;default:uuidv7()" json:"id"`
-	UserID        uuid.UUID     `gorm:"type:uuid;not null;index" json:"user_id"`
+	UserID        uuid.UUID     `gorm:"type:uuid;not null;index;uniqueIndex:idx_user_invoice_number" json:"user_id"`
 	User          *User         `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	ClientID      *uuid.UUID    `gorm:"type:uuid;index" json:"client_id"`
 	Client        *Client       `gorm:"foreignKey:ClientID;constraint:OnDelete:SET NULL;" json:"client,omitempty"`
-	InvoiceNumber string        `gorm:"size:100;not null;index" json:"invoice_number"`
+	InvoiceNumber string        `gorm:"size:100;not null;uniqueIndex:idx_user_invoice_number" json:"invoice_number"`
 	PublicToken   string        `gorm:"size:255;not null;unique" json:"public_token"`
 	Status        InvoiceStatus `gorm:"size:20;not null;default:'draft'" json:"status"`
 	IsPaid        bool          `gorm:"default:false;not null" json:"is_paid"`
@@ -45,6 +45,7 @@ type Invoice struct {
 type InvoiceInterface interface {
 	Insert(ctx context.Context, invoice *Invoice) error
 	GetByID(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*Invoice, error)
+	AdminGetByID(ctx context.Context, id uuid.UUID) (*Invoice, error)
 	GetByPublicToken(ctx context.Context, token string) (*Invoice, error)
 	GetAllByUserID(ctx context.Context, userID uuid.UUID, page, limit int) ([]*Invoice, int64, error)
 	GetAllSystemInvoices(ctx context.Context, search, status string, page, limit int) ([]*Invoice, int64, error)
@@ -53,7 +54,6 @@ type InvoiceInterface interface {
 	Update(ctx context.Context, invoice *Invoice) error
 	MarkAsPaid(ctx context.Context, id uuid.UUID, userID uuid.UUID) error
 	Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error
-	AdminGetByID(ctx context.Context, id uuid.UUID) (*Invoice, error)
 	AdminUpdateStatus(ctx context.Context, id uuid.UUID, status string) error
 	AdminDelete(ctx context.Context, id uuid.UUID) error
 }
