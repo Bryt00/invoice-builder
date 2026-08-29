@@ -280,6 +280,21 @@ func (h *ApiHandler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
 		existingClient, err := h.Models.Clients.GetByEmail(r.Context(), input.ClientEmail, user.ID)
 		if err == nil && existingClient != nil {
 			clientIDPtr = &existingClient.ID
+		} else {
+			name := "Direct Client"
+			if parts := strings.Split(input.ClientEmail, "@"); len(parts) > 0 {
+				name = parts[0]
+			}
+			newClient := &models.Client{
+				UserID:  user.ID,
+				Name:    name,
+				Email:   input.ClientEmail,
+				Address: input.ClientAddress,
+			}
+			err = h.Models.Clients.Insert(r.Context(), newClient)
+			if err == nil {
+				clientIDPtr = &newClient.ID
+			}
 		}
 	}
 

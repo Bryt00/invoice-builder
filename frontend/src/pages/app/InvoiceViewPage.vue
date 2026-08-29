@@ -225,15 +225,10 @@ async function handleMarkPaid() {
 }
 
 async function dispatchEmail() {
-    let targetEmail = invoice.value.client?.email || ''
-    if (!targetEmail) {
-        const entered = prompt('Please enter the client email address to send this invoice to:')
-        if (!entered) return
-        targetEmail = entered.trim()
-    }
     try {
+        const targetEmail = invoice.value.client?.email || ''
         await api.post('/invoices/dispatch', { invoice_id: invoice.value.id, email: targetEmail })
-        showFlash(`Invoice dispatched successfully to ${targetEmail}!`, 'success')
+        showFlash(`Invoice dispatched successfully to ${targetEmail || 'client email'}!`, 'success')
     } catch (err) {
         showFlash(err.response?.data?.error || 'Failed to dispatch invoice email', 'error')
     }

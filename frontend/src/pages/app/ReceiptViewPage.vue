@@ -213,15 +213,10 @@ async function downloadPDF() {
 }
 
 async function dispatchReceiptEmail() {
-    let targetEmail = receipt.value?.invoice?.client?.email || ''
-    if (!targetEmail) {
-        const entered = prompt('Please enter the client email address to send this payment receipt to:')
-        if (!entered) return
-        targetEmail = entered.trim()
-    }
     try {
+        const targetEmail = receipt.value?.invoice?.client?.email || ''
         await api.post('/invoices/receipts/dispatch', { receipt_id: receipt.value.id, email: targetEmail })
-        showFlash(`Payment receipt dispatched successfully to ${targetEmail}!`, 'success')
+        showFlash(`Payment receipt dispatched successfully to ${targetEmail || 'client email'}!`, 'success')
     } catch (err) {
         showFlash(err.response?.data?.error || 'Failed to dispatch receipt email', 'error')
     }
