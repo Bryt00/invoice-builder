@@ -102,11 +102,11 @@ func main() {
 	cfg.env = getEnv("APP_ENV", "development")
 	cfg.frontendURL = getEnv("FRONTEND_URL", "http://localhost:5173")
 
-	cfg.smtp.host = getEnv("SMTP_HOST", "mail.flexyridegh.com")
-	cfg.smtp.port = getEnvInt("SMTP_PORT", 587)
-	cfg.smtp.username = getEnv("SMTP_USERNAME", "bright.agyemang@flexyridegh.com")
+	cfg.smtp.host = getEnv("SMTP_HOST", "mail.teckstyle.com")
+	cfg.smtp.port = getEnvInt("SMTP_PORT", 465)
+	cfg.smtp.username = getEnv("SMTP_USERNAME", "no-reply@teckstyle.com")
 	cfg.smtp.password = getEnv("SMTP_PASSWORD", "")
-	cfg.smtp.sender = getEnv("SMTP_SENDER", "Teks-Invoice <bright.agyemang@flexyridegh.com>")
+	cfg.smtp.sender = getEnv("SMTP_SENDER", "Teks-Invoice <no-reply@teckstyle.com>")
 
 	cfg.paystack.secretKey = getEnv("PAYSTACK_SECRET_KEY", "sk_test_mock_secret_key")
 	cfg.paystack.publicKey = getEnv("PAYSTACK_PUBLIC_KEY", "pk_test_mock_public_key")

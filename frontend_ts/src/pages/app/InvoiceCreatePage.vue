@@ -238,9 +238,9 @@
                 <router-link to="/user/invoices" class="flex items-center gap-1.5 px-4 py-2 rounded-full hover:bg-white/10 transition-colors font-label text-xs font-semibold">
                     <span class="material-symbols-outlined text-[18px]">arrow_back</span> Cancel
                 </router-link>
-                <button type="submit" :disabled="saving" class="bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary transition-colors px-6 py-2 rounded-full font-label text-xs font-bold flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50">
-                    <span class="material-symbols-outlined text-[18px]">send</span> Save &amp; Dispatch
-                    <span class="bg-black/20 px-2 py-0.5 rounded text-[10px] font-mono">-1 Credit</span>
+                <button type="submit" :disabled="saving" class="bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors px-6 py-2 rounded-full font-label text-xs font-bold flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50">
+                    <span class="material-symbols-outlined text-[18px]">verified</span> Finalize &amp; Save
+                    <span class="bg-black/20 px-2 py-0.5 rounded text-[10px] font-mono">1 Credit</span>
                 </button>
             </div>
         </div>
@@ -363,12 +363,17 @@ async function submitForm(isDraft: any) {
         const payload: any = {
             ...form,
             save_as_draft: isDraft,
-            action: isDraft ? 'draft' : 'dispatch'
+            action: isDraft ? 'draft' : 'finalize'
         }
         if (!payload.id) delete payload.id
-        await api.post('/invoices', payload)
-        showFlash(isDraft ? 'Invoice saved as draft!' : 'Invoice generated and dispatched!', 'success')
-        router.push('/user/invoices')
+        const res = await api.post('/invoices', payload)
+        const inv = res.data?.invoice
+        showFlash(isDraft ? 'Invoice saved as draft!' : 'Invoice finalized and saved!', 'success')
+        if (!isDraft && inv?.id) {
+            router.push(`/user/invoices/view?id=${inv.id}`)
+        } else {
+            router.push('/user/invoices')
+        }
     } catch (err: any) {
         showFlash(err.response?.data?.error || 'Failed to process invoice', 'error')
     } finally {

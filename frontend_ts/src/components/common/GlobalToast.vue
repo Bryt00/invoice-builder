@@ -15,6 +15,8 @@
         :class="[
           toast.type === 'error'
             ? 'bg-rose-950/90 border-rose-500/30 text-rose-100 shadow-rose-950/20'
+            : toast.type === 'warning'
+            ? 'bg-amber-950/90 border-amber-500/30 text-amber-100 shadow-amber-950/20'
             : toast.type === 'info'
             ? 'bg-slate-900/90 border-slate-700/50 text-slate-100 shadow-slate-950/20'
             : 'bg-emerald-950/90 border-emerald-500/30 text-emerald-100 shadow-emerald-950/20'
@@ -23,10 +25,11 @@
         <div class="flex items-center gap-3">
           <span class="material-symbols-outlined text-[20px] shrink-0" :class="{
             'text-rose-400': toast.type === 'error',
+            'text-amber-400': toast.type === 'warning',
             'text-emerald-400': toast.type === 'success' || !toast.type,
             'text-sky-400': toast.type === 'info'
           }">
-            {{ toast.type === 'error' ? 'error' : toast.type === 'info' ? 'info' : 'check_circle' }}
+            {{ toast.type === 'error' ? 'error' : toast.type === 'warning' ? 'warning' : toast.type === 'info' ? 'info' : 'check_circle' }}
           </span>
           <span class="leading-tight">{{ toast.message }}</span>
         </div>

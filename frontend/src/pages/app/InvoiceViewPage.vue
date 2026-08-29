@@ -44,6 +44,10 @@
                         </button>
                     </template>
 
+                    <button @click="dispatchEmail" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-semibold text-on-surface hover:bg-surface-container-low flex items-center gap-2 transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">send</span> Email Dispatch
+                    </button>
+
                     <button @click="copyPublicLink" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-semibold text-on-surface hover:bg-surface-container-low flex items-center gap-2 transition-colors">
                         <span class="material-symbols-outlined text-[18px]">link</span> Copy Link
                     </button>
@@ -58,7 +62,7 @@
                             <option value="legal">📄 US Legal</option>
                         </select>
                         <button @click="downloadPDF" class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label text-xs font-semibold hover:bg-on-primary-fixed-variant flex items-center gap-1.5 transition-colors cursor-pointer border-0">
-                            <span class="material-symbols-outlined text-[16px]">download</span> PDF (1 Credit)
+                            <span class="material-symbols-outlined text-[16px]">download</span> PDF
                         </button>
                     </div>
                     
@@ -217,6 +221,21 @@ async function handleMarkPaid() {
         showFlash('Invoice marked as paid!', 'success')
     } catch (err) {
         showFlash('Failed to mark invoice as paid', 'error')
+    }
+}
+
+async function dispatchEmail() {
+    let targetEmail = invoice.value.client?.email || ''
+    if (!targetEmail) {
+        const entered = prompt('Please enter the client email address to send this invoice to:')
+        if (!entered) return
+        targetEmail = entered.trim()
+    }
+    try {
+        await api.post('/invoices/dispatch', { invoice_id: invoice.value.id, email: targetEmail })
+        showFlash(`Invoice dispatched successfully to ${targetEmail}!`, 'success')
+    } catch (err) {
+        showFlash(err.response?.data?.error || 'Failed to dispatch invoice email', 'error')
     }
 }
 

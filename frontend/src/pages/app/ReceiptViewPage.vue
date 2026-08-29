@@ -26,6 +26,10 @@
                     <span class="material-symbols-outlined text-[18px]">receipt</span> View Original Invoice
                 </router-link>
                 
+                <button @click="dispatchReceiptEmail" class="px-4 py-2 rounded-xl border border-outline-variant/60 font-label text-sm font-semibold text-on-surface hover:bg-surface-container-low flex items-center gap-2 transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">send</span> Email Dispatch
+                </button>
+                
                 <div class="flex items-center gap-1 bg-surface-container-lowest/80 p-1 border border-outline-variant/60 rounded-xl">
                     <select v-model="paperSize" class="pl-2 pr-6 py-1 bg-transparent border-0 font-label text-xs font-semibold text-on-surface appearance-none cursor-pointer focus:ring-0 outline-none">
                         <option value="a4">📄 A4 Standard</option>
@@ -202,9 +206,24 @@ async function downloadPDF() {
         link.setAttribute('download', `${receipt.value.receipt_number}.pdf`)
         document.body.appendChild(link)
         link.click()
-        link.parentNode.removeChild(link)
+        if (link.parentNode) link.parentNode.removeChild(link)
     } catch (err) {
         showFlash('Failed to download PDF', 'error')
+    }
+}
+
+async function dispatchReceiptEmail() {
+    let targetEmail = receipt.value?.invoice?.client?.email || ''
+    if (!targetEmail) {
+        const entered = prompt('Please enter the client email address to send this payment receipt to:')
+        if (!entered) return
+        targetEmail = entered.trim()
+    }
+    try {
+        await api.post('/invoices/receipts/dispatch', { receipt_id: receipt.value.id, email: targetEmail })
+        showFlash(`Payment receipt dispatched successfully to ${targetEmail}!`, 'success')
+    } catch (err) {
+        showFlash(err.response?.data?.error || 'Failed to dispatch receipt email', 'error')
     }
 }
 </script>

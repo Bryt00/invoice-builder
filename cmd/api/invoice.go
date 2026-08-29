@@ -114,11 +114,15 @@ func (h *ApiHandler) DownloadInvoice(w http.ResponseWriter, r *http.Request) {
 		size = "a4"
 	}
 
-	// Deduct 1 credit for PDF download
-	err = h.Services.Credit.DeductCredits(r.Context(), user.ID, 1, fmt.Sprintf("PDF Export for Invoice %s", invoice.InvoiceNumber))
-	if err != nil {
-		h.BadRequestResponse(w, r, fmt.Errorf("insufficient credits for PDF export: %w", err))
-		return
+	// Deduct 1 credit for PDF download only if invoice is still a draft
+	if invoice.Status == models.InvoiceStatusDraft {
+		err = h.Services.Credit.DeductCredits(r.Context(), user.ID, 1, fmt.Sprintf("PDF Export for Invoice %s", invoice.InvoiceNumber))
+		if err != nil {
+			h.BadRequestResponse(w, r, fmt.Errorf("insufficient credits for PDF export: %w", err))
+			return
+		}
+		invoice.Status = models.InvoiceStatusSent
+		_ = h.Services.Invoice.UpdateInvoice(r.Context(), invoice)
 	}
 
 	pdfBytes, err := h.Services.Invoice.GeneratePDF(r.Context(), invoice, size)
@@ -330,6 +334,17 @@ func (h *ApiHandler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if !input.SaveAsDraft {
+		err = h.Services.Credit.DeductCredits(r.Context(), user.ID, 1, fmt.Sprintf("Invoice Finalization for %s", invoice.InvoiceNumber))
+		if err != nil {
+			h.BadRequestResponse(w, r, fmt.Errorf("insufficient credits to finalize invoice: %w", err))
+			return
+		}
+		invoice.Status = models.InvoiceStatusSent
+	} else {
+		invoice.Status = models.InvoiceStatusDraft
+	}
+
 	err = h.Services.Invoice.CreateInvoice(r.Context(), invoice)
 	if err != nil {
 		h.ServerErrorResponse(w, r, err)
@@ -337,22 +352,11 @@ func (h *ApiHandler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Dispatch if action is requested
-	if input.Action == "dispatch" {
-		// Fetch profile
-		profile, err := h.Services.Auth.GetBusinessProfile(r.Context(), user.ID)
-		if err != nil && !errors.Is(err, models.ErrNoRecord) {
-			h.ServerErrorResponse(w, r, err)
-			return
-		}
-
-		// Fetch client
+	if input.Action == "dispatch" && !input.SaveAsDraft {
+		profile, _ := h.Services.Auth.GetBusinessProfile(r.Context(), user.ID)
 		var client *models.Client
 		if invoice.ClientID != nil {
-			client, err = h.Services.Client.GetByID(r.Context(), *invoice.ClientID, user.ID)
-			if err != nil && !errors.Is(err, models.ErrNoRecord) {
-				h.ServerErrorResponse(w, r, err)
-				return
-			}
+			client, _ = h.Services.Client.GetByID(r.Context(), *invoice.ClientID, user.ID)
 		} else if input.ClientEmail != "" {
 			client = &models.Client{
 				Name:    input.ClientEmail,
@@ -361,18 +365,8 @@ func (h *ApiHandler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if client != nil && client.Email != "" {
-			err = h.Services.Credit.DeductCredits(r.Context(), user.ID, 1, fmt.Sprintf("Email Dispatch for Invoice %s", invoice.InvoiceNumber))
-			if err == nil {
-				err = h.Services.Invoice.DispatchInvoiceEmail(r.Context(), invoice, profile, client)
-				if err != nil {
-					h.ServerErrorResponse(w, r, err)
-					return
-				}
-				// Update status to sent
-				invoice.Status = models.InvoiceStatusSent
-				_ = h.Services.Invoice.UpdateInvoice(r.Context(), invoice)
-			}
+		if client != nil && client.Email != "" && profile != nil {
+			_ = h.Services.Invoice.DispatchInvoiceEmail(r.Context(), invoice, profile, client)
 		}
 	}
 
@@ -518,13 +512,24 @@ func (h *ApiHandler) UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 		invoice.Status = "sent"
 	}
 
+	if !input.SaveAsDraft {
+		err = h.Services.Credit.DeductCredits(r.Context(), user.ID, 1, fmt.Sprintf("Invoice Finalization for %s", invoice.InvoiceNumber))
+		if err != nil {
+			h.BadRequestResponse(w, r, fmt.Errorf("insufficient credits to finalize invoice: %w", err))
+			return
+		}
+		invoice.Status = models.InvoiceStatusSent
+	} else {
+		invoice.Status = models.InvoiceStatusDraft
+	}
+
 	err = h.Services.Invoice.UpdateInvoice(r.Context(), invoice)
 	if err != nil {
 		h.ServerErrorResponse(w, r, err)
 		return
 	}
 
-	if input.Action == "dispatch" {
+	if input.Action == "dispatch" && !input.SaveAsDraft {
 		var client *models.Client
 		if clientIDPtr != nil {
 			client, _ = h.Services.Client.GetByID(r.Context(), *clientIDPtr, user.ID)
@@ -538,13 +543,98 @@ func (h *ApiHandler) UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 		if client != nil && client.Email != "" {
 			profile, err := h.Services.Auth.GetBusinessProfile(r.Context(), user.ID)
 			if err == nil && profile != nil {
-				err = h.Services.Credit.DeductCredits(r.Context(), user.ID, 1, fmt.Sprintf("Email Dispatch for Invoice %s", invoice.InvoiceNumber))
-				if err == nil {
-					_ = h.Services.Invoice.DispatchInvoiceEmail(r.Context(), invoice, profile, client)
-				}
+				_ = h.Services.Invoice.DispatchInvoiceEmail(r.Context(), invoice, profile, client)
 			}
 		}
 	}
 
-	_ = h.WriteJSON(w, http.StatusOK, map[string]any{"invoice": invoice},nil)
+	_ = h.WriteJSON(w, http.StatusOK, map[string]any{"invoice": invoice}, nil)
+}
+
+func (h *ApiHandler) DispatchInvoice(w http.ResponseWriter, r *http.Request) {
+	user := h.ContextGetUser(r)
+	if user == nil {
+		h.AuthenticationRequiredResponse(w, r)
+		return
+	}
+
+	var input struct {
+		InvoiceID string `json:"invoice_id"`
+		Email     string `json:"email"`
+	}
+
+	err := h.ReadJSON(w, r, &input)
+	if err != nil {
+		h.BadRequestResponse(w, r, err)
+		return
+	}
+
+	invID, err := uuid.Parse(input.InvoiceID)
+	if err != nil {
+		h.BadRequestResponse(w, r, ErrInvalidID)
+		return
+	}
+
+	invoice, err := h.Services.Invoice.GetByID(r.Context(), invID, user.ID)
+	if err != nil || invoice == nil {
+		h.NotFoundResponse(w, r)
+		return
+	}
+
+	if invoice.Status == models.InvoiceStatusDraft {
+		err = h.Services.Credit.DeductCredits(r.Context(), user.ID, 1, fmt.Sprintf("Invoice Finalization for %s", invoice.InvoiceNumber))
+		if err != nil {
+			h.BadRequestResponse(w, r, fmt.Errorf("insufficient credits to finalize and dispatch invoice: %w", err))
+			return
+		}
+		invoice.Status = models.InvoiceStatusSent
+		invoice.UpdatedAt = time.Now()
+		_ = h.Services.Invoice.UpdateInvoice(r.Context(), invoice)
+	}
+
+	profile, err := h.Services.Auth.GetBusinessProfile(r.Context(), user.ID)
+	if err != nil && !errors.Is(err, models.ErrNoRecord) {
+		h.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	var client *models.Client
+	if invoice.ClientID != nil {
+		client, err = h.Services.Client.GetByID(r.Context(), *invoice.ClientID, user.ID)
+		if err != nil && !errors.Is(err, models.ErrNoRecord) {
+			h.ServerErrorResponse(w, r, err)
+			return
+		}
+	}
+	if client == nil && invoice.Client != nil {
+		client = invoice.Client
+	}
+
+	targetEmail := input.Email
+	if targetEmail == "" && client != nil {
+		targetEmail = client.Email
+	}
+
+	if targetEmail == "" {
+		h.BadRequestResponse(w, r, errors.New("recipient email is required for dispatch"))
+		return
+	}
+
+	if client == nil {
+		client = &models.Client{
+			Name:  targetEmail,
+			Email: targetEmail,
+		}
+	} else {
+		client.Email = targetEmail
+	}
+
+	err = h.Services.Invoice.DispatchInvoiceEmail(r.Context(), invoice, profile, client)
+	if err != nil {
+		h.LogApiError(r, err)
+		h.BadRequestResponse(w, r, fmt.Errorf("failed to send email dispatch: %w", err))
+		return
+	}
+
+	_ = h.WriteJSON(w, http.StatusOK, map[string]any{"status": "success", "message": "Invoice dispatched successfully"}, nil)
 }

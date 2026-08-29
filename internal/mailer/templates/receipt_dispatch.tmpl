@@ -1,0 +1,74 @@
+{{define "subject"}}{{ .CompanyName }} Payment Receipt {{ .ReceiptNumber }}{{end}}
+
+{{define "body"}}
+Hello {{ .ClientName }},
+
+Thank you for your payment to {{ .CompanyName }}.
+Receipt #: {{ .ReceiptNumber }}
+Invoice #: {{ .InvoiceNumber }}
+Total Amount Paid: {{ .TotalAmount }}
+Date Paid: {{ .DatePaid }}
+
+A PDF copy of your payment receipt is attached to this email.
+
+Thank you for your business!
+{{ .CompanyName }}
+{{end}}
+
+{{define "htmlBody"}}
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Payment Receipt {{ .ReceiptNumber }}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f6f6f6; margin: 0; padding: 0; }
+        .container { background-color: #ffffff; max-width: 600px; margin: 40px auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h1 { font-size: 24px; color: #333333; margin-bottom: 20px; }
+        p { font-size: 16px; line-height: 1.5; color: #555555; }
+        .details { background-color: #f9f9f9; padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid #eeeeee; }
+        .details-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .details-row:last-child { margin-bottom: 0; }
+        .label { font-weight: bold; color: #333333; }
+        .value { color: #555555; }
+        .footer { margin-top: 30px; font-size: 14px; color: #999999; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Received</h1>
+        <p>Hello <strong>{{ .ClientName }}</strong>,</p>
+        <p>Thank you for your payment to <strong>{{ .CompanyName }}</strong>. Your official payment receipt details are below.</p>
+        
+        <div class="details">
+            <div class="details-row">
+                <span class="label">Receipt #:</span>
+                <span class="value">{{ .ReceiptNumber }}</span>
+            </div>
+            <div class="details-row">
+                <span class="label">Invoice #:</span>
+                <span class="value">{{ .InvoiceNumber }}</span>
+            </div>
+            <div class="details-row">
+                <span class="label">Amount Paid:</span>
+                <span class="value" style="font-size: 18px; font-weight: bold; color: #2E6B47;">{{ .TotalAmount }}</span>
+            </div>
+            <div class="details-row">
+                <span class="label">Date Paid:</span>
+                <span class="value">{{ .DatePaid }}</span>
+            </div>
+        </div>
+        
+        <p>A PDF copy of your official payment receipt is attached to this email.</p>
+        
+        <p>Thank you for your business!</p>
+        <p><strong>{{ .CompanyName }}</strong></p>
+        
+        <div class="footer">
+            Powered by Teks-Invoice
+        </div>
+    </div>
+</body>
+</html>
+{{end}}

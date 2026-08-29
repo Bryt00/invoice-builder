@@ -68,13 +68,16 @@ func (app *application) routes() http.Handler {
 	mux.Handler(http.MethodPut, "/api/v1/invoices", apiProtected.ThenFunc(app.apiHandler.UpdateInvoice))
 	mux.Handler(http.MethodGet, "/api/v1/invoices/view", apiProtected.ThenFunc(app.apiHandler.GetInvoice))
 	mux.Handler(http.MethodGet, "/api/v1/invoices/download", apiProtected.ThenFunc(app.apiHandler.DownloadInvoice))
+	mux.Handler(http.MethodPost, "/api/v1/invoices/dispatch", apiProtected.ThenFunc(app.apiHandler.DispatchInvoice))
 	mux.Handler(http.MethodPost, "/api/v1/invoices/mark-paid", apiProtected.ThenFunc(app.apiHandler.MarkInvoicePaid))
 	mux.Handler(http.MethodGet, "/api/v1/invoices/public", http.HandlerFunc(app.apiHandler.GetPublicInvoice))
 	mux.Handler(http.MethodGet, "/api/v1/invoices/public/download", http.HandlerFunc(app.apiHandler.DownloadPublicInvoice))
+	mux.Handler(http.MethodGet, "/api/v1/public/settings", http.HandlerFunc(app.apiHandler.GetPublicSettings))
 	
 	mux.Handler(http.MethodPost, "/api/v1/invoices/receipts", apiProtected.ThenFunc(app.apiHandler.GenerateReceipt))
 	mux.Handler(http.MethodGet, "/api/v1/invoices/receipts/view", apiProtected.ThenFunc(app.apiHandler.GetReceipt))
 	mux.Handler(http.MethodGet, "/api/v1/invoices/receipts/download", apiProtected.ThenFunc(app.apiHandler.DownloadReceipt))
+	mux.Handler(http.MethodPost, "/api/v1/invoices/receipts/dispatch", apiProtected.ThenFunc(app.apiHandler.DispatchReceipt))
 
 	// Finance API Endpoints
 	mux.Handler(http.MethodGet, "/api/v1/finance/transactions", apiProtected.ThenFunc(app.apiHandler.GetFinanceTransactions))

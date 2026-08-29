@@ -150,3 +150,54 @@ func (h *ApiHandler) DownloadReceipt(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Length", strconv.Itoa(len(pdfBytes)))
 	_, _ = w.Write(pdfBytes)
 }
+
+func (h *ApiHandler) DispatchReceipt(w http.ResponseWriter, r *http.Request) {
+	user := h.ContextGetUser(r)
+	if user == nil {
+		h.AuthenticationRequiredResponse(w, r)
+		return
+	}
+
+	var input struct {
+		ReceiptID   string `json:"receipt_id"`
+		TargetEmail string `json:"email"`
+	}
+
+	err := h.ReadJSON(w, r, &input)
+	if err != nil {
+		h.BadRequestResponse(w, r, err)
+		return
+	}
+
+	receiptID, err := uuid.Parse(input.ReceiptID)
+	if err != nil {
+		h.BadRequestResponse(w, r, ErrInvalidID)
+		return
+	}
+
+	receipt, err := h.Models.Receipt.GetByID(r.Context(), receiptID, user.ID)
+	if err != nil || receipt == nil {
+		h.NotFoundResponse(w, r)
+		return
+	}
+
+	profile, _ := h.Models.BusinessProfiles.GetByUserID(r.Context(), user.ID)
+
+	targetEmail := input.TargetEmail
+	if targetEmail == "" && receipt.Invoice != nil && receipt.Invoice.Client != nil {
+		targetEmail = receipt.Invoice.Client.Email
+	}
+
+	if targetEmail == "" {
+		h.BadRequestResponse(w, r, fmt.Errorf("recipient email is required for receipt dispatch"))
+		return
+	}
+
+	err = h.Services.Invoice.DispatchReceiptEmail(r.Context(), receipt, receipt.Invoice, profile, targetEmail)
+	if err != nil {
+		h.BadRequestResponse(w, r, fmt.Errorf("failed to send receipt email dispatch: %w", err))
+		return
+	}
+
+	_ = h.WriteJSON(w, http.StatusOK, map[string]any{"status": "success", "message": "Receipt dispatched successfully"}, nil)
+}

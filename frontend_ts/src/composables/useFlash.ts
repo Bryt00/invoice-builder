@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export type FlashType = 'info' | 'success' | 'error'
+export type FlashType = 'info' | 'success' | 'error' | 'warning'
 
 const message = ref('')
 const type = ref<FlashType>('info')

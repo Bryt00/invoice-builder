@@ -39,6 +39,8 @@ import AdminLoginPage from '../pages/admin/AdminLoginPage.vue'
 
 import TermsPage from '../pages/public/TermsPage.vue'
 import PrivacyPage from '../pages/public/PrivacyPage.vue'
+import RefundPolicyPage from '../pages/public/RefundPolicyPage.vue'
+import SecurityPage from '../pages/public/SecurityPage.vue'
 import ContactPage from '../pages/public/ContactPage.vue'
 import FaqPage from '../pages/public/FaqPage.vue'
 import PublicInvoicePage from '../pages/public/PublicInvoicePage.vue'
@@ -60,6 +62,21 @@ const routes: RouteRecordRaw[] = [
     path: '/privacy',
     name: 'privacy',
     component: PrivacyPage,
+  },
+  {
+    path: '/refund-policy',
+    name: 'refund-policy',
+    component: RefundPolicyPage,
+  },
+  {
+    path: '/refund',
+    name: 'refund',
+    component: RefundPolicyPage,
+  },
+  {
+    path: '/security',
+    name: 'security',
+    component: SecurityPage,
   },
   {
     path: '/contact',

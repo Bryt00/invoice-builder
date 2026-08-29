@@ -20,6 +20,7 @@ type InvoiceService interface {
 	UpdateInvoice(ctx context.Context, invoice *models.Invoice) error
 	GeneratePDF(ctx context.Context, invoice *models.Invoice, paperSize string) ([]byte, error)
 	DispatchInvoiceEmail(ctx context.Context, invoice *models.Invoice, profile *models.BusinessProfile, client *models.Client) error
+	DispatchReceiptEmail(ctx context.Context, receipt *models.Receipt, invoice *models.Invoice, profile *models.BusinessProfile, targetEmail string) error
 }
 
 type invoiceService struct {
@@ -157,6 +158,45 @@ func (s *invoiceService) DispatchInvoiceEmail(ctx context.Context, invoice *mode
 	err = s.mailer.SendMailWithAttachment(client.Email, "invoice_dispatch.tmpl", data, fileName, pdfBytes)
 	if err != nil {
 		return fmt.Errorf("failed to send email: %w", err)
+	}
+
+	return nil
+}
+
+func (s *invoiceService) DispatchReceiptEmail(ctx context.Context, receipt *models.Receipt, invoice *models.Invoice, profile *models.BusinessProfile, targetEmail string) error {
+	if targetEmail == "" {
+		return models.ErrClientEmailRequired
+	}
+
+	pdfBytes, err := pdf.GenerateReceiptPDF(receipt, invoice, profile, "a4")
+	if err != nil {
+		return fmt.Errorf("failed to generate receipt pdf: %w", err)
+	}
+
+	companyName := "Teks-Invoice"
+	if profile != nil && profile.CompanyName != "" {
+		companyName = profile.CompanyName
+	}
+
+	clientName := "Client"
+	if invoice != nil && invoice.Client != nil && invoice.Client.Name != "" {
+		clientName = invoice.Client.Name
+	}
+
+	data := map[string]any{
+		"CompanyName":   companyName,
+		"ClientName":    clientName,
+		"ReceiptNumber": receipt.ReceiptNumber,
+		"InvoiceNumber": invoice.InvoiceNumber,
+		"TotalAmount":   fmt.Sprintf("%s%.2f", receipt.Currency, receipt.Amount),
+		"DatePaid":      receipt.IssuedAt.Format("Jan 02, 2006"),
+	}
+
+	fileName := fmt.Sprintf("%s.pdf", receipt.ReceiptNumber)
+
+	err = s.mailer.SendMailWithAttachment(targetEmail, "receipt_dispatch.tmpl", data, fileName, pdfBytes)
+	if err != nil {
+		return fmt.Errorf("failed to send receipt email: %w", err)
 	}
 
 	return nil

@@ -38,11 +38,11 @@ func main() {
 	toFlag := flag.String("to", "mrbright63@gmail.com", "Recipient email address")
 	flag.Parse()
 
-	host := getEnv("SMTP_HOST", "mail.flexyridegh.com")
-	port := getEnvInt("SMTP_PORT", 587)
-	username := getEnv("SMTP_USERNAME", "bright.agyemang@flexyridegh.com")
+	host := getEnv("SMTP_HOST", "mail.teckstyle.com")
+	port := getEnvInt("SMTP_PORT", 465)
+	username := getEnv("SMTP_USERNAME", "no-reply@teckstyle.com")
 	password := getEnv("SMTP_PASSWORD", "")
-	sender := getEnv("SMTP_SENDER", "Teks-Invoice <bright.agyemang@flexyridegh.com>")
+	sender := getEnv("SMTP_SENDER", "Teks-Invoice <no-reply@teckstyle.com>")
 
 	fmt.Printf("Testing SMTP Mailer with Configuration:\n")
 	fmt.Printf("  Host:     %s\n", host)

@@ -50,8 +50,24 @@ func (h *ApiHandler) AdminUpdateSettings(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = h.WriteJSON(w, http.StatusOK, Envelope{"status": "success", "message": "settings updated"}, nil)
+	_ = h.WriteJSON(w, http.StatusOK, Envelope{"status": "success", "message": "settings updated"}, nil)
+}
+
+func (h *ApiHandler) GetPublicSettings(w http.ResponseWriter, r *http.Request) {
+	settings, err := h.Services.Admin.GetSystemSettings(r.Context())
 	if err != nil {
 		h.ServerErrorResponse(w, r, err)
+		return
 	}
+
+	_ = h.WriteJSON(w, http.StatusOK, Envelope{
+		"status": "success",
+		"settings": map[string]any{
+			"legal_terms":    settings["LegalTerms"],
+			"legal_privacy":  settings["LegalPrivacy"],
+			"legal_refund":   settings["LegalRefund"],
+			"legal_security": settings["LegalSecurity"],
+			"support_email":  settings["SupportContactEmail"],
+		},
+	}, nil)
 }
