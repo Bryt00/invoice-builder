@@ -97,6 +97,36 @@
           </div>
         </div>
       </section>
+      <!-- How It Works Section -->
+      <section class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12" id="how-it-works">
+        <div class="text-center max-w-2xl mx-auto space-y-3">
+          <h2 class="font-headline text-3xl sm:text-4xl font-bold text-on-surface">Invoice in 3 Simple Steps</h2>
+          <p class="font-body text-base text-on-surface-variant">We've stripped away the complexity. Focus on your work, and let us handle the billing pipeline.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <!-- Connecting Line (Desktop) -->
+          <div class="hidden md:block absolute top-1/2 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-primary-container via-primary/40 to-primary-container -translate-y-1/2 z-0"></div>
+          
+          <!-- Step 1 -->
+          <div class="relative z-10 glass-card rounded-2xl p-8 flex flex-col items-center text-center space-y-4 hover:shadow-lg transition-all border border-outline-variant/60 bg-surface-container-lowest">
+            <div class="w-16 h-16 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline text-2xl font-bold shadow-md ring-4 ring-primary-container">1</div>
+            <h3 class="font-headline text-xl font-bold text-on-surface">Draft & Build</h3>
+            <p class="font-body text-sm text-on-surface-variant">Use our clean, live-preview editor to add line items, taxes, and notes instantly.</p>
+          </div>
+          <!-- Step 2 -->
+          <div class="relative z-10 glass-card rounded-2xl p-8 flex flex-col items-center text-center space-y-4 hover:shadow-lg transition-all border border-outline-variant/60 bg-surface-container-lowest">
+            <div class="w-16 h-16 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline text-2xl font-bold shadow-md ring-4 ring-primary-container">2</div>
+            <h3 class="font-headline text-xl font-bold text-on-surface">Generate & Verify</h3>
+            <p class="font-body text-sm text-on-surface-variant">Create a pixel-perfect PDF and a secure public verification link with one click.</p>
+          </div>
+          <!-- Step 3 -->
+          <div class="relative z-10 glass-card rounded-2xl p-8 flex flex-col items-center text-center space-y-4 hover:shadow-lg transition-all border border-outline-variant/60 bg-surface-container-lowest">
+            <div class="w-16 h-16 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline text-2xl font-bold shadow-md ring-4 ring-primary-container">3</div>
+            <h3 class="font-headline text-xl font-bold text-on-surface">Send & Get Paid</h3>
+            <p class="font-body text-sm text-on-surface-variant">Dispatch the invoice directly to your client's email inbox and get paid faster.</p>
+          </div>
+        </div>
+      </section>
 
       <!-- Features Bento Grid -->
       <section class="py-20 px-4 sm:px-6 lg:px-8 bg-surface-container-lowest/70 border-y border-outline-variant/40" id="features">
@@ -204,6 +234,84 @@
               ]"
             >
               Get Started with {{ pkg.name }}
+            </router-link>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials Section -->
+      <section class="py-20 px-4 sm:px-6 lg:px-8 bg-surface-container-lowest/70 border-y border-outline-variant/40" id="testimonials">
+        <div class="max-w-7xl mx-auto space-y-12">
+          <div class="text-center max-w-2xl mx-auto space-y-3">
+            <h2 class="font-headline text-3xl sm:text-4xl font-bold text-on-surface">Trusted by Professionals</h2>
+            <p class="font-body text-base text-on-surface-variant">See what independent creators and businesses are saying about Teks-Invoice.</p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 flex flex-col justify-between space-y-4">
+              <p class="font-body text-sm text-on-surface-variant italic">"This platform changed how I bill. It's incredibly fast, the PDFs look highly professional, and the pay-as-you-go credit system is perfect for my freelance workload."</p>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-sm">SD</div>
+                <div>
+                  <h4 class="font-headline text-sm font-bold text-on-surface">Sarah D.</h4>
+                  <p class="font-body text-xs text-on-surface-variant">Freelance Designer</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 flex flex-col justify-between space-y-4">
+              <p class="font-body text-sm text-on-surface-variant italic">"The secure public link feature is brilliant. My clients love being able to just click a link and see their invoice without logging into anything."</p>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-sm">MR</div>
+                <div>
+                  <h4 class="font-headline text-sm font-bold text-on-surface">Mark R.</h4>
+                  <p class="font-body text-xs text-on-surface-variant">Software Consultant</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 flex flex-col justify-between space-y-4">
+              <p class="font-body text-sm text-on-surface-variant italic">"I was tired of paying $15/month for invoicing software I only used 3 times a month. Teks-Invoice's credit model is exactly what small agencies need."</p>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm">ET</div>
+                <div>
+                  <h4 class="font-headline text-sm font-bold text-on-surface">Elena T.</h4>
+                  <p class="font-body text-xs text-on-surface-variant">Creative Agency Owner</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ Summary Section -->
+      <section class="py-20 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto space-y-10" id="faq">
+        <div class="text-center space-y-3">
+          <h2 class="font-headline text-3xl font-bold text-on-surface">Have Questions?</h2>
+          <p class="font-body text-base text-on-surface-variant">Here are the most common questions we get asked.</p>
+        </div>
+        <div class="space-y-4">
+          <div class="glass-card rounded-2xl p-6 border border-outline-variant/60">
+            <h3 class="font-headline font-bold text-on-surface mb-2">Is there a monthly subscription fee?</h3>
+            <p class="font-body text-sm text-on-surface-variant">No. We operate strictly on a pay-as-you-go credit system. You purchase credits, and they never expire.</p>
+          </div>
+          <div class="glass-card rounded-2xl p-6 border border-outline-variant/60">
+            <h3 class="font-headline font-bold text-on-surface mb-2">How many credits does an invoice cost?</h3>
+            <p class="font-body text-sm text-on-surface-variant">Generating and dispatching a finalized PDF invoice costs 1 credit. Drafts are free.</p>
+          </div>
+        </div>
+        <div class="text-center pt-4">
+          <router-link to="/faq" class="font-label text-sm font-semibold text-primary hover:underline">Read all FAQs &rarr;</router-link>
+        </div>
+      </section>
+
+      <!-- Final CTA Section -->
+      <section class="py-24 px-4 sm:px-6 lg:px-8 bg-primary text-on-primary text-center">
+        <div class="max-w-3xl mx-auto space-y-8">
+          <h2 class="font-headline text-3xl sm:text-5xl font-extrabold tracking-tight">Ready to streamline your invoicing?</h2>
+          <p class="font-body text-lg text-primary-container/80 max-w-xl mx-auto">Join thousands of modern professionals who get paid faster and spend less time on billing.</p>
+          <div class="pt-4">
+            <router-link to="/user/register" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-label text-base font-bold bg-surface text-primary hover:scale-105 transition-transform shadow-xl">
+              <span>Start For Free Today</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
             </router-link>
           </div>
         </div>

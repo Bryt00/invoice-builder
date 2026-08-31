@@ -191,6 +191,12 @@ func main() {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 	sqlDB.SetConnMaxIdleTime(10 * time.Minute)
 
+	// Workaround for GORM AutoMigrate bug with non-existent unique constraints.
+	// If the server DB is missing these constraints, AutoMigrate will crash when trying to drop them.
+	// We attempt to create them first; if they already exist, this safely fails and we ignore the error.
+	_, _ = sqlDB.Exec(`ALTER TABLE receipts ADD CONSTRAINT uni_receipts_receipt_number UNIQUE (receipt_number);`)
+	_, _ = sqlDB.Exec(`ALTER TABLE invoices ADD CONSTRAINT uni_invoices_invoice_number UNIQUE (invoice_number);`)
+
 	// AutoMigrate all models
 	err = db.AutoMigrate(
 		&models.Role{},

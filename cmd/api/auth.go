@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -39,6 +40,15 @@ func (h *ApiHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 			_ = h.Services.Auth.SendAdminLoginAlert(r.Context(), u, r.RemoteAddr, r.UserAgent())
 		}(user)
 	}
+
+	go func(u *models.User) {
+		_ = h.Models.AuditLog.Record(context.Background(), &models.AuditLog{
+			UserID:    &u.ID,
+			Action:    "POST /api/v1/auth/login",
+			IPAddress: r.RemoteAddr,
+			UserAgent: r.UserAgent(),
+		})
+	}(user)
 
 	err = h.WriteJSON(w, http.StatusOK, Envelope{
 		"status": "success",
@@ -91,6 +101,15 @@ func (h *ApiHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		h.ServerErrorResponse(w, r, err)
 		return
 	}
+
+	go func(u *models.User) {
+		_ = h.Models.AuditLog.Record(context.Background(), &models.AuditLog{
+			UserID:    &u.ID,
+			Action:    "POST /api/v1/auth/register",
+			IPAddress: r.RemoteAddr,
+			UserAgent: r.UserAgent(),
+		})
+	}(user)
 
 	err = h.WriteJSON(w, http.StatusCreated, Envelope{
 		"status":  "success",

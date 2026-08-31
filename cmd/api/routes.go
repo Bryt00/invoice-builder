@@ -39,7 +39,7 @@ func (app *application) routes() http.Handler {
 
 	// API Middleware Chains
 	apiAuth := alice.New(app.rateLimitAuth)
-	apiProtected := alice.New(app.apiHandler.RequireJWTAuthentication)
+	apiProtected := alice.New(app.apiHandler.RequireJWTAuthentication, app.auditLogMiddleware)
 
 	// Auth API Endpoints
 	mux.Handler(http.MethodPost, "/api/v1/auth/login", apiAuth.ThenFunc(app.apiHandler.LoginUser))
@@ -96,7 +96,7 @@ func (app *application) routes() http.Handler {
 	mux.Handler(http.MethodGet, "/api/v1/credits/topup/verify", apiProtected.ThenFunc(app.apiHandler.VerifyCreditsTopup))
 
 	// Admin API Endpoints (Obscured Path & Secret Header Safeguarded)
-	apiAdmin := alice.New(app.rateLimitAdmin, app.requireAdminSecretHeader, app.apiHandler.RequireJWTAuthentication, app.apiHandler.RequireRole("Admin"))
+	apiAdmin := alice.New(app.rateLimitAdmin, app.requireAdminSecretHeader, app.apiHandler.RequireJWTAuthentication, app.apiHandler.RequireRole("Admin"), app.auditLogMiddleware)
 	adminBasePath := "/api/v1/" + app.config.admin.secretPath
 	
 	// Admin Dashboard

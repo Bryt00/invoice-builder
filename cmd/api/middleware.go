@@ -108,3 +108,19 @@ func (app *application) requireAdminSecretHeader(next http.Handler) http.Handler
 		next.ServeHTTP(w, r)
 	})
 }
+
+func (app *application) auditLogMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// We use a custom response writer to capture the status code
+		// but for simplicity we can just log after next.ServeHTTP
+		next.ServeHTTP(w, r)
+		
+		// Only log modifying requests
+		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodPatch || r.Method == http.MethodDelete {
+			// Skip logging for GET, OPTIONS etc.
+			action := r.Method + " " + r.URL.Path
+			// Don't log admin login alert as user activity? Actually it's fine.
+			app.auditLog(r, action, "api_request", "", nil)
+		}
+	})
+}

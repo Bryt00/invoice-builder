@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -168,8 +169,12 @@ func (s *authService) Register(ctx context.Context, name, email, password string
 		return nil, err
 	}
 
-	// Grant 5 free credits upon sign up
-	_ = s.models.CreditTxn.AdminGrantCredits(ctx, user.ID, 5, "Sign-up Bonus")
+	// Grant free credits upon sign up from system settings
+	bonusStr, _ := s.models.SystemSettings.Get(ctx, "default_signup_credits", "3")
+	bonus, _ := strconv.Atoi(bonusStr)
+	if bonus > 0 {
+		_ = s.models.CreditTxn.AdminGrantCredits(ctx, user.ID, bonus, "Sign-up Bonus")
+	}
 
 	// Dispatch email in background
 	userEmail := user.Email
@@ -309,5 +314,5 @@ func (s *authService) SendAdminLoginAlert(ctx context.Context, user *models.User
 		"UserAgent": userAgent,
 		"Time":      time.Now().Format(time.RFC1123),
 	}
-	return s.mailer.SendMail(user.Email, "user_welcome.tmpl", data)
+	return s.mailer.SendMail(user.Email, "admin_login_alert.tmpl", data)
 }
