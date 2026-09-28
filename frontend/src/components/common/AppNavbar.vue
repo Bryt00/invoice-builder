@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-[#FDFBF7]/95 dark:bg-background/95 backdrop-blur-md w-full sticky top-0 z-50 border-b border-outline-variant/30 shadow-xs transition-all">
+  <header class="bg-background/95 backdrop-blur-md w-full sticky top-0 z-50 border-b border-outline-variant/30 shadow-xs transition-all">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center relative">
           <!-- Left: Logo & Brand -->
           <div class="flex items-center shrink-0">
@@ -120,7 +120,7 @@
       </div>
 
       <!-- Mobile Dropdown Navigation Drawer (Authenticated) -->
-      <div v-show="mobileMenuOpen && authStore.isAuthenticated" class="md:hidden border-t border-outline-variant/30 bg-[#FDFBF7]/98 dark:bg-background/98 backdrop-blur-xl px-4 py-3 space-y-1.5 font-label text-sm font-medium shadow-xl">
+      <div v-show="mobileMenuOpen && authStore.isAuthenticated" class="md:hidden border-t border-outline-variant/30 bg-background/98 backdrop-blur-xl px-4 py-3 space-y-1.5 font-label text-sm font-medium shadow-xl">
           <router-link to="/user/dashboard" @click="mobileMenuOpen = false" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">
               <span class="material-symbols-outlined text-[20px]">dashboard</span>
               <span>Dashboard</span>
@@ -167,7 +167,7 @@
       </div>
 
       <!-- Mobile Dropdown Navigation Drawer (Unauthenticated) -->
-      <div v-show="mobileMenuOpen && !authStore.isAuthenticated" class="md:hidden border-t border-outline-variant/30 bg-[#FDFBF7]/98 dark:bg-background/98 backdrop-blur-xl px-4 py-4 space-y-1.5 font-label text-sm font-medium shadow-xl">
+      <div v-show="mobileMenuOpen && !authStore.isAuthenticated" class="md:hidden border-t border-outline-variant/30 bg-background/98 backdrop-blur-xl px-4 py-4 space-y-1.5 font-label text-sm font-medium shadow-xl">
           <a href="/#features" @click="mobileMenuOpen = false" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">
               <span class="material-symbols-outlined text-[20px] text-primary">auto_awesome</span>
               <span>Features</span>
