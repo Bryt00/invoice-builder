@@ -4,8 +4,8 @@
           <!-- Left: Logo & Brand -->
           <div class="flex items-center shrink-0">
               <router-link :to="authStore.isAuthenticated ? '/user/dashboard' : '/'" class="flex items-center gap-2.5 sm:gap-3 group">
-                  <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-container-low border border-outline-variant/40 flex items-center justify-center overflow-hidden shadow-xs group-hover:border-primary/40 transition-colors shrink-0">
-                      <img src="/src/assets/brand_logo.png" alt="Teks-Invoice Logo" class="w-7 h-7 sm:w-8 sm:h-8 object-contain group-hover:scale-105 transition-transform">
+                  <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-surface-container-low/80 border border-outline-variant/40 flex items-center justify-center overflow-hidden shadow-xs group-hover:border-primary/50 transition-all shrink-0 p-1.5">
+                      <img src="/src/assets/brand_logo.png" alt="Teks-Invoice Logo" class="w-full h-full object-contain group-hover:scale-110 transition-transform">
                   </div>
                   <span class="font-headline text-lg sm:text-xl font-extrabold text-on-surface whitespace-nowrap tracking-tight">Teks-Invoice</span>
               </router-link>

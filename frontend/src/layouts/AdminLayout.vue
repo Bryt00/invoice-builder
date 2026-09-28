@@ -2,8 +2,8 @@
   <div class="flex flex-col md:flex-row min-h-screen relative w-full bg-surface">
     <!-- Admin Mobile TopBar (Mobile Only) -->
     <header class="md:hidden sticky top-0 z-40 bg-surface/95 backdrop-blur-xl border-b border-amber-500/30 px-4 py-3 flex items-center justify-between shadow-sm">
-      <router-link to="/user/admin/dashboard" class="flex items-center gap-2">
-        <img src="/src/assets/brand_logo.png" alt="Teks-Invoice Logo" class="w-7 h-7 rounded-lg object-contain ring-2 ring-amber-500/40">
+      <router-link to="/user/admin/dashboard" class="flex items-center gap-2.5">
+        <img src="/src/assets/brand_logo.png" alt="Teks-Invoice Logo" class="w-8 h-8 rounded-lg object-contain ring-2 ring-amber-500/40 p-0.5">
         <span class="font-headline text-base font-bold text-on-surface">Teks-Invoice</span>
         <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-amber-500/20 text-amber-600 border border-amber-500/30">ADMIN</span>
       </router-link>
