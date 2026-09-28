@@ -23,8 +23,8 @@
   </div>
 </template>
 
-<script setup>
-import { useFlash } from '../../composables/useFlash'
+<script setup lang="ts">
+import { useFlash } from '@/composables/useFlash'
 
 const { message, type, clearFlash } = useFlash()
 </script>

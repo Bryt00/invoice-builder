@@ -19,7 +19,7 @@ Invoice provides a frictionless WYSIWYG editor to create, send, and track profes
 - **ORM**: GORM
 - **Migrations**: Goose
 - **Session Management**: SCS
-- **Frontend**: HTML5 Templates, Tailwind CSS (Runtime Configuration), Vanilla JavaScript
+- **Frontend**: Vue 3 SPA, TypeScript, Vite, Tailwind CSS, Pinia
 
 ## Prerequisites
 

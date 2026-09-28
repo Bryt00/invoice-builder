@@ -1,0 +1,223 @@
+<div class="w-full max-w-[1600px] mx-auto pb-24 space-y-6">
+    <form @submit.prevent="handleSubmit">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Left Pane: Data Entry Form -->
+            <section class="lg:col-span-7 flex flex-col gap-6 bg-surface p-6 sm:p-8 rounded-2xl border border-outline-variant/60 shadow-sm">
+                <div class="flex justify-between items-end border-b border-outline-variant/40 pb-4">
+                    <div>
+                        <h1 class="font-headline text-2xl font-bold text-on-surface mb-1">Invoice Editor</h1>
+                        <p class="font-body text-sm text-on-surface-variant">Editing <span class="font-semibold text-primary">{{ form.invoice_number || 'Draft' }}</span></p>
+                    </div>
+                    <div class="bg-surface-container-high px-3 py-1 rounded-full flex items-center gap-1.5 border border-outline-variant/40">
+                        <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                        <span class="font-label text-xs font-semibold text-on-surface-variant">Draft Mode</span>
+                    </div>
+                </div>
+
+                <!-- Template Selector Card -->
+                <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-[20px]">palette</span>
+                            <h2 class="font-label text-sm font-semibold text-on-surface">Invoice Template Theme</h2>
+                        </div>
+                        <span class="text-[11px] text-on-surface-variant font-medium">Layout: <strong class="capitalize text-primary">{{ form.template }}</strong></span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <button
+                            type="button"
+                            @click="form.template = 'modern'"
+                            class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer relative"
+                            :class="form.template === 'modern' ? 'border-primary bg-primary/10 text-primary font-bold shadow-xs ring-1 ring-primary' : 'border-outline-variant/50 bg-surface text-on-surface-variant hover:border-outline-variant'"
+                        >
+                            <div class="flex items-center justify-between w-full">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[18px]">view_quilt</span>
+                                    <span class="text-xs">Modern</span>
+                                </div>
+                                <span v-if="form.template === 'modern'" class="material-symbols-outlined text-[16px]">check_circle</span>
+                            </div>
+                            <span class="text-[10px] opacity-75 font-normal leading-tight">Emerald accents & rounded cards</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            @click="form.template = 'minimalist'"
+                            class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer relative"
+                            :class="form.template === 'minimalist' ? 'border-primary bg-primary/10 text-primary font-bold shadow-xs ring-1 ring-primary' : 'border-outline-variant/50 bg-surface text-on-surface-variant hover:border-outline-variant'"
+                        >
+                            <div class="flex items-center justify-between w-full">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[18px]">density_medium</span>
+                                    <span class="text-xs">Minimalist</span>
+                                </div>
+                                <span v-if="form.template === 'minimalist'" class="material-symbols-outlined text-[16px]">check_circle</span>
+                            </div>
+                            <span class="text-[10px] opacity-75 font-normal leading-tight">Monochrome & hairline dividers</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            @click="form.template = 'classic'"
+                            class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer relative"
+                            :class="form.template === 'classic' ? 'border-primary bg-primary/10 text-primary font-bold shadow-xs ring-1 ring-primary' : 'border-outline-variant/50 bg-surface text-on-surface-variant hover:border-outline-variant'"
+                        >
+                            <div class="flex items-center justify-between w-full">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[18px]">menu_book</span>
+                                    <span class="text-xs">Classic</span>
+                                </div>
+                                <span v-if="form.template === 'classic'" class="material-symbols-outlined text-[16px]">check_circle</span>
+                            </div>
+                            <span class="text-[10px] opacity-75 font-normal leading-tight">Formal serif & corporate rules</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-xl p-6 shadow-sm flex flex-col gap-4">
+                    <div class="flex items-center gap-2 text-secondary border-b border-outline-variant/40 pb-3 mb-1">
+                        <span class="material-symbols-outlined text-primary text-[20px]">person</span>
+                        <h2 class="font-label text-sm font-semibold text-on-surface">Client & Invoice Setup</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Billed To (Saved Client)</label>
+                            <select v-model="form.client_id" @change="onClientChange" class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl font-body text-sm text-on-surface outline-none focus:border-primary">
+                                <option value="">-- Select Saved Client --</option>
+                                <option v-for="c in clients" :key="c.id" :value="c.id">{{ c.name }} ({{ c.email }})</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Currency</label>
+                            <select v-model="form.currency" class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl font-body text-sm text-on-surface outline-none focus:border-primary">
+                                <option v-for="curr in currencies" :key="curr.Code || curr" :value="curr.Code || curr">
+                                    {{ curr.Flag ? curr.Flag + ' ' : '' }}{{ curr.Code || curr }} ({{ curr.Symbol || '$' }})
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Invoice Number</label>
+                            <input type="text" v-model="form.invoice_number" required
+                                   class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl font-body text-sm text-on-surface outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Issue Date</label>
+                            <input type="date" v-model="form.issue_date" required
+                                   class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl font-body text-sm text-on-surface outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Due Date</label>
+                            <input type="date" v-model="form.due_date" required
+                                   class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl font-body text-sm text-on-surface outline-none focus:border-primary">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Client Billing Address (Optional)</label>
+                        <textarea v-model="form.client_address" rows="2" placeholder="123 Client St, City, Country"
+                                  class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl font-body text-sm text-on-surface outline-none focus:border-primary resize-none"></textarea>
+                    </div>
+
+                    <!-- Line Items Section -->
+                    <div class="space-y-3 pt-2">
+                        <div class="flex justify-between items-center">
+                            <label class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Line Items</label>
+                            <button type="button" @click="addItem" class="text-xs font-label font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[16px]">add_circle</span> Add Item
+                            </button>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div v-for="(item, idx) in form.items" :key="idx" class="line-item-row grid grid-cols-12 gap-2 items-center p-2.5 bg-surface-container-low/50 rounded-xl border border-outline-variant/40">
+                                <div class="col-span-6">
+                                    <input type="text" v-model="item.description" placeholder="Description of service or product" required
+                                           class="w-full px-2 py-1.5 bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary outline-none font-body text-sm text-on-surface">
+                                </div>
+                                <div class="col-span-2">
+                                    <input type="number" v-model.number="item.quantity" min="0.01" step="0.01" required
+                                           class="w-full px-2 py-1.5 bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary outline-none font-body text-sm text-on-surface text-center">
+                                </div>
+                                <div class="col-span-2">
+                                    <input type="number" v-model.number="item.unit_price" min="0" step="0.01" required
+                                           class="w-full px-2 py-1.5 bg-transparent border-0 border-b border-outline-variant/60 focus:border-primary outline-none font-body text-sm text-on-surface text-right">
+                                </div>
+                                <div class="col-span-2 flex items-center justify-between pl-1">
+                                    <span class="font-headline text-xs font-semibold text-on-surface">{{ currencySymbol }}{{ ((item.quantity || 0) * (item.unit_price || 0)).toFixed(2) }}</span>
+                                    <button type="button" @click="removeItem(idx)" class="p-1 text-outline hover:text-error transition-colors cursor-pointer" :title="'Remove item'">
+                                        <span class="material-symbols-outlined text-[16px]">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Taxes & Discounts -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Tax Rate (%)</label>
+                            <input type="number" v-model.number="form.tax_rate" min="0" max="100" step="0.1"
+                                   class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl font-body text-sm text-on-surface outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Discount Amount</label>
+                            <input type="number" v-model.number="form.discount_amount" min="0" step="0.01"
+                                   class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl font-body text-sm text-on-surface outline-none focus:border-primary">
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="flex flex-col gap-1.5 pt-2">
+                        <label class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Invoice Notes / Instructions</label>
+                        <textarea v-model="form.notes" rows="3" placeholder="Payment due within 14 days. Bank Details: ..."
+                                  class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant/70 rounded-xl font-body text-sm text-on-surface outline-none focus:border-primary resize-none"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Live PDF Document Preview -->
+            <section class="lg:col-span-5 flex flex-col justify-start">
+                <div class="sticky top-24 space-y-3">
+                    <div class="flex items-center justify-between px-1">
+                        <h2 class="font-headline text-sm font-bold text-on-surface flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-[18px]">visibility</span>
+                            Live Document Preview
+                        </h2>
+                        <span class="font-body text-xs text-on-surface-variant">Theme: <strong class="capitalize text-primary">{{ form.template }}</strong></span>
+                    </div>
+
+                    <!-- Document Sheet Mockup -->
+                    <InvoiceDocumentPreview
+                        :template="form.template"
+                        :invoice="form"
+                        :profile="profile"
+                        :totals="totals"
+                        :currency-symbol="currencySymbol"
+                        :format-date="formatDate"
+                    />
+                </div>
+            </section>
+        </div>
+
+        <!-- Floating Bottom Contextual Action Bar -->
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center justify-center">
+            <div class="bg-inverse-surface/95 text-inverse-on-surface rounded-full px-5 py-2.5 flex items-center gap-3 shadow-2xl border border-outline/30 backdrop-blur-md">
+                <button type="button" @click="saveDraft" :disabled="saving" class="flex items-center gap-1.5 px-4 py-2 rounded-full hover:bg-white/10 transition-colors font-label text-xs font-semibold cursor-pointer disabled:opacity-50">
+                    <span class="material-symbols-outlined text-[18px]">draft</span> Save Draft
+                </button>
+                <div class="w-px h-5 bg-outline/40"></div>
+                <router-link to="/user/invoices" class="flex items-center gap-1.5 px-4 py-2 rounded-full hover:bg-white/10 transition-colors font-label text-xs font-semibold">
+                    <span class="material-symbols-outlined text-[18px]">arrow_back</span> Cancel
+                </router-link>
+                <button type="submit" :disabled="saving" class="bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors px-6 py-2 rounded-full font-label text-xs font-bold flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50">
+                    <span class="material-symbols-outlined text-[18px]">verified</span> Finalize &amp; Save
+                    <span class="bg-black/20 px-2 py-0.5 rounded text-[10px] font-mono">1 Credit</span>
+                </button>
+            </div>
+        </div>
+    </form>
+  </div>

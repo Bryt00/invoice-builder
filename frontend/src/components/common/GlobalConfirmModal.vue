@@ -66,8 +66,8 @@
   </Teleport>
 </template>
 
-<script setup>
-import { useConfirm } from '../../composables/useConfirm'
+<script setup lang="ts">
+import { useConfirm } from '@/composables/useConfirm'
 
 const { confirmState, handleConfirm, handleCancel } = useConfirm()
 </script>

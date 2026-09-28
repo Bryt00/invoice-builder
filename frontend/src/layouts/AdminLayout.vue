@@ -85,10 +85,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from '@/stores/auth'
 import FlashAlert from '../components/common/FlashAlert.vue'
 
 const router = useRouter()

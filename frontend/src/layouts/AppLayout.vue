@@ -20,7 +20,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import AppNavbar from '../components/common/AppNavbar.vue'
 import AppFooter from '../components/common/AppFooter.vue'
 import FlashAlert from '../components/common/FlashAlert.vue'

@@ -1,0 +1,19 @@
+{
+  "name": "Teks-Invoice — Billing for Modern Professionals",
+  "short_name": "Teks-Invoice",
+  "description": "Fast, precise invoice generator and billing management for freelancers and small businesses.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FAF9F6",
+  "theme_color": "#4a7c59",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
