@@ -49,30 +49,17 @@
           </nav>
 
           <!-- Right: User Controls (Authenticated) -->
-          <div class="flex items-center justify-end gap-2 sm:gap-3 shrink-0" v-if="authStore.isAuthenticated">
-              <!-- Theme Toggle Button -->
-              <button
-                  type="button"
-                  @click="toggleTheme"
-                  class="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-variant/40 transition-colors cursor-pointer"
-                  :title="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                  aria-label="Toggle theme"
-              >
-                  <span class="material-symbols-outlined text-[20px] transition-transform duration-300" :class="isDark ? 'rotate-180 text-amber-400' : 'text-slate-600'">
-                      {{ isDark ? 'light_mode' : 'dark_mode' }}
-                  </span>
-              </button>
-
-              <!-- Credits Pill -->
-              <router-link to="/user/credits/history" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-full font-label text-xs font-bold hover:bg-emerald-500/25 transition-colors" title="Available Credits">
+          <div class="flex items-center justify-end gap-1.5 sm:gap-3 shrink-0" v-if="authStore.isAuthenticated">
+              <!-- Credits Pill (Desktop / Tablet) -->
+              <router-link to="/user/credits/history" class="hidden sm:inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-full font-label text-xs font-bold hover:bg-emerald-500/25 transition-colors" title="Available Credits">
                   <span class="material-symbols-outlined text-[16px]">hexagon</span>
                   <span>{{ authStore.credits || 0 }} <span class="hidden sm:inline">Credits</span></span>
               </router-link>
               
-              <!-- Profile Pill -->
+              <!-- Profile Pill (Desktop / Tablet) -->
               <router-link
                   to="/user/profile/setup"
-                  class="flex items-center gap-2 py-1 pl-2 sm:pl-3 pr-1 rounded-full bg-surface-container-high border border-outline-variant/30 hover:bg-surface-variant/60 transition-all text-xs font-semibold text-on-surface shadow-xs"
+                  class="hidden sm:flex items-center gap-2 py-1 pl-2 sm:pl-3 pr-1 rounded-full bg-surface-container-high border border-outline-variant/30 hover:bg-surface-variant/60 transition-all text-xs font-semibold text-on-surface shadow-xs"
                   :title="authStore.user?.name"
               >
                   <span class="hidden sm:inline font-body text-xs">{{ authStore.user?.name || 'My Account' }}</span>
@@ -87,6 +74,19 @@
                       <span class="material-symbols-outlined text-[20px]">logout</span>
                   </button>
               </div>
+
+              <!-- Theme Toggle Button (Always visible on mobile & desktop) -->
+              <button
+                  type="button"
+                  @click="toggleTheme"
+                  class="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-variant/40 transition-colors cursor-pointer"
+                  :title="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+                  aria-label="Toggle theme"
+              >
+                  <span class="material-symbols-outlined text-[20px] transition-transform duration-300" :class="isDark ? 'rotate-180 text-amber-400' : 'text-slate-600'">
+                      {{ isDark ? 'light_mode' : 'dark_mode' }}
+                  </span>
+              </button>
               
               <!-- Mobile Hamburger Button -->
               <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-on-surface-variant hover:text-primary p-1.5 rounded-xl transition-colors cursor-pointer" :title="mobileMenuOpen ? 'Close Menu' : 'Open Navigation Menu'">
@@ -95,8 +95,11 @@
           </div>
 
           <!-- Right: Unauthenticated Controls -->
-          <div class="flex items-center justify-end gap-2 sm:gap-3 shrink-0" v-else>
-              <!-- Theme Toggle Button -->
+          <div class="flex items-center justify-end gap-1.5 sm:gap-3 shrink-0" v-else>
+              <router-link to="/user/login" class="hidden sm:inline-block text-xs sm:text-sm font-bold text-on-surface-variant hover:text-primary transition-colors px-2 py-1.5">Log in</router-link>
+              <router-link to="/user/register" class="hidden sm:inline-block px-3 sm:px-4 py-2 bg-primary text-on-primary rounded-xl text-xs sm:text-sm font-bold shadow hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all shrink-0">Get Started</router-link>
+              
+              <!-- Theme Toggle Button (Always visible on mobile & desktop) -->
               <button
                   type="button"
                   @click="toggleTheme"
@@ -109,18 +112,28 @@
                   </span>
               </button>
 
-              <router-link to="/user/login" class="text-xs sm:text-sm font-bold text-on-surface-variant hover:text-primary transition-colors px-2 py-1.5">Log in</router-link>
-              <router-link to="/user/register" class="px-3 sm:px-4 py-2 bg-primary text-on-primary rounded-xl text-xs sm:text-sm font-bold shadow hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all shrink-0">Get Started</router-link>
-              
               <!-- Mobile Hamburger Button for Visitors -->
-              <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-on-surface-variant hover:text-primary p-1.5 rounded-xl transition-colors cursor-pointer ml-0.5" :title="mobileMenuOpen ? 'Close Menu' : 'Open Navigation Menu'">
+              <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-on-surface-variant hover:text-primary p-1.5 rounded-xl transition-colors cursor-pointer" :title="mobileMenuOpen ? 'Close Menu' : 'Open Navigation Menu'">
                   <span class="material-symbols-outlined text-[24px]">{{ mobileMenuOpen ? 'close' : 'menu' }}</span>
               </button>
           </div>
       </div>
 
       <!-- Mobile Dropdown Navigation Drawer (Authenticated) -->
-      <div v-show="mobileMenuOpen && authStore.isAuthenticated" class="md:hidden border-t border-outline-variant/30 bg-background/98 backdrop-blur-xl px-4 py-3 space-y-1.5 font-label text-sm font-medium shadow-xl">
+      <div v-show="mobileMenuOpen && authStore.isAuthenticated" class="md:hidden border-t border-outline-variant/30 bg-background/98 backdrop-blur-xl px-4 py-3 space-y-2 font-label text-sm font-medium shadow-xl">
+          <!-- User Info & Credits Header in Mobile Drawer -->
+          <div class="pb-2.5 border-b border-outline-variant/30 flex items-center justify-between px-1">
+              <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-full bg-emerald-700 text-white font-bold flex items-center justify-center uppercase text-xs shadow-xs">
+                      {{ authStore.user?.name ? authStore.user.name[0] : 'U' }}
+                  </div>
+                  <span class="font-bold text-xs text-on-surface truncate max-w-[140px]">{{ authStore.user?.name || 'My Account' }}</span>
+              </div>
+              <router-link to="/user/credits/history" @click="mobileMenuOpen = false" class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-full font-label text-xs font-bold">
+                  <span class="material-symbols-outlined text-[14px]">hexagon</span>
+                  <span>{{ authStore.credits || 0 }} Credits</span>
+              </router-link>
+          </div>
           <router-link to="/user/dashboard" @click="mobileMenuOpen = false" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">
               <span class="material-symbols-outlined text-[20px]">dashboard</span>
               <span>Dashboard</span>
