@@ -31,3 +31,8 @@ test*.pdf
 
 # Design reference
 ui/html-reference/
+
+# Deployment scripts with host details
+deploy-api.sh
+deployment/deploy-api.sh
+
