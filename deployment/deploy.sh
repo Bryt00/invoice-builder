@@ -89,7 +89,7 @@ echo "Building Vue frontend..."
 if [ -d "frontend" ]; then
 	    cd frontend
 	    npm cache clean --force
-	    npm install --no-audit --no-fund
+	    npm install --include=dev --no-audit --no-fund
     npm run build
     cd ..
     mkdir -p $APP_DIR/frontend/dist

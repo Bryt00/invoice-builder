@@ -16,14 +16,14 @@ if [ ! -d "$APP_DIR" ]; then
     exit 1
 fi
 
+set -e
+
 echo "Building Vue TypeScript frontend..."
 if [ -d "frontend" ]; then
     cd frontend
     
-    if [ ! -d "node_modules" ]; then
-        echo "Installing node_modules for frontend..."
-        npm install
-    fi
+    echo "Installing frontend dependencies..."
+    npm install --include=dev --no-audit --no-fund
     
     npm run build
     cd ..

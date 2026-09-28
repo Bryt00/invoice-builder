@@ -16,13 +16,14 @@ if [ ! -d "$APP_DIR" ]; then
     exit 1
 fi
 
+set -e
+
 echo "Building Vue frontend..."
 if [ -d "frontend" ]; then
     cd frontend
     
-    # Optional: You can uncomment this if you added new npm packages
-    # npm cache clean --force
-    # npm install --no-audit --no-fund
+    echo "Installing frontend dependencies..."
+    npm install --include=dev --no-audit --no-fund
     
     npm run build
     cd ..
