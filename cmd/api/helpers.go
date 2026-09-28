@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"runtime/debug"
+	"strings"
 
 	"github.com/google/uuid"
 	"raven.go.invoice-builder/internal/contextutil"
@@ -58,10 +60,7 @@ func (app *application) auditLog(r *http.Request, action string, entityType stri
 		}
 	}
 
-	ip := r.RemoteAddr
-	if forwarded := r.Header.Get("X-Forwarded-For"); forwarded != "" {
-		ip = forwarded
-	}
+	ip := getClientIP(r)
 
 	log := &models.AuditLog{
 		UserID:     userID,
@@ -76,4 +75,36 @@ func (app *application) auditLog(r *http.Request, action string, entityType stri
 	go func() {
 		_ = app.models.AuditLog.Record(context.Background(), log)
 	}()
+}
+
+// getClientIP extracts the real visitor IP from Cloudflare or reverse proxy headers,
+// falling back to r.RemoteAddr with port stripped.
+func getClientIP(r *http.Request) string {
+	// 1. Cloudflare header
+	if cfIP := r.Header.Get("CF-Connecting-IP"); cfIP != "" {
+		return strings.TrimSpace(cfIP)
+	}
+
+	// 2. Standard X-Real-IP header from Nginx
+	if realIP := r.Header.Get("X-Real-IP"); realIP != "" {
+		return strings.TrimSpace(realIP)
+	}
+
+	// 3. X-Forwarded-For header (comma-separated list: client, proxy1, proxy2)
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		parts := strings.Split(xff, ",")
+		if len(parts) > 0 {
+			ip := strings.TrimSpace(parts[0])
+			if ip != "" {
+				return ip
+			}
+		}
+	}
+
+	// 4. Direct socket address (strip port if present)
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err == nil && host != "" {
+		return host
+	}
+	return r.RemoteAddr
 }

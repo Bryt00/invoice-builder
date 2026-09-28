@@ -35,9 +35,11 @@ func (h *ApiHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		tokenResponse["refresh_token"] = tokenPair.RefreshToken
 	}
 
+	clientIP := getClientIP(r)
+
 	if user.IsAdmin() {
 		go func(u *models.User) {
-			_ = h.Services.Auth.SendAdminLoginAlert(r.Context(), u, r.RemoteAddr, r.UserAgent())
+			_ = h.Services.Auth.SendAdminLoginAlert(r.Context(), u, clientIP, r.UserAgent())
 		}(user)
 	}
 
@@ -45,7 +47,7 @@ func (h *ApiHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		_ = h.Models.AuditLog.Record(context.Background(), &models.AuditLog{
 			UserID:    &u.ID,
 			Action:    "POST /api/v1/auth/login",
-			IPAddress: r.RemoteAddr,
+			IPAddress: clientIP,
 			UserAgent: r.UserAgent(),
 		})
 	}(user)
@@ -102,11 +104,12 @@ func (h *ApiHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	regIP := getClientIP(r)
 	go func(u *models.User) {
 		_ = h.Models.AuditLog.Record(context.Background(), &models.AuditLog{
 			UserID:    &u.ID,
 			Action:    "POST /api/v1/auth/register",
-			IPAddress: r.RemoteAddr,
+			IPAddress: regIP,
 			UserAgent: r.UserAgent(),
 		})
 	}(user)
