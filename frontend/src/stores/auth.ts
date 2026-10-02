@@ -73,7 +73,7 @@ export const useAuthStore = defineStore('auth', {
           this.credits = res.data.credits || 0
         }
       } catch (err: any) {
-        this.error = err.response?.data?.error || 'Failed to fetch current user'
+        this.error = typeof err.response?.data?.error === 'string' ? err.response.data.error : 'Failed to fetch current user'
         this.clearAuth()
       } finally {
         this.loading = false
@@ -96,22 +96,22 @@ export const useAuthStore = defineStore('auth', {
         }
         return data
       } catch (err: any) {
-        this.error = err.response?.data?.error || 'Invalid credentials'
+        this.error = typeof err.response?.data?.error === 'string' ? err.response.data.error : 'Invalid credentials'
         throw err
       } finally {
         this.loading = false
       }
     },
 
-    async register(name: string, email: string, password: string): Promise<any> {
+    async register(name: string, email: string, password: string, confirmPassword: string): Promise<any> {
       this.loading = true
       this.error = null
 
       try {
-        const res = await api.post('/auth/register', { name, email, password })
+        const res = await api.post('/auth/register', { name, email, password, confirm_password: confirmPassword })
         return res.data
       } catch (err: any) {
-        this.error = err.response?.data?.error || 'Registration failed'
+        this.error = typeof err.response?.data?.error === 'string' ? err.response.data.error : 'Registration failed'
         throw err
       } finally {
         this.loading = false

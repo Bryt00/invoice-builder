@@ -23,9 +23,12 @@ export default defineComponent({
       password: '',
     })
 
+    const errors = ref<Record<string, string>>({})
+
     const showPassword = ref(false)
 
     async function handleSubmit() {
+      errors.value = {}
       try {
         await authStore.login(form.email, form.password)
         showFlash('Welcome back!', 'success')
@@ -37,7 +40,11 @@ export default defineComponent({
           router.push(redirectPath)
         }
       } catch (err: any) {
-        showFlash(authStore.error || 'Failed to sign in', 'error')
+        if (err.response?.status === 422 && typeof err.response.data?.error === 'object') {
+          errors.value = err.response.data.error
+        } else {
+          showFlash(authStore.error || 'Failed to sign in', 'error')
+        }
       }
     }
     return {
@@ -47,6 +54,7 @@ export default defineComponent({
       route,
       showFlash,
       form,
+      errors,
       showPassword,
       handleSubmit
     }

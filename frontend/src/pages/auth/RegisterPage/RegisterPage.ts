@@ -23,22 +23,29 @@ export default defineComponent({
       confirmPassword: '',
     })
 
+    const errors = ref<Record<string, string>>({})
+
     const showPassword = ref(false)
 
     const showConfirmPassword = ref(false)
 
     async function handleSubmit() {
+      errors.value = {}
       if (form.password !== form.confirmPassword) {
-        showFlash('Passwords do not match', 'error')
+        errors.value['confirm password'] = 'Passwords do not match'
         return
       }
 
       try {
-        const res = await authStore.register(form.name, form.email, form.password)
+        const res = await authStore.register(form.name, form.email, form.password, form.confirmPassword)
         showFlash(res.message || 'Account created! Please check your email for activation link.', 'success', 8000)
         router.push('/user/login')
       } catch (err: any) {
-        showFlash(authStore.error || 'Registration failed', 'error')
+        if (err.response?.status === 422 && typeof err.response.data?.error === 'object') {
+          errors.value = err.response.data.error
+        } else {
+          showFlash(authStore.error || 'Registration failed', 'error')
+        }
       }
     }
     return {
@@ -47,6 +54,7 @@ export default defineComponent({
       router,
       showFlash,
       form,
+      errors,
       showPassword,
       showConfirmPassword,
       handleSubmit

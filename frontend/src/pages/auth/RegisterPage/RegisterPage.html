@@ -23,7 +23,9 @@
             required
             placeholder="John Doe"
             class="w-full px-4 py-2.5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+            :class="{ 'border-red-500 focus:ring-red-500': errors.name }"
           />
+          <span v-if="errors.name" class="text-xs text-red-500 mt-1 block">{{ errors.name }}</span>
         </div>
 
         <div>
@@ -36,7 +38,9 @@
             required
             placeholder="name@company.com"
             class="w-full px-4 py-2.5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+            :class="{ 'border-red-500 focus:ring-red-500': errors.email }"
           />
+          <span v-if="errors.email" class="text-xs text-red-500 mt-1 block">{{ errors.email }}</span>
         </div>
 
         <div>
@@ -50,6 +54,7 @@
               required
               placeholder="••••••••"
               class="w-full px-4 pr-12 py-2.5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+              :class="{ 'border-red-500 focus:ring-red-500': errors.password }"
             />
             <button
               type="button"
@@ -60,6 +65,7 @@
               <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
             </button>
           </div>
+          <span v-if="errors.password" class="text-xs text-red-500 mt-1 block">{{ errors.password }}</span>
         </div>
 
         <div>
@@ -73,6 +79,7 @@
               required
               placeholder="••••••••"
               class="w-full px-4 pr-12 py-2.5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl text-sm font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+              :class="{ 'border-red-500 focus:ring-red-500': errors['confirm password'] }"
             />
             <button
               type="button"
@@ -83,6 +90,7 @@
               <span class="material-symbols-outlined">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
             </button>
           </div>
+          <span v-if="errors['confirm password']" class="text-xs text-red-500 mt-1 block">{{ errors['confirm password'] }}</span>
         </div>
 
         <button
