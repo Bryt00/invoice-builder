@@ -1,4 +1,5 @@
 import { defineComponent,  ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/utils/api'
 import { useFlash } from '@/composables/useFlash'
 import FlashAlert from '@/components/common/FlashAlert.vue'
@@ -11,6 +12,7 @@ export default defineComponent({
     FlashAlert
   },
   setup() {
+    const router = useRouter()
     const { showFlash } = useFlash()
 
     const users = ref([])
@@ -53,7 +55,23 @@ export default defineComponent({
     }
 
     function formatDate(date) {
-      return dayjs(date).format('MMM DD, YYYY')
+      if (!date || date === '0001-01-01T00:00:00Z') return 'N/A'
+      return dayjs(date).format('MMMM DD, YYYY at h:mm A')
+    }
+
+    async function exportCSV() {
+      try {
+        const res = await api.get(`/admin/users/export?search=${encodeURIComponent(searchQuery.value)}`, { responseType: 'blob' })
+        const url = window.URL.createObjectURL(new Blob([res.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'users_export.csv')
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+      } catch (e) {
+        showFlash('Failed to export CSV', 'error')
+      }
     }
 
     function openCreateModal() {
@@ -187,6 +205,7 @@ export default defineComponent({
       }
     }
     return {
+      router,
       FlashAlert,
       showFlash,
       users,
@@ -212,7 +231,8 @@ export default defineComponent({
       openCreditModal,
       submitCreditAllocation,
       askConfirm,
-      deleteUser
+      deleteUser,
+      exportCSV
     }
   }
 })

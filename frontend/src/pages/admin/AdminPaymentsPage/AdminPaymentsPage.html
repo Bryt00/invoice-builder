@@ -18,6 +18,10 @@
             <option value="refunded">Refunded</option>
           </select>
           <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-on-primary px-4 py-2 rounded-xl font-label text-sm font-bold transition-colors cursor-pointer shrink-0">Filter</button>
+          <button type="button" @click="exportCSV" class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-on-surface px-4 py-2 rounded-xl font-label text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer shrink-0">
+            <span class="material-symbols-outlined text-[18px]">download</span>
+            Export CSV
+          </button>
         </form>
       </div>
     </div>

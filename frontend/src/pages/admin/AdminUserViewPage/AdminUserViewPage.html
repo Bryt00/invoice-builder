@@ -64,7 +64,7 @@
             <p class="text-xs text-on-surface-variant font-label uppercase tracking-wider font-bold mb-1">Available Credits</p>
             <h3 class="font-headline text-4xl font-black text-on-surface">{{ user.credits || 0 }}</h3>
           </div>
-          <button class="mt-4 w-full py-2 bg-surface-container-high hover:bg-amber-500 hover:text-on-primary text-on-surface transition-colors rounded-xl font-label text-xs font-bold border border-outline-variant/40">
+          <button @click="router.push('/user/admin/credits?search=' + encodeURIComponent(user.email))" class="mt-4 w-full py-2 bg-surface-container-high hover:bg-amber-500 hover:text-on-primary text-on-surface transition-colors rounded-xl font-label text-xs font-bold border border-outline-variant/40">
             View Credit History
           </button>
         </div>
@@ -73,7 +73,14 @@
         <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 shadow-xs flex flex-col justify-between">
           <h3 class="font-label text-xs uppercase tracking-wider font-bold text-on-surface-variant mb-4">Quick Actions</h3>
           <div class="space-y-2">
-             <button class="w-full flex items-center justify-between px-4 py-2.5 bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 rounded-xl font-label text-sm text-on-surface transition-colors">
+             <button @click="impersonateUser(user.id)" class="w-full flex items-center justify-between px-4 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-xl font-label text-sm text-emerald-600 transition-colors">
+               <div class="flex items-center gap-2">
+                 <span class="material-symbols-outlined text-[18px]">switch_account</span>
+                 Impersonate User
+               </div>
+               <span class="material-symbols-outlined text-[16px] text-on-surface-variant">chevron_right</span>
+             </button>
+             <button @click="forcePasswordReset(user.id)" class="w-full flex items-center justify-between px-4 py-2.5 bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 rounded-xl font-label text-sm text-on-surface transition-colors">
                <div class="flex items-center gap-2">
                  <span class="material-symbols-outlined text-[18px] text-amber-500">lock_reset</span>
                  Force Password Reset
@@ -87,13 +94,48 @@
                </div>
                <span class="material-symbols-outlined text-[16px] text-on-surface-variant">chevron_right</span>
              </button>
-             <button class="w-full flex items-center justify-between px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-xl font-label text-sm text-rose-600 transition-colors">
+             <button @click="deleteUser(user.id)" class="w-full flex items-center justify-between px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-xl font-label text-sm text-rose-600 transition-colors">
                <div class="flex items-center gap-2">
                  <span class="material-symbols-outlined text-[18px]">delete_forever</span>
                  Delete Account Data
                </div>
                <span class="material-symbols-outlined text-[16px]">chevron_right</span>
              </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Profile Section -->
+      <div v-if="user.profile" class="mt-6 glass-card rounded-2xl p-6 border border-outline-variant/60 shadow-xs">
+        <h3 class="font-label text-xs uppercase tracking-wider font-bold text-on-surface-variant mb-4">Business Profile</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 font-body text-sm">
+          <div>
+            <p class="text-on-surface-variant text-xs mb-0.5">Company Name</p>
+            <p class="text-on-surface font-semibold">{{ user.profile.company_name || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-on-surface-variant text-xs mb-0.5">Business Type</p>
+            <p class="text-on-surface font-semibold">{{ user.profile.business_type || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-on-surface-variant text-xs mb-0.5">Role in Company</p>
+            <p class="text-on-surface font-semibold">{{ user.profile.role || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-on-surface-variant text-xs mb-0.5">Registration Number</p>
+            <p class="text-on-surface font-semibold">{{ user.profile.registration_number || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-on-surface-variant text-xs mb-0.5">Tax ID</p>
+            <p class="text-on-surface font-semibold">{{ user.profile.tax_id || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-on-surface-variant text-xs mb-0.5">Default Currency</p>
+            <p class="text-on-surface font-semibold">{{ user.profile.default_currency || 'N/A' }}</p>
+          </div>
+          <div class="sm:col-span-2 md:col-span-3">
+            <p class="text-on-surface-variant text-xs mb-0.5">Registered Address</p>
+            <p class="text-on-surface font-semibold whitespace-pre-wrap">{{ user.profile.registered_address || 'N/A' }}</p>
           </div>
         </div>
       </div>

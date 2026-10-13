@@ -24,22 +24,14 @@ window.addEventListener('unhandledrejection', (event) => {
   showToast(`Unhandled error: ${rawMsg || 'Something went wrong'}`, 'error', 6000)
 })
 
+import { usePwa } from './composables/usePwa'
+
 app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
 
-// PWA Service Worker Registration
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((reg) => {
-        console.log('[SW] ServiceWorker registered with scope: ', reg.scope)
-      })
-      .catch((err) => {
-        console.warn('[SW] ServiceWorker registration failed: ', err)
-      })
-  })
-}
+// Initialize Progressive Web App features
+const { initPwa } = usePwa()
+initPwa()
 

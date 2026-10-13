@@ -65,6 +65,22 @@ export default defineComponent({
           return base + 'bg-surface-container-high text-on-surface-variant border-outline-variant/40'
       }
     }
+
+    async function exportCSV() {
+      try {
+        const res = await api.get(`/admin/payments/export?status=${encodeURIComponent(statusFilter.value)}`, { responseType: 'blob' })
+        const url = window.URL.createObjectURL(new Blob([res.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'payments_export.csv')
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+      } catch (e) {
+        showToast('Failed to export CSV', 'error')
+      }
+    }
+
     return {
       showToast,
       payments,
@@ -75,7 +91,8 @@ export default defineComponent({
       currencySymbol,
       fetchPayments,
       formatDate,
-      getStatusBadge
+      getStatusBadge,
+      exportCSV
     }
   }
 })

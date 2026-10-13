@@ -124,3 +124,17 @@ func (app *application) auditLogMiddleware(next http.Handler) http.Handler {
 		}
 	})
 }
+
+func (app *application) checkMaintenanceMode(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		maintMode, err := app.models.SystemSettings.Get(r.Context(), "maintenance_mode", "false")
+		if err == nil && maintMode == "true" {
+			user := app.apiHandler.ContextGetUser(r)
+			if user == nil || !user.IsAdmin() {
+				app.apiHandler.ErrorResponse(w, r, http.StatusServiceUnavailable, "The system is currently undergoing maintenance. Please try again later.")
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}

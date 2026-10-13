@@ -39,7 +39,7 @@ func (app *application) routes() http.Handler {
 
 	// API Middleware Chains
 	apiAuth := alice.New(app.rateLimitAuth)
-	apiProtected := alice.New(app.apiHandler.RequireJWTAuthentication, app.auditLogMiddleware)
+	apiProtected := alice.New(app.apiHandler.RequireJWTAuthentication, app.checkMaintenanceMode, app.auditLogMiddleware)
 
 	// Auth API Endpoints
 	mux.Handler(http.MethodPost, "/api/v1/auth/login", apiAuth.ThenFunc(app.apiHandler.LoginUser))
@@ -105,10 +105,13 @@ func (app *application) routes() http.Handler {
 	// Admin Users
 	mux.Handler(http.MethodGet, adminBasePath+"/users", apiAdmin.ThenFunc(app.apiHandler.AdminGetUsers))
 	mux.Handler(http.MethodPost, adminBasePath+"/users", apiAdmin.ThenFunc(app.apiHandler.AdminCreateUser))
+	mux.Handler(http.MethodGet, adminBasePath+"/users/export", apiAdmin.ThenFunc(app.apiHandler.AdminExportUsersCSV))
 	mux.Handler(http.MethodGet, adminBasePath+"/users/:id", apiAdmin.ThenFunc(app.apiHandler.AdminGetUser))
 	mux.Handler(http.MethodPut, adminBasePath+"/users", apiAdmin.ThenFunc(app.apiHandler.AdminUpdateUser))
 	mux.Handler(http.MethodDelete, adminBasePath+"/users/:id", apiAdmin.ThenFunc(app.apiHandler.AdminDeleteUser))
+	mux.Handler(http.MethodPost, adminBasePath+"/users/:id/impersonate", apiAdmin.ThenFunc(app.apiHandler.AdminImpersonateUser))
 	mux.Handler(http.MethodPost, adminBasePath+"/users/credits", apiAdmin.ThenFunc(app.apiHandler.AdminGrantCredits))
+	mux.Handler(http.MethodPost, adminBasePath+"/users/password-reset", apiAdmin.ThenFunc(app.apiHandler.AdminForcePasswordReset))
 
 	// Admin Packages
 	mux.Handler(http.MethodGet, adminBasePath+"/packages", apiAdmin.ThenFunc(app.apiHandler.AdminGetPackages))
@@ -118,7 +121,11 @@ func (app *application) routes() http.Handler {
 
 	// Admin Ledgers
 	mux.Handler(http.MethodGet, adminBasePath+"/invoices", apiAdmin.ThenFunc(app.apiHandler.AdminGetInvoices))
+	mux.Handler(http.MethodGet, adminBasePath+"/invoices/export", apiAdmin.ThenFunc(app.apiHandler.AdminExportInvoicesCSV))
+	mux.Handler(http.MethodDelete, adminBasePath+"/invoices/:id", apiAdmin.ThenFunc(app.apiHandler.AdminDeleteInvoice))
+	mux.Handler(http.MethodPut, adminBasePath+"/invoices/:id/status", apiAdmin.ThenFunc(app.apiHandler.AdminUpdateInvoiceStatus))
 	mux.Handler(http.MethodGet, adminBasePath+"/payments", apiAdmin.ThenFunc(app.apiHandler.AdminGetPayments))
+	mux.Handler(http.MethodGet, adminBasePath+"/payments/export", apiAdmin.ThenFunc(app.apiHandler.AdminExportPaymentsCSV))
 	mux.Handler(http.MethodGet, adminBasePath+"/credits", apiAdmin.ThenFunc(app.apiHandler.AdminGetCredits))
 	mux.Handler(http.MethodGet, adminBasePath+"/audit-logs", apiAdmin.ThenFunc(app.apiHandler.AdminGetAuditLogs))
 	

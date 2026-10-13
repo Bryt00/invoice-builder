@@ -2,7 +2,7 @@
   <div
     v-if="message"
     :class="[
-      'p-4 mb-6 text-sm rounded-xl flex items-start gap-3 border transition-all duration-200',
+      'p-4 mb-6 text-sm rounded-xl flex items-start gap-3 border transition-all duration-200 w-full max-w-2xl mx-auto',
       type === 'error'
         ? 'bg-error-container/60 border-error/20 text-on-error-container'
         : type === 'success'

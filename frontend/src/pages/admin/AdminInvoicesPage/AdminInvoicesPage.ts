@@ -1,8 +1,10 @@
 import { defineComponent,  ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/utils/api'
 import { useFlash } from '@/composables/useFlash'
 import FlashAlert from '@/components/common/FlashAlert.vue'
 import dayjs from 'dayjs'
+import { useConfirm } from '@/composables/useConfirm'
 
 export default defineComponent({
   name: 'AdminInvoicesPage',
@@ -10,6 +12,7 @@ export default defineComponent({
     FlashAlert
   },
   setup() {
+    const router = useRouter()
     const { showFlash } = useFlash()
 
     const invoices = ref([])
@@ -49,7 +52,7 @@ export default defineComponent({
 
     function formatDate(date) {
       if (!date || date === '0001-01-01T00:00:00Z') return 'N/A'
-      return dayjs(date).format('MMM DD, YYYY')
+      return dayjs(date).format('MMMM DD, YYYY at h:mm A')
     }
 
     function getStatusBadge(status) {
@@ -66,7 +69,62 @@ export default defineComponent({
           return base + 'bg-surface-container-high text-on-surface-variant border-outline-variant/40'
       }
     }
+
+    const { askConfirm } = useConfirm()
+
+    async function deleteInvoice(id) {
+      const ok = await askConfirm({
+        title: 'Delete Invoice',
+        message: 'Are you sure you want to permanently delete this invoice? This cannot be undone.',
+        confirmText: 'Delete Invoice',
+        type: 'danger'
+      })
+      if (!ok) return
+
+      try {
+        await api.delete(`/admin/invoices/${id}`)
+        showFlash('Invoice deleted successfully', 'success')
+        fetchInvoices(meta.value.page)
+      } catch (err: any) {
+        showFlash('Failed to delete invoice', 'error')
+      }
+    }
+
+    async function forceUpdateStatus(id, newStatus) {
+      const ok = await askConfirm({
+        title: 'Force Update Status',
+        message: `Are you sure you want to forcefully mark this invoice as ${newStatus.toUpperCase()}?`,
+        confirmText: 'Update Status',
+        type: 'warning'
+      })
+      if (!ok) return
+
+      try {
+        await api.put(`/admin/invoices/${id}/status`, { status: newStatus })
+        showFlash('Invoice status updated', 'success')
+        fetchInvoices(meta.value.page)
+      } catch (err: any) {
+        showFlash('Failed to update invoice status', 'error')
+      }
+    }
+
+    async function exportCSV() {
+      try {
+        const res = await api.get(`/admin/invoices/export?search=${encodeURIComponent(searchQuery.value)}&status=${encodeURIComponent(statusFilter.value)}`, { responseType: 'blob' })
+        const url = window.URL.createObjectURL(new Blob([res.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'invoices_export.csv')
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+      } catch (e) {
+        showFlash('Failed to export CSV', 'error')
+      }
+    }
+
     return {
+      router,
       FlashAlert,
       showFlash,
       invoices,
@@ -78,7 +136,10 @@ export default defineComponent({
       currencySymbol,
       fetchInvoices,
       formatDate,
-      getStatusBadge
+      getStatusBadge,
+      deleteInvoice,
+      forceUpdateStatus,
+      exportCSV
     }
   }
 })

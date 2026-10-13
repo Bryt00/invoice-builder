@@ -75,6 +75,18 @@
                   </button>
               </div>
 
+              <!-- Install App Button (Desktop Authenticated) -->
+              <button
+                  v-if="canInstall && !isInstalled"
+                  type="button"
+                  @click="promptInstall"
+                  class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all rounded-xl font-label text-xs font-bold border border-primary/20 cursor-pointer shadow-2xs"
+                  title="Install Teks-Invoice PWA"
+              >
+                  <span class="material-symbols-outlined text-[16px]">install_mobile</span>
+                  <span>Install App</span>
+              </button>
+
               <!-- Theme Toggle Button (Always visible on mobile & desktop) -->
               <button
                   type="button"
@@ -99,6 +111,18 @@
               <router-link to="/user/login" class="hidden sm:inline-block text-xs sm:text-sm font-bold text-on-surface-variant hover:text-primary transition-colors px-2 py-1.5">Log in</router-link>
               <router-link to="/user/register" class="hidden sm:inline-block px-3 sm:px-4 py-2 bg-primary text-on-primary rounded-xl text-xs sm:text-sm font-bold shadow hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all shrink-0">Get Started</router-link>
               
+              <!-- Install App Button (Desktop Visitor) -->
+              <button
+                  v-if="canInstall && !isInstalled"
+                  type="button"
+                  @click="promptInstall"
+                  class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all rounded-xl font-label text-xs font-bold border border-primary/20 cursor-pointer shadow-2xs"
+                  title="Install Teks-Invoice PWA"
+              >
+                  <span class="material-symbols-outlined text-[16px]">install_mobile</span>
+                  <span>Install App</span>
+              </button>
+
               <!-- Theme Toggle Button (Always visible on mobile & desktop) -->
               <button
                   type="button"
@@ -151,6 +175,20 @@
               <span>Finance Tracker</span>
           </router-link>
 
+          <!-- Mobile Install App Button -->
+          <button
+              v-if="canInstall && !isInstalled"
+              type="button"
+              @click="promptInstall(); mobileMenuOpen = false"
+              class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-on-primary font-semibold text-xs transition-colors cursor-pointer"
+          >
+              <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-[20px]">install_mobile</span>
+                  <span>Install Teks-Invoice App</span>
+              </div>
+              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20">PWA</span>
+          </button>
+
           <!-- Mobile Theme Switcher Row -->
           <div class="pt-2 border-t border-outline-variant/30 flex items-center justify-between px-3.5 py-2">
               <span class="text-xs font-semibold text-on-surface-variant flex items-center gap-2">
@@ -202,6 +240,20 @@
               <span>Contact Support</span>
           </router-link>
 
+          <!-- Mobile Install App Button (Visitor) -->
+          <button
+              v-if="canInstall && !isInstalled"
+              type="button"
+              @click="promptInstall(); mobileMenuOpen = false"
+              class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-on-primary font-semibold text-xs transition-colors cursor-pointer"
+          >
+              <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-[20px]">install_mobile</span>
+                  <span>Install Teks-Invoice App</span>
+              </div>
+              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20">PWA</span>
+          </button>
+
           <!-- Mobile Theme Switcher Row (Visitor) -->
           <div class="pt-2 border-t border-outline-variant/30 flex items-center justify-between px-3.5 py-2">
               <span class="text-xs font-semibold text-on-surface-variant flex items-center gap-2">
@@ -235,11 +287,13 @@ import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { useTheme } from '@/composables/useTheme'
+import { usePwa } from '@/composables/usePwa'
 
 const authStore = useAuthStore()
 const router = useRouter()
 const mobileMenuOpen = ref(false)
 const { isDark, toggleTheme } = useTheme()
+const { canInstall, isInstalled, promptInstall } = usePwa()
 
 async function handleLogout() {
   await authStore.logout()
