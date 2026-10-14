@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/gob"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -22,6 +21,7 @@ import (
 	"raven.go.invoice-builder/internal/models"
 	"raven.go.invoice-builder/internal/paystack"
 	"raven.go.invoice-builder/internal/services"
+	"raven.go.invoice-builder/internal/systemlog"
 	"raven.go.invoice-builder/internal/tokens"
 )
 
@@ -132,36 +132,16 @@ func main() {
 	cfg.limiter.rps = rps
 	cfg.limiter.burst = getEnvInt("LIMITER_BURST", 4)
 
-	// Logging Configuration
-	if err := os.MkdirAll("logs", 0755); err != nil {
-		log.Fatalf("failed to create logs directory: %v", err)
-	}
-
-	infoLogFile, err := os.OpenFile("logs/info.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	// Structured System Logging Configuration (Isolated SQLite Database with WAL mode)
+	sysLogger, err := systemlog.Init("logs/system_logs.db")
 	if err != nil {
-		log.Fatalf("failed to open info.log: %v", err)
+		log.Fatalf("failed to initialize sqlite system logger: %v", err)
 	}
-	defer infoLogFile.Close()
+	defer sysLogger.Close()
 
-	errorLogFile, err := os.OpenFile("logs/error.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("failed to open error.log: %v", err)
-	}
-	defer errorLogFile.Close()
-
-	apiLogFile, err := os.OpenFile("logs/api.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("failed to open api.log: %v", err)
-	}
-	defer apiLogFile.Close()
-
-	infoWriter := io.MultiWriter(os.Stdout, infoLogFile)
-	errorWriter := io.MultiWriter(os.Stderr, errorLogFile)
-	apiWriter := io.MultiWriter(os.Stdout, apiLogFile)
-
-	infoLog := log.New(infoWriter, "INFO\t", log.Ldate|log.Ltime|log.LUTC)
-	errorLog := log.New(errorWriter, "ERROR\t", log.Ldate|log.Ltime|log.LUTC|log.Lshortfile)
-	jsonLogger := jsonlog.New(apiWriter, jsonlog.LevelInfo)
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime|log.LUTC)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.LUTC|log.Lshortfile)
+	jsonLogger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 	jwtManager := tokens.NewJWTManager(cfg.jwt.secret, 3*24*time.Hour)
 
 	// Database
@@ -196,6 +176,7 @@ func main() {
 	// We attempt to create them first; if they already exist, this safely fails and we ignore the error.
 	_, _ = sqlDB.Exec(`ALTER TABLE receipts ADD CONSTRAINT uni_receipts_receipt_number UNIQUE (receipt_number);`)
 	_, _ = sqlDB.Exec(`ALTER TABLE invoices ADD CONSTRAINT uni_invoices_invoice_number UNIQUE (invoice_number);`)
+
 
 	// AutoMigrate all models
 	err = db.AutoMigrate(

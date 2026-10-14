@@ -3,10 +3,23 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"runtime/debug"
 	"strings"
+	"time"
 
 	"golang.org/x/time/rate"
+	"raven.go.invoice-builder/internal/systemlog"
 )
+
+type statusResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rw *statusResponseWriter) WriteHeader(code int) {
+	rw.statusCode = code
+	rw.ResponseWriter.WriteHeader(code)
+}
 
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +56,15 @@ func enableCORS(next http.Handler) http.Handler {
 
 func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
+		csp := "default-src 'self'; " +
+			"script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; " +
+			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+			"font-src 'self' https://fonts.gstatic.com data:; " +
+			"img-src 'self' data: blob: https:; " +
+			"connect-src 'self' https://api.paystack.co https://api.paystack.com; " +
+			"manifest-src 'self'; " +
+			"frame-ancestors 'none';"
+		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "DENY")
@@ -55,8 +76,24 @@ func secureHeaders(next http.Handler) http.Handler {
 
 func (app *application) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		app.infoLog.Printf("%s - %s %s %s", getClientIP(r), r.Proto, r.Method, r.URL.RequestURI())
-		next.ServeHTTP(w, r)
+		start := time.Now()
+		rw := &statusResponseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+
+		next.ServeHTTP(rw, r)
+
+		latency := time.Since(start)
+		ip := getClientIP(r)
+
+		// Filter out static asset requests to keep logs high-signal and lean
+		path := r.URL.Path
+		if strings.HasPrefix(path, "/assets/") || strings.HasPrefix(path, "/asset/") ||
+			path == "/favicon.ico" || path == "/sw.js" || strings.HasSuffix(path, ".webmanifest") {
+			return
+		}
+
+		if sys := systemlog.Get(); sys != nil {
+			sys.LogHTTP(r.Method, r.URL.RequestURI(), rw.statusCode, latency, ip, "")
+		}
 	})
 }
 
@@ -65,6 +102,10 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				w.Header().Set("Connection", "close")
+				stack := string(debug.Stack())
+				if sys := systemlog.Get(); sys != nil {
+					sys.Error("PANIC", fmt.Sprintf("Recovered from panic on %s %s: %v", r.Method, r.URL.RequestURI(), err), nil, stack)
+				}
 				app.serverError(w, fmt.Errorf("%s", err))
 			}
 		}()

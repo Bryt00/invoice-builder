@@ -149,6 +149,8 @@ export function useInvoiceForm(options: UseInvoiceFormOptions = { mode: 'create'
     return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
   }
 
+  const activeMobileTab = ref<'form' | 'preview'>('form')
+
   async function saveDraft() {
     await submitForm(true)
   }
@@ -157,7 +159,58 @@ export function useInvoiceForm(options: UseInvoiceFormOptions = { mode: 'create'
     await submitForm(false)
   }
 
+  function validateInvoice(): boolean {
+    if (!form.invoice_number || !form.invoice_number.trim()) {
+      showToast('Please enter an Invoice Number.', 'warning')
+      activeMobileTab.value = 'form'
+      return false
+    }
+
+    if (!form.issue_date) {
+      showToast('Please select an Issue Date.', 'warning')
+      activeMobileTab.value = 'form'
+      return false
+    }
+
+    if (!form.due_date) {
+      showToast('Please select a Due Date.', 'warning')
+      activeMobileTab.value = 'form'
+      return false
+    }
+
+    if (!form.items || form.items.length === 0) {
+      showToast('Please add at least one line item.', 'warning')
+      activeMobileTab.value = 'form'
+      return false
+    }
+
+    for (let i = 0; i < form.items.length; i++) {
+      const item = form.items[i]
+      if (!item.description || !item.description.trim()) {
+        showToast(`Line item #${i + 1} requires a description.`, 'warning')
+        activeMobileTab.value = 'form'
+        return false
+      }
+      if (item.quantity === undefined || item.quantity === null || Number(item.quantity) <= 0) {
+        showToast(`Line item #${i + 1} must have a quantity greater than zero.`, 'warning')
+        activeMobileTab.value = 'form'
+        return false
+      }
+      if (item.unit_price === undefined || item.unit_price === null || Number(item.unit_price) < 0) {
+        showToast(`Line item #${i + 1} price cannot be negative.`, 'warning')
+        activeMobileTab.value = 'form'
+        return false
+      }
+    }
+
+    return true
+  }
+
   async function submitForm(isDraft: boolean) {
+    if (!validateInvoice()) {
+      return
+    }
+
     if (options.mode === 'create' && !isOnline.value) {
       saveDraftToLocalStorage()
       showToast('Offline: Invoice draft saved securely on your device. Finalize once reconnected.', 'info')
@@ -172,19 +225,19 @@ export function useInvoiceForm(options: UseInvoiceFormOptions = { mode: 'create'
       const tplTag = `[Template: ${form.template.charAt(0).toUpperCase() + form.template.slice(1)}]`
       finalNotes = finalNotes ? `${finalNotes}\n\n${tplTag}` : tplTag
 
+      const { template: _tpl, ...formData } = form
       const payload: any = {
-        ...form,
+        ...formData,
         notes: finalNotes,
-        template: form.template,
         save_as_draft: isDraft,
         action: isDraft ? 'draft' : 'finalize'
       }
+      if (!payload.id) delete payload.id
 
       let res: any
       if (options.mode === 'edit' && payload.id) {
         res = await api.put('/invoices', payload)
       } else {
-        if (!payload.id) delete payload.id
         res = await api.post('/invoices', payload)
       }
 
@@ -204,6 +257,7 @@ export function useInvoiceForm(options: UseInvoiceFormOptions = { mode: 'create'
         : (isDraft ? 'Invoice updated as draft!' : 'Invoice finalized and saved!')
 
       showFlash(successMsg, 'success')
+      showToast(successMsg, 'success')
 
       if (!isDraft && targetId) {
         router.push(`/user/invoices/view?id=${targetId}`)
@@ -211,7 +265,9 @@ export function useInvoiceForm(options: UseInvoiceFormOptions = { mode: 'create'
         router.push('/user/invoices')
       }
     } catch (err: any) {
-      showFlash(err.response?.data?.error || 'Failed to process invoice', 'error')
+      const errMsg = err.response?.data?.error || err.message || 'Failed to process invoice'
+      showFlash(errMsg, 'error')
+      showToast(errMsg, 'error')
     } finally {
       saving.value = false
     }
@@ -292,6 +348,7 @@ export function useInvoiceForm(options: UseInvoiceFormOptions = { mode: 'create'
   })
 
   return {
+    activeMobileTab,
     form,
     clients,
     currencies,

@@ -119,10 +119,7 @@
             <img :src="'/pwa-192x192.png'" alt="Teks-Invoice Icon" class="w-full h-full object-contain rounded-lg" />
           </div>
           <div class="flex-1">
-            <div class="flex items-center gap-1.5">
-              <h4 class="font-bold text-xs sm:text-sm text-on-surface">Install Teks-Invoice</h4>
-              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">PWA</span>
-            </div>
+            <h4 class="font-bold text-xs sm:text-sm text-on-surface">Install Teks-Invoice</h4>
             <p class="text-xs text-on-surface-variant leading-relaxed mt-0.5">
               Install as a desktop or mobile application for instant offline access and faster loading.
             </p>

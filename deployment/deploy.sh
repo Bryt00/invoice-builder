@@ -34,7 +34,7 @@ fi
 # 1. System Update & Dependencies
 echo "[1/6] Updating system and installing dependencies (nginx, postgresql, ufw, go)..."
 apt-get update
-apt-get install -y nginx postgresql postgresql-contrib ufw snapd curl
+apt-get install -y nginx postgresql postgresql-contrib ufw snapd curl build-essential
 
 # Ensure common paths are available to sudo
 export PATH=$PATH:/usr/local/go/bin:/snap/bin
@@ -67,29 +67,11 @@ sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
 # 4. App Directory Setup
 echo "[4/6] Setting up application directory..."
 mkdir -p $APP_DIR
-# Assuming the script is run from the directory containing the binary and .env
-# If not, you will need to manually copy these.
-	echo "Building Go API application..."
-	go build -o invoice-builder ./cmd/api
-
-    # Stop the service to prevent 'Text file busy' errors when overwriting the binary
-    if systemctl is-active --quiet invoice-builder; then
-        echo "Stopping active invoice-builder service before copying..."
-        systemctl stop invoice-builder
-    fi
-
-	if [ -f "invoice-builder" ]; then
-	    cp invoice-builder $APP_DIR/
-	    chmod +x $APP_DIR/invoice-builder
-	else
-	    echo "Warning: 'invoice-builder' binary not found. Build may have failed."
-	fi
-
 echo "Building Vue frontend..."
 if [ -d "frontend" ]; then
-	    cd frontend
-	    npm cache clean --force
-	    npm install --include=dev --no-audit --no-fund
+    cd frontend
+    npm cache clean --force
+    npm install --include=dev --no-audit --no-fund
     npm run build
     cd ..
     mkdir -p $APP_DIR/frontend/dist
@@ -97,6 +79,22 @@ if [ -d "frontend" ]; then
 else
     echo "Error: 'frontend' directory not found."
     exit 1
+fi
+
+echo "Building Go API & SPA application..."
+CGO_ENABLED=1 go build -o invoice-builder ./cmd/api
+
+# Stop the service to prevent 'Text file busy' errors when overwriting the binary
+if systemctl is-active --quiet invoice-builder; then
+    echo "Stopping active invoice-builder service before copying..."
+    systemctl stop invoice-builder
+fi
+
+if [ -f "invoice-builder" ]; then
+    cp invoice-builder $APP_DIR/
+    chmod +x $APP_DIR/invoice-builder
+else
+    echo "Warning: 'invoice-builder' binary not found. Build may have failed."
 fi
 
 echo "Setting up uploads directory..."

@@ -33,6 +33,7 @@ import AdminInvoicesPage from '../pages/admin/AdminInvoicesPage/AdminInvoicesPag
 import AdminPaymentsPage from '../pages/admin/AdminPaymentsPage/AdminPaymentsPage.vue'
 import AdminCreditsPage from '../pages/admin/AdminCreditsPage/AdminCreditsPage.vue'
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage/AdminAuditLogsPage.vue'
+import AdminSystemLogsPage from '../pages/admin/AdminSystemLogsPage/AdminSystemLogsPage.vue'
 import AdminWebhooksPage from '../pages/admin/AdminWebhooksPage/AdminWebhooksPage.vue'
 import AdminSettingsPage from '../pages/admin/AdminSettingsPage/AdminSettingsPage.vue'
 import AdminLoginPage from '../pages/admin/AdminLoginPage/AdminLoginPage.vue'
@@ -146,6 +147,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'invoices', name: 'admin-invoices', component: AdminInvoicesPage },
       { path: 'payments', name: 'admin-payments', component: AdminPaymentsPage },
       { path: 'credits', name: 'admin-credits', component: AdminCreditsPage },
+      { path: 'logs', name: 'admin-system-logs', component: AdminSystemLogsPage },
       { path: 'audit-logs', name: 'admin-audit-logs', component: AdminAuditLogsPage },
       { path: 'webhooks', name: 'admin-webhooks', component: AdminWebhooksPage },
       { path: 'settings', name: 'admin-settings', component: AdminSettingsPage },

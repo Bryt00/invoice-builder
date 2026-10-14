@@ -34,7 +34,10 @@
                 <span class="material-symbols-outlined text-primary text-[20px]">receipt_long</span>
                 Transaction Log
             </h3>
-            <span class="font-body text-xs text-on-surface-variant">Showing latest activity</span>
+            <span v-if="totalRecords > 0" class="font-body text-xs text-on-surface-variant">
+                Showing {{ startIndex }}–{{ endIndex }} of {{ totalRecords }} entries
+            </span>
+            <span v-else class="font-body text-xs text-on-surface-variant">Showing latest activity</span>
         </div>
 
         <div class="overflow-x-auto">
@@ -51,8 +54,8 @@
                     <tr v-if="loading">
                         <td colspan="4" class="py-12 text-center text-outline text-sm">Loading transaction history...</td>
                     </tr>
-                    <template v-else-if="history.length > 0">
-                        <tr v-for="item in history" :key="item.id" class="hover:bg-surface-container-low/40 transition-colors">
+                    <template v-else-if="paginatedHistory.length > 0">
+                        <tr v-for="item in paginatedHistory" :key="item.id" class="hover:bg-surface-container-low/40 transition-colors">
                             <td class="py-4 px-6 text-xs text-on-surface-variant whitespace-nowrap">{{ formatDate(item.created_at) }}</td>
                             <td class="py-4 px-6 whitespace-nowrap">
                                 <span v-if="item.type === 'purchase'" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary-container/40 text-primary border border-primary/20">Purchase</span>
@@ -74,5 +77,52 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination Controls Bar (5 per page) -->
+        <div v-if="totalRecords > 0" class="px-6 py-4 border-t border-outline-variant/40 bg-surface-container-lowest/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <span class="font-body text-on-surface-variant">
+                Showing <strong class="text-on-surface font-semibold">{{ startIndex }}</strong> to <strong class="text-on-surface font-semibold">{{ endIndex }}</strong> of <strong class="text-on-surface font-semibold">{{ totalRecords }}</strong> transactions
+            </span>
+            <div v-if="totalPages > 1" class="flex items-center gap-1.5">
+                <button
+                    type="button"
+                    @click="prevPage"
+                    :disabled="currentPage === 1"
+                    class="px-3 py-1.5 rounded-xl border border-outline-variant/50 hover:bg-surface-container-high/60 text-on-surface font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1 cursor-pointer"
+                    title="Previous page"
+                >
+                    <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+                    <span>Prev</span>
+                </button>
+
+                <div class="flex items-center gap-1">
+                    <button
+                        v-for="page in visiblePages"
+                        :key="page"
+                        type="button"
+                        @click="goToPage(page)"
+                        :class="[
+                            'w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center transition-all cursor-pointer',
+                            currentPage === page
+                                ? 'bg-primary text-on-primary shadow-xs'
+                                : 'border border-outline-variant/40 hover:bg-surface-container-high/60 text-on-surface'
+                        ]"
+                    >
+                        {{ page }}
+                    </button>
+                </div>
+
+                <button
+                    type="button"
+                    @click="nextPage"
+                    :disabled="currentPage === totalPages"
+                    class="px-3 py-1.5 rounded-xl border border-outline-variant/50 hover:bg-surface-container-high/60 text-on-surface font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1 cursor-pointer"
+                    title="Next page"
+                >
+                    <span>Next</span>
+                    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
+</div>

@@ -57,6 +57,7 @@
           <li><router-link to="/privacy" class="hover:text-primary transition-colors">Privacy Policy</router-link></li>
           <li><router-link to="/refund-policy" class="hover:text-primary transition-colors">Refund Policy</router-link></li>
           <li><router-link to="/security" class="hover:text-primary transition-colors">Security</router-link></li>
+          <li><button type="button" @click="openPreferences" class="hover:text-primary transition-colors cursor-pointer text-left">Cookie Preferences</button></li>
         </ul>
       </div>
       
@@ -66,13 +67,22 @@
       <span class="font-body text-xs text-on-surface-variant">
         &copy; {{ new Date().getFullYear() }} Teks-Invoice Inc. All rights reserved.
       </span>
-      <div class="flex items-center gap-2 text-xs font-body text-on-surface-variant">
-        <span class="material-symbols-outlined text-[16px]">language</span>
-        <span>English (US)</span>
+      <div class="flex items-center gap-4 text-xs font-body text-on-surface-variant">
+        <button type="button" @click="openPreferences" class="hover:text-primary transition-colors flex items-center gap-1 cursor-pointer">
+          <span class="material-symbols-outlined text-[16px]">cookie</span>
+          <span>Cookie Settings</span>
+        </button>
+        <div class="flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">language</span>
+          <span>English (US)</span>
+        </div>
       </div>
     </div>
   </footer>
 </template>
 
 <script setup lang="ts">
+import { useCookieConsent } from '@/composables/useCookieConsent'
+
+const { openPreferences } = useCookieConsent()
 </script>

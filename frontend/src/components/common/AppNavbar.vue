@@ -81,7 +81,7 @@
                   type="button"
                   @click="promptInstall"
                   class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all rounded-xl font-label text-xs font-bold border border-primary/20 cursor-pointer shadow-2xs"
-                  title="Install Teks-Invoice PWA"
+                  title="Install Teks-Invoice App"
               >
                   <span class="material-symbols-outlined text-[16px]">install_mobile</span>
                   <span>Install App</span>
@@ -117,7 +117,7 @@
                   type="button"
                   @click="promptInstall"
                   class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all rounded-xl font-label text-xs font-bold border border-primary/20 cursor-pointer shadow-2xs"
-                  title="Install Teks-Invoice PWA"
+                  title="Install Teks-Invoice App"
               >
                   <span class="material-symbols-outlined text-[16px]">install_mobile</span>
                   <span>Install App</span>
@@ -186,7 +186,7 @@
                   <span class="material-symbols-outlined text-[20px]">install_mobile</span>
                   <span>Install Teks-Invoice App</span>
               </div>
-              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20">PWA</span>
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
           </button>
 
           <!-- Mobile Theme Switcher Row -->
@@ -251,7 +251,7 @@
                   <span class="material-symbols-outlined text-[20px]">install_mobile</span>
                   <span>Install Teks-Invoice App</span>
               </div>
-              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20">PWA</span>
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
           </button>
 
           <!-- Mobile Theme Switcher Row (Visitor) -->

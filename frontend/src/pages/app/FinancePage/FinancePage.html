@@ -1,138 +1,609 @@
-<div class="space-y-6">
-    <!-- Full-Page Bouncing Coming Soon Banner -->
-    <div class="w-full h-[75vh] bg-primary-container/20 border border-primary/30 rounded-3xl p-8 flex flex-col items-center justify-center shadow-sm animate-bounce">
-        <span class="material-symbols-outlined text-6xl text-primary mb-4">rocket_launch</span>
-        <span class="font-headline text-3xl sm:text-5xl font-black text-primary tracking-widest uppercase text-center">
-            COMING SOON
+<div class="space-y-8 pb-12">
+  <!-- Top Header Section -->
+  <header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h2 class="font-headline text-3xl font-extrabold text-on-surface flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+          <span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+        </div>
+        <span>Finance & Cash Flow</span>
+      </h2>
+      <p class="font-body text-sm text-on-surface-variant mt-1.5">
+        Real-time financial pulse, automated invoice revenue tracking, and expense management.
+      </p>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="flex flex-wrap items-center gap-2.5">
+      <button @click="exportCsv"
+              class="px-4 py-2.5 rounded-xl font-label text-xs sm:text-sm font-semibold bg-surface-container-high hover:bg-surface-container-highest text-on-surface border border-outline-variant/60 shadow-xs transition-all flex items-center gap-2 cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">download</span>
+        <span>Export CSV</span>
+      </button>
+
+      <button @click="openCreateTxnModal('expense')"
+              class="px-4 py-2.5 rounded-xl font-label text-xs sm:text-sm font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 shadow-xs transition-all flex items-center gap-2 cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">remove_circle</span>
+        <span>Record Expense</span>
+      </button>
+
+      <button @click="openCreateTxnModal('income')"
+              class="px-4 py-2.5 rounded-xl font-label text-xs sm:text-sm font-semibold bg-primary text-on-primary hover:bg-primary/90 shadow-md transition-all flex items-center gap-2 cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">add_circle</span>
+        <span>Record Income</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Bento Grid 4 KPI Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <!-- Card 1: Total Revenue -->
+    <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 relative overflow-hidden group hover:border-emerald-500/40 transition-all duration-300">
+      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all"></div>
+      <div class="flex items-center justify-between mb-3">
+        <span class="font-label text-xs font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Total Income
         </span>
-        <p class="font-body text-on-surface-variant text-center mt-4 max-w-md">
-            We are working on a powerful new financial tracking experience tightly integrated with your invoices. Stay tuned!
-        </p>
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+          <span class="material-symbols-outlined text-xl">trending_up</span>
+        </div>
+      </div>
+      <h3 class="font-headline text-3xl font-black text-on-surface tracking-tight">
+        {{ currencySymbol }}{{ formatNumber(analytics.summary?.total_income) }}
+      </h3>
+      <p class="font-body text-xs text-on-surface-variant mt-2 flex items-center gap-1">
+        <span class="material-symbols-outlined text-[15px] text-emerald-500">check_circle</span>
+        <span>Syncs automatically with paid invoices</span>
+      </p>
     </div>
 
-    <!-- Hidden Finance Content for Future -->
-    <div v-if="false">
-
-    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h2 class="font-headline text-3xl font-bold text-on-surface flex items-center gap-3">
-                <span class="material-symbols-outlined text-primary text-3xl">account_balance_wallet</span>
-                Income Tracker
-            </h2>
-            <p class="font-body text-sm text-on-surface-variant mt-1">Track your paid invoices and generated revenue.</p>
+    <!-- Card 2: Total Expenses -->
+    <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 relative overflow-hidden group hover:border-rose-500/40 transition-all duration-300">
+      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-rose-500/5 rounded-full blur-xl group-hover:bg-rose-500/10 transition-all"></div>
+      <div class="flex items-center justify-between mb-3">
+        <span class="font-label text-xs font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+          Total Expenses
+        </span>
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center">
+          <span class="material-symbols-outlined text-xl">trending_down</span>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
-            <button @click="exportCsv"
-               class="bg-surface-container-high hover:bg-surface-container-highest text-on-surface transition-colors px-4 py-2.5 rounded-xl font-label text-xs sm:text-sm font-semibold flex items-center gap-2 border border-outline-variant/50 shadow-sm cursor-pointer">
-                <span class="material-symbols-outlined text-[18px]">download</span>
-                <span>Export CSV</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- Bento Grid Summary Cards -->
-    <div class="grid grid-cols-1 gap-6 max-w-sm">
-        <!-- Total Income Card -->
-        <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 flex items-center justify-between">
-            <div>
-                <p class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1 flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-emerald-500 text-[18px]">trending_up</span>
-                    Total Paid Income
-                </p>
-                <h3 class="font-headline text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
-                    {{ currencySymbol }}{{ summary.total_income?.toFixed(2) || '0.00' }}
-                </h3>
-            </div>
-            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-2xl">check_circle</span>
-            </div>
-        </div>
-
+      </div>
+      <h3 class="font-headline text-3xl font-black text-on-surface tracking-tight">
+        {{ currencySymbol }}{{ formatNumber(analytics.summary?.total_expenses) }}
+      </h3>
+      <p class="font-body text-xs text-on-surface-variant mt-2 flex items-center gap-1">
+        <span class="material-symbols-outlined text-[15px] text-rose-500">pie_chart</span>
+        <span>{{ analytics.category_distribution?.length || 0 }} active expense categories</span>
+      </p>
     </div>
 
-    <!-- Filter & Search Toolbar -->
-    <div class="glass-card rounded-2xl p-4 border border-outline-variant/60 flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <!-- Category Filter -->
-            <select v-model="filters.category_id" class="bg-surface-container-high text-on-surface border border-outline-variant/60 text-xs sm:text-sm font-label rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none">
-                <option value="all">All Categories</option>
-                <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }} ({{ cat.type }})</option>
-            </select>
-
-            <!-- Start Date -->
-            <input type="date" v-model="filters.start_date" class="bg-surface-container-high text-on-surface border border-outline-variant/60 text-xs sm:text-sm font-label rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none">
-
-            <!-- End Date -->
-            <input type="date" v-model="filters.end_date" class="bg-surface-container-high text-on-surface border border-outline-variant/60 text-xs sm:text-sm font-label rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none">
+    <!-- Card 3: Net Cash Flow -->
+    <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 relative overflow-hidden group hover:border-primary/40 transition-all duration-300">
+      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-all"></div>
+      <div class="flex items-center justify-between mb-3">
+        <span class="font-label text-xs font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full" :class="analytics.summary?.net_profit >= 0 ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+          Net Cash Flow
+        </span>
+        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center">
+          <span class="material-symbols-outlined text-xl">account_balance</span>
         </div>
-
-        <!-- Search Input -->
-        <div class="relative w-full md:w-64">
-            <span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-[18px]">search</span>
-            <input type="text" v-model="filters.search" placeholder="Search transactions..."
-                   class="w-full bg-surface-container-high text-on-surface pl-9 pr-3 py-2 border border-outline-variant/60 text-xs sm:text-sm font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
-        </div>
+      </div>
+      <h3 class="font-headline text-3xl font-black tracking-tight"
+          :class="analytics.summary?.net_profit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
+        {{ analytics.summary?.net_profit < 0 ? '-' : '' }}{{ currencySymbol }}{{ formatNumber(Math.abs(analytics.summary?.net_profit || 0)) }}
+      </h3>
+      <div class="flex items-center gap-2 mt-2">
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+              :class="analytics.summary?.net_profit >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'">
+          <span class="material-symbols-outlined text-[13px]">{{ analytics.summary?.net_profit >= 0 ? 'arrow_upward' : 'arrow_downward' }}</span>
+          <span>{{ analytics.summary?.profit_margin_pct?.toFixed(1) || '0.0' }}% Margin</span>
+        </span>
+      </div>
     </div>
 
-    <!-- Financial Transactions Table -->
-    <div class="glass-card rounded-2xl border border-outline-variant/60 overflow-hidden shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[800px]">
-                <thead>
-                    <tr class="bg-surface-container-low border-b border-outline-variant/60 font-label text-xs uppercase tracking-wider text-on-surface-variant">
-                        <th class="py-3.5 px-4 sm:px-6">Date</th>
-                        <th class="py-3.5 px-4 sm:px-6">Title & Description</th>
-                        <th class="py-3.5 px-4 sm:px-6">Category</th>
-                        <th class="py-3.5 px-4 sm:px-6">Payee / Payer</th>
-                        <th class="py-3.5 px-4 sm:px-6 text-right">Amount</th>
-                        <th class="py-3.5 px-4 sm:px-6 text-center">Receipt</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-outline-variant/40 font-body text-sm text-on-surface">
-                    <tr v-if="loading">
-                        <td colspan="7" class="py-12 text-center text-outline text-sm">Loading transactions...</td>
-                    </tr>
-                    <template v-else-if="filteredTransactions.length > 0">
-                        <tr v-for="txn in filteredTransactions" :key="txn.id" class="hover:bg-surface-container-low/60 transition-colors">
-                            <td class="py-4 px-4 sm:px-6 whitespace-nowrap text-on-surface-variant font-label text-xs">
-                                {{ formatDate(txn.transaction_date) }}
-                            </td>
-                            <td class="py-4 px-4 sm:px-6">
-                                <p class="font-semibold text-on-surface">{{ txn.title }}</p>
-                                <p v-if="txn.description" class="text-xs text-on-surface-variant line-clamp-1">{{ txn.description }}</p>
-                            </td>
-                            <td class="py-4 px-4 sm:px-6 whitespace-nowrap">
-                                <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border', txn.type === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20']">
-                                    <span class="material-symbols-outlined text-[14px]">{{ txn.category?.icon || 'payments' }}</span>
-                                    <span>{{ txn.category?.name || 'Uncategorized' }}</span>
-                                </span>
-                            </td>
-                            <td class="py-4 px-4 sm:px-6 text-on-surface-variant">
-                                {{ txn.payee_or_payer || '&mdash;' }}
-                            </td>
-                            <td :class="['py-4 px-4 sm:px-6 text-right whitespace-nowrap font-headline font-bold', txn.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400']">
-                                {{ txn.type === 'income' ? '+' : '-' }}{{ txn.currency || currencySymbol }}{{ txn.amount?.toFixed(2) }}
-                            </td>
-                            <td class="py-4 px-4 sm:px-6 text-center whitespace-nowrap">
-                                <a v-if="txn.receipt_url" :href="txn.receipt_url" target="_blank" class="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline" title="View Receipt">
-                                    <span class="material-symbols-outlined text-[16px]">receipt</span>
-                                    <span>View</span>
-                                </a>
-                                <span v-else class="text-xs text-on-surface-variant/50">&mdash;</span>
-                            </td>
-                        </tr>
-                    </template>
-                    <tr v-else>
-                        <td colspan="6" class="py-12 text-center text-on-surface-variant">
-                            <span class="material-symbols-outlined text-4xl text-outline mb-2">account_balance_wallet</span>
-                            <p class="font-label text-base font-semibold">No income transactions found.</p>
-                            <p class="font-body text-xs text-on-surface-variant/80 mt-1">When an invoice is marked as paid, it will automatically appear here.</p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- Card 4: Accounts Receivable -->
+    <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 relative overflow-hidden group hover:border-amber-500/40 transition-all duration-300">
+      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-amber-500/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition-all"></div>
+      <div class="flex items-center justify-between mb-3">
+        <span class="font-label text-xs font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          Accounts Receivable
+        </span>
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
+          <span class="material-symbols-outlined text-xl">pending_actions</span>
         </div>
+      </div>
+      <h3 class="font-headline text-3xl font-black text-amber-600 dark:text-amber-400 tracking-tight">
+        {{ currencySymbol }}{{ formatNumber(analytics.receivables?.unpaid_total) }}
+      </h3>
+      <div class="flex flex-wrap items-center gap-1.5 mt-2">
+        <span class="font-body text-xs text-on-surface-variant">
+          {{ analytics.receivables?.unpaid_count || 0 }} unpaid invoices
+        </span>
+        <span v-if="analytics.receivables?.overdue_count > 0"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+          <span class="material-symbols-outlined text-[12px]">warning</span>
+          <span>{{ currencySymbol }}{{ formatNumber(analytics.receivables?.overdue_total) }} overdue</span>
+        </span>
+      </div>
     </div>
-    
-    </div> <!-- End hidden content -->
   </div>
+
+  <!-- Charts Bento Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Cash Flow Trend Chart (2 cols) -->
+    <div class="lg:col-span-2 glass-card rounded-2xl p-6 border border-outline-variant/60 flex flex-col justify-between">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h4 class="font-headline text-base font-bold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[20px]">bar_chart</span>
+            6-Month Cash Flow Trend
+          </h4>
+          <p class="font-body text-xs text-on-surface-variant mt-0.5">Historical comparison of monthly income and expenses</p>
+        </div>
+      </div>
+      <div class="relative w-full h-[260px] sm:h-[280px]">
+        <canvas ref="cashFlowCanvasRef"></canvas>
+      </div>
+    </div>
+
+    <!-- Expense Category Distribution (1 col) -->
+    <div class="glass-card rounded-2xl p-6 border border-outline-variant/60 flex flex-col justify-between">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h4 class="font-headline text-base font-bold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[20px]">donut_small</span>
+            Expense Breakdown
+          </h4>
+          <p class="font-body text-xs text-on-surface-variant mt-0.5">Distribution by spending category</p>
+        </div>
+      </div>
+
+      <div class="relative w-full h-[180px] flex items-center justify-center my-auto">
+        <canvas ref="catCanvasRef"></canvas>
+      </div>
+
+      <!-- Category Legend Pills -->
+      <div class="mt-4 pt-3 border-t border-outline-variant/40 space-y-2 max-h-[140px] overflow-y-auto pr-1">
+        <template v-if="analytics.category_distribution?.length > 0">
+          <div v-for="cat in analytics.category_distribution.slice(0, 5)" :key="cat.category_id"
+               class="flex items-center justify-between text-xs font-body">
+            <div class="flex items-center gap-2 truncate">
+              <span class="material-symbols-outlined text-[15px] text-primary">{{ cat.icon || 'folder' }}</span>
+              <span class="text-on-surface truncate">{{ cat.name }}</span>
+            </div>
+            <div class="font-semibold text-on-surface whitespace-nowrap ml-2">
+              {{ currencySymbol }}{{ formatNumber(cat.amount) }}
+              <span class="text-on-surface-variant text-[11px] font-normal">({{ cat.percentage?.toFixed(1) }}%)</span>
+            </div>
+          </div>
+        </template>
+        <p v-else class="text-xs text-on-surface-variant text-center py-2">
+          No expenses recorded yet.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Ledger Controls -->
+  <div class="glass-card rounded-2xl p-4 sm:p-5 border border-outline-variant/60 space-y-4">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <!-- Type Filter Pills -->
+      <div class="flex items-center gap-1.5 bg-surface-container-high/60 p-1 rounded-xl border border-outline-variant/40 text-xs font-label font-semibold overflow-x-auto">
+        <button type="button" @click="setTypeFilter('all')"
+                :class="['px-3.5 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap', filters.type === 'all' ? 'bg-surface text-primary shadow-xs font-bold' : 'text-on-surface-variant hover:text-on-surface']">
+          All Transactions
+        </button>
+        <button type="button" @click="setTypeFilter('income')"
+                :class="['px-3.5 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5', filters.type === 'income' ? 'bg-surface text-emerald-600 dark:text-emerald-400 shadow-xs font-bold' : 'text-on-surface-variant hover:text-on-surface']">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Income
+        </button>
+        <button type="button" @click="setTypeFilter('expense')"
+                :class="['px-3.5 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5', filters.type === 'expense' ? 'bg-surface text-rose-600 dark:text-rose-400 shadow-xs font-bold' : 'text-on-surface-variant hover:text-on-surface']">
+          <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+          Expenses
+        </button>
+      </div>
+
+      <!-- Date Presets -->
+      <div class="flex flex-wrap items-center gap-1.5 text-xs font-label">
+        <button type="button" @click="setDatePreset('all')"
+                :class="['px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer', filters.date_preset === 'all' ? 'border-primary text-primary bg-primary/10 font-bold' : 'border-outline-variant/60 text-on-surface-variant hover:text-on-surface bg-surface-container-low']">
+          All Time
+        </button>
+        <button type="button" @click="setDatePreset('this_month')"
+                :class="['px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer', filters.date_preset === 'this_month' ? 'border-primary text-primary bg-primary/10 font-bold' : 'border-outline-variant/60 text-on-surface-variant hover:text-on-surface bg-surface-container-low']">
+          This Month
+        </button>
+        <button type="button" @click="setDatePreset('last_30_days')"
+                :class="['px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer', filters.date_preset === 'last_30_days' ? 'border-primary text-primary bg-primary/10 font-bold' : 'border-outline-variant/60 text-on-surface-variant hover:text-on-surface bg-surface-container-low']">
+          Last 30 Days
+        </button>
+        <button type="button" @click="setDatePreset('this_year')"
+                :class="['px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer', filters.date_preset === 'this_year' ? 'border-primary text-primary bg-primary/10 font-bold' : 'border-outline-variant/60 text-on-surface-variant hover:text-on-surface bg-surface-container-low']">
+          This Year
+        </button>
+      </div>
+    </div>
+
+    <!-- Secondary Filters Row (Category, Dates, Search) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-outline-variant/40">
+      <!-- Category Dropdown -->
+      <div>
+        <label class="block font-label text-[11px] font-semibold text-on-surface-variant uppercase mb-1">Category</label>
+        <select v-model="filters.category_id"
+                class="w-full bg-surface-container-low text-on-surface border border-outline-variant/60 text-xs font-label rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none">
+          <option value="all">All Categories</option>
+          <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }} ({{ cat.type }})</option>
+        </select>
+      </div>
+
+      <!-- Start Date -->
+      <div>
+        <label class="block font-label text-[11px] font-semibold text-on-surface-variant uppercase mb-1">From</label>
+        <input type="date" v-model="filters.start_date" @change="filters.date_preset = 'custom'"
+               class="w-full bg-surface-container-low text-on-surface border border-outline-variant/60 text-xs font-label rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none">
+      </div>
+
+      <!-- End Date -->
+      <div>
+        <label class="block font-label text-[11px] font-semibold text-on-surface-variant uppercase mb-1">To</label>
+        <input type="date" v-model="filters.end_date" @change="filters.date_preset = 'custom'"
+               class="w-full bg-surface-container-low text-on-surface border border-outline-variant/60 text-xs font-label rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none">
+      </div>
+
+      <!-- Search Input -->
+      <div>
+        <label class="block font-label text-[11px] font-semibold text-on-surface-variant uppercase mb-1">Search</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-3 top-2 text-on-surface-variant text-[18px]">search</span>
+          <input type="text" v-model="filters.search" placeholder="Title, payee, notes..."
+                 class="w-full bg-surface-container-low text-on-surface pl-9 pr-3 py-2 border border-outline-variant/60 text-xs font-body rounded-xl focus:ring-2 focus:ring-primary outline-none">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial Ledger Table -->
+  <div class="glass-card rounded-2xl border border-outline-variant/60 overflow-hidden shadow-sm">
+    <div class="px-6 py-4 border-b border-outline-variant/40 flex flex-wrap justify-between items-center bg-surface-container-lowest/50 gap-4">
+      <h3 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-[20px]">receipt_long</span>
+        Transaction Ledger
+      </h3>
+      <span class="font-label text-xs font-semibold text-on-surface-variant">
+        Showing {{ paginatedTransactions.length }} of {{ filteredTransactions.length }} records
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse min-w-[850px]">
+        <thead>
+          <tr class="bg-surface-container-low/40 border-b border-outline-variant/40 font-label text-xs uppercase tracking-wider text-on-surface-variant">
+            <th class="py-3.5 px-4 sm:px-6">Date</th>
+            <th class="py-3.5 px-4 sm:px-6">Title & Description</th>
+            <th class="py-3.5 px-4 sm:px-6">Category</th>
+            <th class="py-3.5 px-4 sm:px-6">Payee / Payer</th>
+            <th class="py-3.5 px-4 sm:px-6 text-right">Amount</th>
+            <th class="py-3.5 px-4 sm:px-6 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-outline-variant/30 font-body text-sm text-on-surface">
+          <tr v-if="loading">
+            <td colspan="6" class="py-12 text-center text-outline text-sm">
+              <div class="flex flex-col items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-3xl animate-spin text-primary">sync</span>
+                <span class="font-label text-xs text-on-surface-variant">Loading financial records...</span>
+              </div>
+            </td>
+          </tr>
+          <template v-else-if="paginatedTransactions.length > 0">
+            <tr v-for="txn in paginatedTransactions" :key="txn.id" class="hover:bg-surface-container-low/60 transition-colors">
+              <td class="py-4 px-4 sm:px-6 whitespace-nowrap text-on-surface-variant font-label text-xs">
+                {{ formatDate(txn.transaction_date) }}
+              </td>
+              <td class="py-4 px-4 sm:px-6">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-on-surface">{{ txn.title }}</span>
+                  <span v-if="txn.invoice_id" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20">
+                    <span class="material-symbols-outlined text-[11px]">receipt</span>
+                    <span>Invoice</span>
+                  </span>
+                </div>
+                <p v-if="txn.description" class="text-xs text-on-surface-variant line-clamp-1 mt-0.5">{{ txn.description }}</p>
+              </td>
+              <td class="py-4 px-4 sm:px-6 whitespace-nowrap">
+                <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border',
+                               txn.type === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20']">
+                  <span class="material-symbols-outlined text-[14px]">{{ txn.category?.icon || 'payments' }}</span>
+                  <span>{{ txn.category?.name || 'Uncategorized' }}</span>
+                </span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 text-on-surface-variant text-xs">
+                {{ txn.payee_or_payer || '—' }}
+              </td>
+              <td :class="['py-4 px-4 sm:px-6 text-right whitespace-nowrap font-headline font-bold text-base',
+                           txn.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400']">
+                {{ txn.type === 'income' ? '+' : '-' }}{{ txn.currency || currencySymbol }}{{ formatNumber(txn.amount) }}
+              </td>
+              <td class="py-4 px-4 sm:px-6 text-right whitespace-nowrap">
+                <div class="flex items-center justify-end gap-1">
+                  <!-- Edit button -->
+                  <button @click="openEditTxnModal(txn)" title="Edit Transaction"
+                          class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                  </button>
+                  <!-- Delete button -->
+                  <button @click="confirmDeleteTxn(txn)" title="Delete Transaction"
+                          class="p-1.5 text-on-surface-variant hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </template>
+          <tr v-else>
+            <td colspan="6" class="py-14 text-center text-on-surface-variant">
+              <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
+                <div class="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-outline mb-3">
+                  <span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+                </div>
+                <p class="font-headline text-base font-bold text-on-surface">No transactions found</p>
+                <p class="font-body text-xs text-on-surface-variant mt-1 text-center">
+                  Try adjusting your filters, or record your first income or expense transaction.
+                </p>
+                <div class="flex items-center gap-3 mt-4">
+                  <button @click="openCreateTxnModal('income')"
+                          class="px-3 py-1.5 rounded-xl font-label text-xs font-semibold bg-primary text-on-primary shadow-xs cursor-pointer">
+                    + Add Income
+                  </button>
+                  <button @click="openCreateTxnModal('expense')"
+                          class="px-3 py-1.5 rounded-xl font-label text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 cursor-pointer">
+                    + Add Expense
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table Pagination Footer -->
+    <div v-if="totalPages > 1" class="px-6 py-4 border-t border-outline-variant/40 flex flex-col sm:flex-row items-center justify-between gap-4 bg-surface-container-lowest/30">
+      <div class="font-body text-xs text-on-surface-variant">
+        Page <span class="font-semibold text-on-surface">{{ currentPage }}</span> of <span class="font-semibold text-on-surface">{{ totalPages }}</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button @click="prevPage" :disabled="currentPage === 1"
+                class="px-3 py-1.5 rounded-lg border border-outline-variant/60 font-label text-xs font-semibold text-on-surface disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-container-high transition-colors">
+          Previous
+        </button>
+        <div class="flex items-center gap-1">
+          <button v-for="p in totalPages" :key="p" @click="goToPage(p)"
+                  :class="['w-8 h-8 rounded-lg font-label text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer',
+                           p === currentPage ? 'bg-primary text-on-primary font-bold' : 'text-on-surface hover:bg-surface-container-high']">
+            {{ p }}
+          </button>
+        </div>
+        <button @click="nextPage" :disabled="currentPage === totalPages"
+                class="px-3 py-1.5 rounded-lg border border-outline-variant/60 font-label text-xs font-semibold text-on-surface disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-container-high transition-colors">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Transaction -->
+  <div v-if="isTxnModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+    <div class="bg-surface-container-high border border-outline-variant/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-outline-variant/40 mb-6">
+        <div class="flex items-center gap-3">
+          <div :class="['w-10 h-10 rounded-2xl flex items-center justify-center border',
+                        txnForm.type === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20']">
+            <span class="material-symbols-outlined text-2xl">{{ txnForm.type === 'income' ? 'arrow_downward' : 'arrow_upward' }}</span>
+          </div>
+          <div>
+            <h3 class="font-headline text-xl font-bold text-on-surface">
+              {{ editingTxnId ? 'Edit Transaction' : (txnForm.type === 'income' ? 'Record Income' : 'Record Expense') }}
+            </h3>
+            <p class="font-body text-xs text-on-surface-variant">
+              {{ editingTxnId ? 'Update financial ledger details' : 'Add a new entry to your financial records' }}
+            </p>
+          </div>
+        </div>
+        <button @click="closeTxnModal" class="p-1.5 text-on-surface-variant hover:text-on-surface rounded-xl hover:bg-surface-container-highest cursor-pointer">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Transaction Type Switcher -->
+      <div class="grid grid-cols-2 gap-2 bg-surface-container-low p-1.5 rounded-2xl border border-outline-variant/40 mb-5">
+        <button type="button" @click="switchTxnType('income')"
+                :class="['py-2 rounded-xl font-label text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer',
+                         txnForm.type === 'income' ? 'bg-emerald-500 text-white shadow-sm' : 'text-on-surface-variant hover:text-on-surface']">
+          <span class="material-symbols-outlined text-[18px]">add_circle</span>
+          <span>Income</span>
+        </button>
+        <button type="button" @click="switchTxnType('expense')"
+                :class="['py-2 rounded-xl font-label text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer',
+                         txnForm.type === 'expense' ? 'bg-rose-500 text-white shadow-sm' : 'text-on-surface-variant hover:text-on-surface']">
+          <span class="material-symbols-outlined text-[18px]">remove_circle</span>
+          <span>Expense</span>
+        </button>
+      </div>
+
+      <form @submit.prevent="saveTransaction" class="space-y-4 font-body">
+        <!-- Amount & Date Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-label text-xs font-semibold text-on-surface mb-1">
+              Amount <span class="text-rose-500">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-2.5 font-headline font-bold text-on-surface-variant text-sm">{{ currencySymbol }}</span>
+              <input type="number" step="0.01" min="0.01" v-model="txnForm.amount" required placeholder="0.00"
+                     class="w-full bg-surface-container-low text-on-surface pl-8 pr-3 py-2.5 border border-outline-variant/60 font-headline font-bold text-base rounded-xl focus:ring-2 focus:ring-primary outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-label text-xs font-semibold text-on-surface mb-1">
+              Transaction Date <span class="text-rose-500">*</span>
+            </label>
+            <input type="date" v-model="txnForm.transaction_date" required
+                   class="w-full bg-surface-container-low text-on-surface px-3 py-2.5 border border-outline-variant/60 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-primary outline-none">
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div>
+          <label class="block font-label text-xs font-semibold text-on-surface mb-1">
+            Title / Description <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" v-model="txnForm.title" required placeholder="e.g. AWS Cloud Hosting, Client Project Payment"
+                 class="w-full bg-surface-container-low text-on-surface px-3.5 py-2.5 border border-outline-variant/60 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-primary outline-none">
+        </div>
+
+        <!-- Category Row with Quick Add Button -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block font-label text-xs font-semibold text-on-surface">
+              Category <span class="text-rose-500">*</span>
+            </label>
+            <button type="button" @click="openCreateCatModal(txnForm.type)"
+                    class="font-label text-[11px] text-primary hover:underline flex items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[14px]">add</span>
+              <span>New Category</span>
+            </button>
+          </div>
+          <select v-model="txnForm.category_id" required
+                  class="w-full bg-surface-container-low text-on-surface px-3.5 py-2.5 border border-outline-variant/60 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-primary outline-none">
+            <option value="" disabled>Select a category</option>
+            <option v-for="cat in formCategories" :key="cat.id" :value="cat.id">
+              {{ cat.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Payee or Payer -->
+        <div>
+          <label class="block font-label text-xs font-semibold text-on-surface mb-1">
+            {{ txnForm.type === 'income' ? 'Received From (Payer)' : 'Paid To (Payee)' }}
+          </label>
+          <input type="text" v-model="txnForm.payee_or_payer" :placeholder="txnForm.type === 'income' ? 'e.g. Acme Corp' : 'e.g. Stripe, DigitalOcean'"
+                 class="w-full bg-surface-container-low text-on-surface px-3.5 py-2.5 border border-outline-variant/60 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-primary outline-none">
+        </div>
+
+        <!-- Notes / Memo -->
+        <div>
+          <label class="block font-label text-xs font-semibold text-on-surface mb-1">
+            Internal Notes (Optional)
+          </label>
+          <textarea v-model="txnForm.description" rows="2" placeholder="Reference numbers, invoice links, or memos..."
+                    class="w-full bg-surface-container-low text-on-surface px-3.5 py-2 border border-outline-variant/60 text-xs rounded-xl focus:ring-2 focus:ring-primary outline-none resize-none"></textarea>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/40">
+          <button type="button" @click="closeTxnModal"
+                  class="px-4 py-2.5 rounded-xl font-label text-xs sm:text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest transition-colors cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit" :disabled="savingTxn"
+                  class="px-5 py-2.5 rounded-xl font-label text-xs sm:text-sm font-semibold bg-primary text-on-primary hover:bg-primary/90 shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50">
+            <span v-if="savingTxn" class="material-symbols-outlined text-[18px] animate-spin">sync</span>
+            <span>{{ editingTxnId ? 'Update Record' : 'Save Record' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Quick Add Category -->
+  <div v-if="isCatModalOpen" class="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+    <div class="bg-surface-container-high border border-outline-variant/80 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-center justify-between pb-3 border-b border-outline-variant/40 mb-4">
+        <h4 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[20px]">category</span>
+          <span>New Category</span>
+        </h4>
+        <button @click="closeCatModal" class="p-1 text-on-surface-variant hover:text-on-surface rounded-lg cursor-pointer">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <form @submit.prevent="saveCategory" class="space-y-4 font-body">
+        <div>
+          <label class="block font-label text-xs font-semibold text-on-surface mb-1">
+            Category Name <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" v-model="catForm.name" required placeholder="e.g. Equipment, Legal Fees"
+                 class="w-full bg-surface-container-low text-on-surface px-3 py-2 border border-outline-variant/60 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-primary outline-none">
+        </div>
+
+        <div>
+          <label class="block font-label text-xs font-semibold text-on-surface mb-1">Type</label>
+          <select v-model="catForm.type"
+                  class="w-full bg-surface-container-low text-on-surface px-3 py-2 border border-outline-variant/60 text-xs sm:text-sm rounded-xl focus:ring-2 focus:ring-primary outline-none">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-label text-xs font-semibold text-on-surface mb-1.5">Pick Icon</label>
+          <div class="grid grid-cols-6 gap-2 p-2 bg-surface-container-low rounded-xl border border-outline-variant/40 max-h-36 overflow-y-auto">
+            <button type="button" v-for="icon in availableIcons" :key="icon" @click="catForm.icon = icon"
+                    :class="['p-2 rounded-lg flex items-center justify-center transition-colors cursor-pointer',
+                             catForm.icon === icon ? 'bg-primary text-on-primary shadow-xs' : 'text-on-surface-variant hover:bg-surface-container-high']">
+              <span class="material-symbols-outlined text-[20px]">{{ icon }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-outline-variant/40">
+          <button type="button" @click="closeCatModal"
+                  class="px-3.5 py-2 rounded-xl font-label text-xs font-semibold text-on-surface-variant hover:bg-surface-container-lowest cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit" :disabled="savingCat"
+                  class="px-4 py-2 rounded-xl font-label text-xs font-semibold bg-primary text-on-primary hover:bg-primary/90 shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
+            <span v-if="savingCat" class="material-symbols-outlined text-[16px] animate-spin">sync</span>
+            <span>Create Category</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Delete Confirmation -->
+  <div v-if="isDeleteModalOpen" class="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+    <div class="bg-surface-container-high border border-outline-variant/80 rounded-3xl p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+      <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center mb-4">
+        <span class="material-symbols-outlined text-2xl">delete_forever</span>
+      </div>
+      <h4 class="font-headline text-lg font-bold text-on-surface">Delete Transaction?</h4>
+      <p class="font-body text-xs text-on-surface-variant mt-1.5">
+        Are you sure you want to delete <span class="font-semibold text-on-surface">"{{ txnToDelete?.title }}"</span> ({{ currencySymbol }}{{ formatNumber(txnToDelete?.amount) }})? This action cannot be undone.
+      </p>
+
+      <div class="flex items-center justify-end gap-2.5 mt-6">
+        <button type="button" @click="closeDeleteModal"
+                class="px-4 py-2 rounded-xl font-label text-xs font-semibold text-on-surface-variant hover:bg-surface-container-lowest cursor-pointer">
+          Cancel
+        </button>
+        <button type="button" @click="deleteTransaction" :disabled="deletingTxn"
+                class="px-4 py-2 rounded-xl font-label text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
+          <span v-if="deletingTxn" class="material-symbols-outlined text-[16px] animate-spin">sync</span>
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

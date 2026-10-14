@@ -1,12 +1,14 @@
 <template>
-  <component
-    :is="activeTemplateComponent"
-    :invoice="invoice"
-    :profile="profile"
-    :totals="totals"
-    :currency-symbol="currencySymbol"
-    :format-date="formatDateFn"
-  />
+  <div class="w-full overflow-x-auto min-w-0">
+    <component
+      :is="activeTemplateComponent"
+      :invoice="invoice"
+      :profile="profile"
+      :totals="totals"
+      :currency-symbol="currencySymbol"
+      :format-date="formatDateFn"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">

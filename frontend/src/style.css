@@ -140,3 +140,15 @@
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+
+/* Ensure native select dropdown options have strong contrast in both themes */
+select option {
+  background-color: #ffffff;
+  color: #1f2937;
+}
+
+.dark select option,
+[data-theme='dark'] select option {
+  background-color: #1a221d;
+  color: #f1f5f9;
+}

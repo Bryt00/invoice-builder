@@ -29,12 +29,12 @@
                 All Dispatches
             </h3>
             <!-- Interactive Status Filter Tabs -->
-            <div class="flex items-center gap-1 bg-surface-container-high/60 p-1 rounded-xl border border-outline-variant/40 text-xs font-label font-semibold">
-                <button type="button" @click="setStatusFilter('all')" :class="['px-3 py-1.5 rounded-lg transition-all cursor-pointer', statusFilter === 'all' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface']">All</button>
-                <button type="button" @click="setStatusFilter('paid')" :class="['px-3 py-1.5 rounded-lg transition-all cursor-pointer', statusFilter === 'paid' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface']">Paid</button>
-                <button type="button" @click="setStatusFilter('sent')" :class="['px-3 py-1.5 rounded-lg transition-all cursor-pointer', statusFilter === 'sent' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface']">Sent</button>
-                <button type="button" @click="setStatusFilter('draft')" :class="['px-3 py-1.5 rounded-lg transition-all cursor-pointer', statusFilter === 'draft' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface']">Drafts</button>
-                <button type="button" @click="setStatusFilter('overdue')" :class="['px-3 py-1.5 rounded-lg transition-all cursor-pointer', statusFilter === 'overdue' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface']">Overdue</button>
+            <div class="flex items-center gap-1 bg-surface-container-high/60 p-1 rounded-xl border border-outline-variant/40 text-xs font-label font-semibold overflow-x-auto max-w-full">
+                <button type="button" @click="setStatusFilter('all')" :class="['px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap', statusFilter === 'all' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface']">All</button>
+                <button type="button" @click="setStatusFilter('paid')" :class="['px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap', statusFilter === 'paid' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface']">Paid</button>
+                <button type="button" @click="setStatusFilter('sent')" :class="['px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap', statusFilter === 'sent' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface']">Sent</button>
+                <button type="button" @click="setStatusFilter('draft')" :class="['px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap', statusFilter === 'draft' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface']">Drafts</button>
+                <button type="button" @click="setStatusFilter('overdue')" :class="['px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap', statusFilter === 'overdue' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface']">Overdue</button>
             </div>
         </div>
         

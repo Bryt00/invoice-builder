@@ -260,6 +260,7 @@ func (h *ApiHandler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
 		Items          []models.LineItem `json:"items"`
 		SaveAsDraft    bool              `json:"save_as_draft"`
 		Action         string            `json:"action"`
+		Template       string            `json:"template"`
 	}
 
 	err := h.ReadJSON(w, r, &input)
@@ -416,6 +417,7 @@ func (h *ApiHandler) UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 		SaveAsDraft   bool              `json:"save_as_draft"`
 		Action        string            `json:"action"`
 		Items         []models.LineItem `json:"items"`
+		Template      string            `json:"template"`
 	}
 
 	err := h.ReadJSON(w, r, &input)

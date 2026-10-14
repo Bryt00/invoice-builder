@@ -108,30 +108,92 @@
         </div>
 
         <!-- Top Up Credit Section -->
-        <form @submit.prevent="handleTopup" class="lg:col-span-1 glass-card rounded-2xl p-6 border border-outline-variant/60 flex flex-col justify-between" id="topup">
+        <form @submit.prevent="handleTopup" class="lg:col-span-1 glass-card rounded-2xl p-4 sm:p-6 border border-outline-variant/60 flex flex-col justify-between" id="topup">
             <div>
-                <h3 class="font-headline text-lg font-bold text-on-surface mb-1 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[20px]">add_card</span>
-                    Top Up Credits
-                </h3>
-                <p class="font-body text-xs text-on-surface-variant mb-5">Select a package to replenish your billing balance via Paystack.</p>
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-headline text-base sm:text-lg font-bold text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[20px]">add_card</span>
+                        Top Up Credits
+                    </h3>
+                    <span class="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">Instant</span>
+                </div>
+                <p class="font-body text-xs text-on-surface-variant mb-4">Select a package to replenish your billing balance via Paystack.</p>
 
-                <div class="space-y-3">
+                <div class="space-y-2.5">
                     <div v-if="loadingPackages" class="text-center py-6 text-outline text-sm">Loading packages...</div>
                     <template v-else-if="packages.length > 0">
-                        <label v-for="(pkg, idx) in packages" :key="pkg.id" :class="['flex items-center justify-between p-3.5 rounded-xl cursor-pointer transition-all', pkg.badge_tag ? 'border-2 border-primary bg-primary-container/10' : 'border border-outline-variant/60 bg-surface-container-lowest/60 hover:border-primary']">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" v-model="selectedPackage" :value="pkg.id" class="text-primary focus:ring-primary accent-primary w-4 h-4">
-                                <div>
-                                    <p class="font-label text-sm font-semibold text-on-surface flex items-center gap-2">
-                                        {{ pkg.credits_granted }} Credits
-                                        <span v-if="pkg.badge_tag" class="px-2 py-0.5 text-[10px] uppercase font-bold bg-primary text-on-primary rounded-full">{{ pkg.badge_tag }}</span>
-                                    </p>
-                                    <p class="font-body text-xs text-on-surface-variant">
-                                        {{ pkg.currency }} {{ (pkg.price / 100).toFixed(2) }}
-                                        <span v-if="pkg.description" class="text-primary font-semibold">({{ pkg.description }})</span>
+                        <label
+                            v-for="pkg in packages"
+                            :key="pkg.id"
+                            :class="[
+                                'group relative flex items-center justify-between p-3 sm:p-3.5 rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-200 border text-left',
+                                selectedPackage === pkg.id
+                                    ? 'border-primary bg-primary/10 dark:bg-primary/15 ring-2 ring-primary/30 shadow-xs'
+                                    : 'border-outline-variant/60 bg-surface-container-lowest/70 dark:bg-surface-container-low/40 hover:border-primary/50 hover:bg-surface-container-low/60'
+                            ]"
+                        >
+                            <input
+                                type="radio"
+                                v-model="selectedPackage"
+                                :value="pkg.id"
+                                class="sr-only"
+                                name="credit_package"
+                            />
+
+                            <!-- Left: Custom Radio & Package Details -->
+                            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2">
+                                <!-- Accessible Custom Radio Circle -->
+                                <div
+                                    :class="[
+                                        'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200',
+                                        selectedPackage === pkg.id
+                                            ? 'border-primary bg-primary'
+                                            : 'border-outline-variant/70 dark:border-outline/60 group-hover:border-primary/70 bg-transparent'
+                                    ]"
+                                >
+                                    <span
+                                        v-if="selectedPackage === pkg.id"
+                                        class="w-2 h-2 rounded-full bg-on-primary transition-transform scale-100"
+                                    ></span>
+                                </div>
+
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="font-headline font-bold text-sm sm:text-base text-on-surface">
+                                            {{ pkg.credits_granted }} Credits
+                                        </span>
+                                        <span
+                                            v-if="pkg.badge_tag"
+                                            class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-primary/20 text-primary border border-primary/30 shrink-0"
+                                        >
+                                            {{ pkg.badge_tag }}
+                                        </span>
+                                    </div>
+                                    <p
+                                        v-if="pkg.description"
+                                        class="font-body text-xs text-on-surface-variant truncate max-w-[180px] sm:max-w-xs mt-0.5"
+                                    >
+                                        {{ pkg.description }}
                                     </p>
                                 </div>
+                            </div>
+
+                            <!-- Right: Price & Unit Rate -->
+                            <div class="text-right shrink-0">
+                                <span
+                                    :class="[
+                                        'font-headline font-extrabold text-sm sm:text-base block transition-colors whitespace-nowrap',
+                                        selectedPackage === pkg.id ? 'text-primary' : 'text-on-surface'
+                                    ]"
+                                >
+                                    {{ pkg.currency }} {{ (pkg.price / 100).toFixed(2) }}
+                                </span>
+                                <span
+                                    v-if="pkg.credits_granted > 0"
+                                    class="font-body text-[10px] text-on-surface-variant/75 block whitespace-nowrap"
+                                >
+                                    ~{{ pkg.currency }} {{ (pkg.price / 100 / pkg.credits_granted).toFixed(2) }}/credit
+                                </span>
                             </div>
                         </label>
                     </template>
@@ -142,9 +204,22 @@
                 </div>
             </div>
 
-            <button v-if="packages.length > 0" type="submit" :disabled="purchasing" class="bg-primary hover:bg-on-primary-fixed-variant w-full mt-6 py-3 rounded-xl block text-center font-label text-sm font-semibold text-on-primary cursor-pointer disabled:opacity-50">
-                <span v-if="!purchasing">Purchase Selected Package</span>
-                <span v-else>Processing...</span>
+            <button
+                v-if="packages.length > 0"
+                type="submit"
+                :disabled="purchasing"
+                class="bg-primary hover:bg-on-primary-fixed-variant w-full mt-5 sm:mt-6 py-3 sm:py-3.5 rounded-xl block text-center font-label text-xs sm:text-sm font-bold text-on-primary cursor-pointer disabled:opacity-50 shadow-md transition-all active:scale-[0.99]"
+            >
+                <span v-if="!purchasing && currentSelectedPackage" class="flex items-center justify-center gap-2">
+                    <span>Top Up {{ currentSelectedPackage.credits_granted }} Credits</span>
+                    <span class="opacity-70">•</span>
+                    <span>{{ currentSelectedPackage.currency }} {{ (currentSelectedPackage.price / 100).toFixed(2) }}</span>
+                </span>
+                <span v-else-if="!purchasing">Purchase Selected Package</span>
+                <span v-else class="flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                    <span>Redirecting to Paystack...</span>
+                </span>
             </button>
         </form>
     </div>

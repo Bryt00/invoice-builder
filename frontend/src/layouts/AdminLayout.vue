@@ -105,6 +105,7 @@ const navLinks = [
   { name: 'Payments', path: '/user/admin/payments', icon: 'payments' },
   { name: 'Credits', path: '/user/admin/credits', icon: 'bolt' },
   { name: 'Webhooks', path: '/user/admin/webhooks', icon: 'webhook' },
+  { name: 'System Logs', path: '/user/admin/logs', icon: 'terminal' },
   { name: 'Audit Logs', path: '/user/admin/audit-logs', icon: 'history' },
   { name: 'Settings', path: '/user/admin/settings', icon: 'settings' }
 ]

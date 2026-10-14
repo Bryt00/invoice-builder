@@ -28,9 +28,11 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/jung-kurt/gofpdf v1.16.2 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	github.com/ruudk/golang-pdf417 v0.0.0-20201230142125-a7e3863a1245 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gorm.io/driver/sqlite v1.6.0 // indirect
 )

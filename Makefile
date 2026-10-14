@@ -33,19 +33,19 @@ air:
 build-api:
 	go build -o=/tmp/bin/api ./cmd/api
 
-## build-prod: build the Go API application for production (linux/amd64 statically linked)
+## build-prod: build both Vue 3 frontend and Go binary for production (linux/amd64 statically linked)
 .PHONY: build-prod
-build-prod:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o=./bin/invoice-builder ./cmd/api
+build-prod: build-frontend
+	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o=./bin/invoice-builder ./cmd/api
 
 ## build-frontend: build the Vue 3 SPA production bundle
 .PHONY: build-frontend
 build-frontend:
 	cd frontend && npm run build
 
-## build-all: build both Go API backend and Vue 3 frontend
+## build-all: build both Vue 3 frontend and Go binary
 .PHONY: build-all
-build-all: build-api build-frontend
+build-all: build-frontend build-api
 
 ## test: run all Go unit tests
 .PHONY: test

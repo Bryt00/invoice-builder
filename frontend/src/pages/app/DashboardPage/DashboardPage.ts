@@ -36,6 +36,10 @@ export default defineComponent({
       return Math.round((usd / pur) * 100)
     })
 
+    const currentSelectedPackage = computed(() => {
+      return (packages.value as any[]).find((p: any) => p.id === selectedPackage.value) || null
+    })
+
     function formatDate(dateStr) {
       if (!dateStr) return '-'
       return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
@@ -105,6 +109,7 @@ export default defineComponent({
       loadingPackages,
       packages,
       selectedPackage,
+      currentSelectedPackage,
       purchasing,
       usagePercent,
       formatDate,

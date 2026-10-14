@@ -1,20 +1,20 @@
 <template>
-  <div class="relative w-full bg-white text-slate-900 flex flex-col justify-between overflow-hidden rounded-sm shadow-xl p-6 sm:p-10 border-2 border-slate-800 font-serif aspect-[1/1.35] min-h-[640px] z-0 transition-all">
+  <div class="relative w-full bg-white text-slate-900 flex flex-col justify-between overflow-hidden rounded-sm shadow-xl p-4 sm:p-10 border-2 border-slate-800 font-serif min-h-[500px] sm:min-h-[640px] z-0 transition-all">
     <!-- Watermark Backdrop -->
     <div class="absolute inset-0 z-[-1] flex items-center justify-center pointer-events-none select-none opacity-[0.03]">
       <img v-if="profile?.logo_url" :src="profile.logo_url" class="w-3/4 h-3/4 object-contain grayscale" alt="" />
       <span v-else class="material-symbols-outlined text-[400px]">receipt_long</span>
     </div>
 
-    <div class="space-y-5">
+    <div class="space-y-4 sm:space-y-5">
       <!-- Invoice Header -->
-      <div class="flex justify-between items-start gap-4 pb-5 border-b-4 border-double border-slate-800">
+      <div class="flex justify-between items-start gap-3 sm:gap-4 pb-4 sm:pb-5 border-b-4 border-double border-slate-800">
         <div>
-          <img v-if="profile?.logo_url" :src="profile.logo_url" alt="Logo" class="max-h-14 w-auto mb-2 object-contain" />
-          <div v-else class="w-10 h-10 rounded mb-2 flex items-center justify-center bg-slate-100 text-slate-800">
+          <img v-if="profile?.logo_url" :src="profile.logo_url" alt="Logo" class="max-h-10 sm:max-h-14 w-auto mb-2 object-contain" />
+          <div v-else class="w-9 h-9 sm:w-10 sm:h-10 rounded mb-2 flex items-center justify-center bg-slate-100 text-slate-800">
             <span class="material-symbols-outlined text-[20px]">receipt_long</span>
           </div>
-          <h3 class="text-xl font-bold font-serif text-slate-900 tracking-wide uppercase">
+          <h3 class="text-base sm:text-xl font-bold font-serif text-slate-900 tracking-wide uppercase">
             {{ profile?.company_name || 'Your Company' }}
           </h3>
           <p class="font-body text-xs sm:text-sm text-slate-500 max-w-xs mt-0.5 whitespace-pre-line font-sans">
@@ -22,45 +22,45 @@
           </p>
         </div>
         <div class="text-right space-y-1">
-          <span class="text-2xl sm:text-3xl font-black uppercase block font-serif text-slate-900">
+          <span class="text-xl sm:text-3xl font-black uppercase block font-serif text-slate-900">
             {{ invoice.invoice_number || 'INV-0001' }}
           </span>
-          <div v-if="invoice.status" class="inline-block pt-1 font-sans">
-            <span v-if="invoice.is_paid || invoice.status === 'paid'" class="px-2.5 py-0.5 rounded-sm text-xs font-bold bg-slate-200 text-slate-900 border border-slate-800">PAID</span>
-            <span v-else-if="invoice.status === 'sent'" class="px-2.5 py-0.5 rounded-sm text-xs font-bold bg-amber-500/20 text-amber-800 border border-amber-800">SENT</span>
-            <span v-else-if="invoice.status === 'overdue'" class="px-2.5 py-0.5 rounded-sm text-xs font-bold bg-red-500/20 text-red-900 border border-red-800">OVERDUE</span>
-            <span v-else class="px-2.5 py-0.5 rounded-sm text-xs font-bold bg-slate-100 text-slate-800 border border-slate-400">DRAFT</span>
+          <div v-if="invoice.status" class="inline-block pt-0.5 font-sans">
+            <span v-if="invoice.is_paid || invoice.status === 'paid'" class="px-2.5 py-0.5 rounded-sm text-[11px] sm:text-xs font-bold bg-slate-200 text-slate-900 border border-slate-800">PAID</span>
+            <span v-else-if="invoice.status === 'sent'" class="px-2.5 py-0.5 rounded-sm text-[11px] sm:text-xs font-bold bg-amber-500/20 text-amber-800 border border-amber-800">SENT</span>
+            <span v-else-if="invoice.status === 'overdue'" class="px-2.5 py-0.5 rounded-sm text-[11px] sm:text-xs font-bold bg-red-500/20 text-red-900 border border-red-800">OVERDUE</span>
+            <span v-else class="px-2.5 py-0.5 rounded-sm text-[11px] sm:text-xs font-bold bg-slate-100 text-slate-800 border border-slate-400">DRAFT</span>
           </div>
-          <p class="font-body text-xs sm:text-sm text-slate-600 font-sans">Issue: <span class="font-semibold text-slate-900">{{ formatDate(invoice.issue_date) }}</span></p>
-          <p class="font-body text-xs sm:text-sm text-slate-600 font-sans">Due: <span class="font-semibold text-slate-900">{{ formatDate(invoice.due_date) }}</span></p>
+          <p class="font-body text-[11px] sm:text-sm text-slate-600 font-sans">Issue: <span class="font-semibold text-slate-900">{{ formatDate(invoice.issue_date) }}</span></p>
+          <p class="font-body text-[11px] sm:text-sm text-slate-600 font-sans">Due: <span class="font-semibold text-slate-900">{{ formatDate(invoice.due_date) }}</span></p>
         </div>
       </div>
 
       <!-- Billed To Section -->
-      <div class="p-4 sm:p-5 font-body text-xs sm:text-sm space-y-1 bg-slate-50 border border-slate-800 rounded-none">
-        <span class="text-xs font-bold uppercase tracking-wider block text-slate-800 font-serif">Billed To</span>
-        <p class="font-bold text-base text-slate-900 font-serif">{{ invoice.client_name || invoice.client_email || 'client@company.com' }}</p>
+      <div class="p-3.5 sm:p-5 font-body text-xs sm:text-sm space-y-1 bg-slate-50 border border-slate-800 rounded-none">
+        <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider block text-slate-800 font-serif">Billed To</span>
+        <p class="font-bold text-sm sm:text-base text-slate-900 font-serif">{{ invoice.client_name || invoice.client_email || 'client@company.com' }}</p>
         <p v-if="invoice.client_name && invoice.client_email" class="text-xs text-slate-600 font-sans">{{ invoice.client_email }}</p>
         <p class="text-xs sm:text-sm text-slate-700 whitespace-pre-line font-sans">{{ invoice.client_address || 'Client Address...' }}</p>
       </div>
 
       <!-- Line Items Table -->
-      <div>
+      <div class="overflow-x-auto">
         <table class="w-full text-left font-body text-xs sm:text-sm">
           <thead>
-            <tr class="font-label text-xs uppercase border-y-2 border-slate-800 bg-slate-100 text-slate-900 font-serif">
-              <th class="py-2.5 px-2 w-1/2">Description</th>
-              <th class="py-2.5 px-2 text-center">Qty</th>
-              <th class="py-2.5 px-2 text-right">Price</th>
-              <th class="py-2.5 px-2 text-right">Amount</th>
+            <tr class="font-label text-[11px] sm:text-xs uppercase border-y-2 border-slate-800 bg-slate-100 text-slate-900 font-serif">
+              <th class="py-2 sm:py-2.5 px-2 w-1/2">Description</th>
+              <th class="py-2 sm:py-2.5 px-2 text-center">Qty</th>
+              <th class="py-2 sm:py-2.5 px-2 text-right">Price</th>
+              <th class="py-2 sm:py-2.5 px-2 text-right">Amount</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200">
             <tr v-for="(item, idx) in invoice.items" :key="idx">
-              <td class="py-2.5 px-2 font-medium text-sm text-slate-900">{{ item.description || 'Item description' }}</td>
-              <td class="py-2.5 px-2 text-center text-sm text-slate-700 font-sans">{{ item.quantity || 0 }}</td>
-              <td class="py-2.5 px-2 text-right text-sm text-slate-700 font-sans">{{ currencySymbol }}{{ (item.unit_price || 0).toFixed(2) }}</td>
-              <td class="py-2.5 px-2 text-right font-semibold text-sm text-slate-900 font-sans">{{ currencySymbol }}{{ ((item.quantity || 0) * (item.unit_price || 0)).toFixed(2) }}</td>
+              <td class="py-2 sm:py-2.5 px-2 font-medium text-xs sm:text-sm text-slate-900 break-words max-w-[120px] sm:max-w-none">{{ item.description || 'Item description' }}</td>
+              <td class="py-2 sm:py-2.5 px-2 text-center text-xs sm:text-sm text-slate-700 font-sans">{{ item.quantity || 0 }}</td>
+              <td class="py-2 sm:py-2.5 px-2 text-right text-xs sm:text-sm text-slate-700 font-sans whitespace-nowrap">{{ currencySymbol }}{{ (item.unit_price || 0).toFixed(2) }}</td>
+              <td class="py-2 sm:py-2.5 px-2 text-right font-semibold text-xs sm:text-sm text-slate-900 font-sans whitespace-nowrap">{{ currencySymbol }}{{ ((item.quantity || 0) * (item.unit_price || 0)).toFixed(2) }}</td>
             </tr>
           </tbody>
         </table>
@@ -73,22 +73,22 @@
         <span class="text-xs font-bold uppercase tracking-wider block text-slate-800 font-serif">Notes</span>
         <p class="font-body text-xs sm:text-sm text-slate-600 italic whitespace-pre-line font-sans">{{ invoice.notes || 'Thank you for your business!' }}</p>
       </div>
-      <div class="w-52 p-4 space-y-2 font-body text-xs sm:text-sm shrink-0 bg-slate-50 border border-slate-800 rounded-none font-sans">
-        <div class="flex justify-between text-slate-700">
-          <span>Subtotal</span>
-          <span class="font-semibold text-slate-900">{{ currencySymbol }}{{ totals.subtotal.toFixed(2) }}</span>
+      <div class="w-56 sm:w-64 p-4 space-y-2 font-body text-xs sm:text-sm shrink-0 bg-slate-50 border border-slate-800 rounded-none font-sans">
+        <div class="flex justify-between items-center text-slate-700 gap-2">
+          <span class="whitespace-nowrap">Subtotal</span>
+          <span class="font-semibold text-slate-900 whitespace-nowrap">{{ currencySymbol }}{{ totals.subtotal.toFixed(2) }}</span>
         </div>
-        <div class="flex justify-between text-slate-700">
-          <span>Tax</span>
-          <span class="font-semibold text-slate-900">{{ currencySymbol }}{{ totals.tax.toFixed(2) }}</span>
+        <div class="flex justify-between items-center text-slate-700 gap-2">
+          <span class="whitespace-nowrap">Tax</span>
+          <span class="font-semibold text-slate-900 whitespace-nowrap">{{ currencySymbol }}{{ totals.tax.toFixed(2) }}</span>
         </div>
-        <div class="flex justify-between text-slate-700">
-          <span>Discount</span>
-          <span class="font-semibold text-slate-900">{{ currencySymbol }}{{ totals.discount.toFixed(2) }}</span>
+        <div class="flex justify-between items-center text-slate-700 gap-2">
+          <span class="whitespace-nowrap">Discount</span>
+          <span class="font-semibold text-slate-900 whitespace-nowrap">{{ currencySymbol }}{{ totals.discount.toFixed(2) }}</span>
         </div>
-        <div class="flex justify-between items-center pt-2.5 text-slate-900 border-t-2 border-b-4 border-double border-slate-900 font-serif">
-          <span class="font-bold">Total Due</span>
-          <span class="font-black text-lg sm:text-xl text-slate-900">{{ currencySymbol }}{{ totals.total.toFixed(2) }}</span>
+        <div class="flex justify-between items-center pt-2.5 text-slate-900 border-t-2 border-b-4 border-double border-slate-900 font-serif gap-2">
+          <span class="font-bold whitespace-nowrap">Total Due</span>
+          <span class="font-black text-base sm:text-lg text-slate-900 whitespace-nowrap tracking-tight">{{ currencySymbol }}{{ totals.total.toFixed(2) }}</span>
         </div>
       </div>
     </div>

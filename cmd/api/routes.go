@@ -6,19 +6,33 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
+	"raven.go.invoice-builder/frontend"
 	"raven.go.invoice-builder/ui"
 )
 
 func (app *application) routes() http.Handler {
 	mux := httprouter.New()
 
+	// Vue SPA Handler: serves live disk files (./frontend/dist) if present, or embedded files
+	spa := frontend.NewHandler("./frontend/dist")
+
 	mux.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		app.apiHandler.NotFoundResponse(w, r)
+		// Keep JSON 404 responses for API endpoints
+		if strings.HasPrefix(r.URL.Path, "/api/") {
+			app.apiHandler.NotFoundResponse(w, r)
+			return
+		}
+
+		// Delegate all other routes and static frontend files to Vue SPA
+		spa.ServeHTTP(w, r)
 	})
 
 	mux.MethodNotAllowed = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		app.apiHandler.ErrorResponse(w, r, http.StatusMethodNotAllowed, "method not allowed")
 	})
+
+	// Explicit root handler
+	mux.Handler(http.MethodGet, "/", spa)
 
 	// Static asset server (logos, uploaded files)
 	fileServer := http.FileServer(http.FS(ui.Files))
@@ -81,6 +95,8 @@ func (app *application) routes() http.Handler {
 
 	// Finance API Endpoints
 	mux.Handler(http.MethodGet, "/api/v1/finance/transactions", apiProtected.ThenFunc(app.apiHandler.GetFinanceTransactions))
+	mux.Handler(http.MethodPut, "/api/v1/finance/transactions", apiProtected.ThenFunc(app.apiHandler.UpdateFinanceTransaction))
+	mux.Handler(http.MethodGet, "/api/v1/finance/analytics", apiProtected.ThenFunc(app.apiHandler.GetFinanceAnalytics))
 	mux.Handler(http.MethodGet, "/api/v1/finance/export", apiProtected.ThenFunc(app.apiHandler.ExportFinanceTransactionsCSV))
 	mux.Handler(http.MethodPost, "/api/v1/finance/transactions", apiProtected.ThenFunc(app.apiHandler.CreateFinanceTransaction))
 	mux.Handler(http.MethodPost, "/api/v1/finance/transactions/delete", apiProtected.ThenFunc(app.apiHandler.DeleteFinanceTransaction))
@@ -105,13 +121,33 @@ func (app *application) routes() http.Handler {
 	// Admin Users
 	mux.Handler(http.MethodGet, adminBasePath+"/users", apiAdmin.ThenFunc(app.apiHandler.AdminGetUsers))
 	mux.Handler(http.MethodPost, adminBasePath+"/users", apiAdmin.ThenFunc(app.apiHandler.AdminCreateUser))
-	mux.Handler(http.MethodGet, adminBasePath+"/users/export", apiAdmin.ThenFunc(app.apiHandler.AdminExportUsersCSV))
-	mux.Handler(http.MethodGet, adminBasePath+"/users/:id", apiAdmin.ThenFunc(app.apiHandler.AdminGetUser))
+	mux.Handler(http.MethodGet, adminBasePath+"/users/:id", apiAdmin.ThenFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/export") {
+			app.apiHandler.AdminExportUsersCSV(w, r)
+			return
+		}
+		app.apiHandler.AdminGetUser(w, r)
+	}))
 	mux.Handler(http.MethodPut, adminBasePath+"/users", apiAdmin.ThenFunc(app.apiHandler.AdminUpdateUser))
 	mux.Handler(http.MethodDelete, adminBasePath+"/users/:id", apiAdmin.ThenFunc(app.apiHandler.AdminDeleteUser))
-	mux.Handler(http.MethodPost, adminBasePath+"/users/:id/impersonate", apiAdmin.ThenFunc(app.apiHandler.AdminImpersonateUser))
-	mux.Handler(http.MethodPost, adminBasePath+"/users/credits", apiAdmin.ThenFunc(app.apiHandler.AdminGrantCredits))
-	mux.Handler(http.MethodPost, adminBasePath+"/users/password-reset", apiAdmin.ThenFunc(app.apiHandler.AdminForcePasswordReset))
+	mux.Handler(http.MethodPost, adminBasePath+"/users/:id", apiAdmin.ThenFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/credits") {
+			app.apiHandler.AdminGrantCredits(w, r)
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, "/password-reset") {
+			app.apiHandler.AdminForcePasswordReset(w, r)
+			return
+		}
+		app.apiHandler.NotFoundResponse(w, r)
+	}))
+	mux.Handler(http.MethodPost, adminBasePath+"/users/:id/:action", apiAdmin.ThenFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/impersonate") {
+			app.apiHandler.AdminImpersonateUser(w, r)
+			return
+		}
+		app.apiHandler.NotFoundResponse(w, r)
+	}))
 
 	// Admin Packages
 	mux.Handler(http.MethodGet, adminBasePath+"/packages", apiAdmin.ThenFunc(app.apiHandler.AdminGetPackages))
@@ -132,6 +168,11 @@ func (app *application) routes() http.Handler {
 	// Admin Webhooks
 	mux.Handler(http.MethodGet, adminBasePath+"/webhooks", apiAdmin.ThenFunc(app.apiHandler.AdminGetWebhooks))
 	mux.Handler(http.MethodPost, adminBasePath+"/webhooks/:id/replay", apiAdmin.ThenFunc(app.apiHandler.AdminReplayWebhook))
+
+	// Admin System Logs (Structured SQLite Store)
+	mux.Handler(http.MethodGet, adminBasePath+"/system-logs", apiAdmin.ThenFunc(app.apiHandler.AdminGetSystemLogs))
+	mux.Handler(http.MethodGet, adminBasePath+"/system-logs/stats", apiAdmin.ThenFunc(app.apiHandler.AdminGetSystemLogStats))
+	mux.Handler(http.MethodDelete, adminBasePath+"/system-logs", apiAdmin.ThenFunc(app.apiHandler.AdminClearSystemLogs))
 
 	// Admin Settings
 	mux.Handler(http.MethodGet, adminBasePath+"/settings", apiAdmin.ThenFunc(app.apiHandler.AdminGetSettings))

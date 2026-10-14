@@ -37,6 +37,9 @@ func (m *AuditLogModel) Record(ctx context.Context, log *AuditLog) error {
 	if log.CreatedAt.IsZero() {
 		log.CreatedAt = time.Now()
 	}
+	if log.Metadata == "" {
+		log.Metadata = "{}"
+	}
 	return m.DB.WithContext(ctx).Create(log).Error
 }
 

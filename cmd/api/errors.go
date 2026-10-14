@@ -2,7 +2,10 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+
+	"raven.go.invoice-builder/internal/systemlog"
 )
 
 var (
@@ -47,6 +50,13 @@ func (h *ApiHandler) LogApiError(r *http.Request, err error) {
 		h.JsonLogger.PrintError(err, map[string]string{
 			"request_method": r.Method,
 			"request_url":    r.URL.String(),
+		})
+	}
+	if sys := systemlog.Get(); sys != nil {
+		sys.Error("API", fmt.Sprintf("%s %s failed", r.Method, r.URL.Path), err, map[string]string{
+			"method": r.Method,
+			"url":    r.URL.String(),
+			"ip":     getClientIP(r),
 		})
 	}
 }
